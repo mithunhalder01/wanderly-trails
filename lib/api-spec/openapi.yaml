@@ -1,22 +1,34 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Wanderly Trails Travel Website API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: destinations
+    description: Travel destinations
+  - name: packages
+    description: Travel packages
+  - name: bookings
+    description: Bookings
+  - name: blog
+    description: Blog posts
+  - name: testimonials
+    description: Customer testimonials
+  - name: newsletter
+    description: Newsletter subscriptions
+  - name: contact
+    description: Contact form
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,405 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /destinations:
+    get:
+      operationId: listDestinations
+      tags: [destinations]
+      summary: List all destinations
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of destinations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Destination"
+
+  /destinations/featured:
+    get:
+      operationId: listFeaturedDestinations
+      tags: [destinations]
+      summary: List featured destinations for homepage
+      responses:
+        "200":
+          description: Featured destinations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Destination"
+
+  /destinations/{id}:
+    get:
+      operationId: getDestination
+      tags: [destinations]
+      summary: Get a destination by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Destination detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Destination"
+        "404":
+          description: Not found
+
+  /packages:
+    get:
+      operationId: listPackages
+      tags: [packages]
+      summary: List all packages
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: minPrice
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: maxPrice
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: duration
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of packages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Package"
+    post:
+      operationId: createPackage
+      tags: [packages]
+      summary: Create a new package (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PackageInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Package"
+
+  /packages/featured:
+    get:
+      operationId: listFeaturedPackages
+      tags: [packages]
+      summary: Featured packages for homepage
+      responses:
+        "200":
+          description: Featured packages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Package"
+
+  /packages/stats:
+    get:
+      operationId: getPackageStats
+      tags: [packages]
+      summary: Aggregated stats about packages
+      responses:
+        "200":
+          description: Package statistics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PackageStats"
+
+  /packages/{id}:
+    get:
+      operationId: getPackage
+      tags: [packages]
+      summary: Get a package by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Package detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Package"
+        "404":
+          description: Not found
+    put:
+      operationId: updatePackage
+      tags: [packages]
+      summary: Update a package (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PackageInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Package"
+    delete:
+      operationId: deletePackage
+      tags: [packages]
+      summary: Delete a package (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /packages/{id}/related:
+    get:
+      operationId: getRelatedPackages
+      tags: [packages]
+      summary: Get related packages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Related packages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Package"
+
+  /bookings:
+    get:
+      operationId: listBookings
+      tags: [bookings]
+      summary: List all bookings (admin)
+      responses:
+        "200":
+          description: List of bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Booking"
+    post:
+      operationId: createBooking
+      tags: [bookings]
+      summary: Create a new booking
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookingInput"
+      responses:
+        "201":
+          description: Booking created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+
+  /bookings/{id}:
+    get:
+      operationId: getBooking
+      tags: [bookings]
+      summary: Get a booking by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Booking detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Booking"
+        "404":
+          description: Not found
+
+  /blog:
+    get:
+      operationId: listBlogPosts
+      tags: [blog]
+      summary: List blog posts
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of blog posts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/BlogPost"
+    post:
+      operationId: createBlogPost
+      tags: [blog]
+      summary: Create a blog post (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlogPostInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlogPost"
+
+  /blog/{id}:
+    get:
+      operationId: getBlogPost
+      tags: [blog]
+      summary: Get a blog post by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Blog post detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BlogPost"
+        "404":
+          description: Not found
+
+  /testimonials:
+    get:
+      operationId: listTestimonials
+      tags: [testimonials]
+      summary: List testimonials
+      responses:
+        "200":
+          description: Testimonials list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Testimonial"
+    post:
+      operationId: createTestimonial
+      tags: [testimonials]
+      summary: Create a testimonial (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TestimonialInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Testimonial"
+
+  /newsletter:
+    post:
+      operationId: subscribeNewsletter
+      tags: [newsletter]
+      summary: Subscribe to newsletter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewsletterInput"
+      responses:
+        "201":
+          description: Subscribed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NewsletterSubscription"
+
+  /contact:
+    post:
+      operationId: submitContact
+      tags: [contact]
+      summary: Submit contact form
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactInput"
+      responses:
+        "201":
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactMessage"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +445,310 @@ components:
       required:
         - status
 
+    Destination:
+      type: object
+      required: [id, name, country, description, imageUrl, category, startingPrice, rating, bestSeason]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        country:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+        category:
+          type: string
+        startingPrice:
+          type: integer
+        rating:
+          type: number
+        bestSeason:
+          type: string
+        weather:
+          type: ["string", "null"]
+        featured:
+          type: boolean
+
+    Package:
+      type: object
+      required: [id, title, destinationId, destinationName, imageUrl, price, duration, nights, category, rating, hotelStars, mealsIncluded, transportIncluded, description, featured]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        destinationId:
+          type: integer
+        destinationName:
+          type: string
+        imageUrl:
+          type: string
+        price:
+          type: integer
+        duration:
+          type: integer
+        nights:
+          type: integer
+        category:
+          type: string
+        rating:
+          type: number
+        hotelStars:
+          type: integer
+        mealsIncluded:
+          type: boolean
+        transportIncluded:
+          type: boolean
+        description:
+          type: string
+        itinerary:
+          type: ["string", "null"]
+        includedItems:
+          type: ["string", "null"]
+        excludedItems:
+          type: ["string", "null"]
+        featured:
+          type: boolean
+
+    PackageInput:
+      type: object
+      required: [title, destinationId, price, duration, nights, category, hotelStars, mealsIncluded, transportIncluded, description]
+      properties:
+        title:
+          type: string
+        destinationId:
+          type: integer
+        imageUrl:
+          type: string
+        price:
+          type: integer
+        duration:
+          type: integer
+        nights:
+          type: integer
+        category:
+          type: string
+        hotelStars:
+          type: integer
+        mealsIncluded:
+          type: boolean
+        transportIncluded:
+          type: boolean
+        description:
+          type: string
+        itinerary:
+          type: string
+        includedItems:
+          type: string
+        excludedItems:
+          type: string
+        featured:
+          type: boolean
+
+    PackageStats:
+      type: object
+      required: [totalPackages, totalDestinations, avgPrice, totalBookings, categoryCounts]
+      properties:
+        totalPackages:
+          type: integer
+        totalDestinations:
+          type: integer
+        avgPrice:
+          type: integer
+        totalBookings:
+          type: integer
+        categoryCounts:
+          type: array
+          items:
+            type: object
+            required: [category, count]
+            properties:
+              category:
+                type: string
+              count:
+                type: integer
+
+    Booking:
+      type: object
+      required: [id, name, email, phone, destination, travelers, budget, travelDate, status, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        destination:
+          type: string
+        packageId:
+          type: ["integer", "null"]
+        travelers:
+          type: integer
+        budget:
+          type: string
+        travelDate:
+          type: string
+        specialRequests:
+          type: ["string", "null"]
+        status:
+          type: string
+        createdAt:
+          type: string
+
+    BookingInput:
+      type: object
+      required: [name, email, phone, destination, travelers, budget, travelDate]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        destination:
+          type: string
+        packageId:
+          type: integer
+        travelers:
+          type: integer
+        budget:
+          type: string
+        travelDate:
+          type: string
+        specialRequests:
+          type: string
+
+    BlogPost:
+      type: object
+      required: [id, title, excerpt, content, imageUrl, category, author, publishedAt, readTime]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        excerpt:
+          type: string
+        content:
+          type: string
+        imageUrl:
+          type: string
+        category:
+          type: string
+        author:
+          type: string
+        publishedAt:
+          type: string
+        readTime:
+          type: integer
+
+    BlogPostInput:
+      type: object
+      required: [title, excerpt, content, imageUrl, category, author, readTime]
+      properties:
+        title:
+          type: string
+        excerpt:
+          type: string
+        content:
+          type: string
+        imageUrl:
+          type: string
+        category:
+          type: string
+        author:
+          type: string
+        readTime:
+          type: integer
+
+    Testimonial:
+      type: object
+      required: [id, name, location, rating, review, avatarUrl, packageName]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        location:
+          type: string
+        rating:
+          type: integer
+        review:
+          type: string
+        avatarUrl:
+          type: string
+        packageName:
+          type: string
+
+    TestimonialInput:
+      type: object
+      required: [name, location, rating, review, avatarUrl, packageName]
+      properties:
+        name:
+          type: string
+        location:
+          type: string
+        rating:
+          type: integer
+        review:
+          type: string
+        avatarUrl:
+          type: string
+        packageName:
+          type: string
+
+    NewsletterInput:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+
+    NewsletterSubscription:
+      type: object
+      required: [id, email, subscribedAt]
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+        subscribedAt:
+          type: string
+
+    ContactInput:
+      type: object
+      required: [name, email, phone, message]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        subject:
+          type: string
+        message:
+          type: string
+
+    ContactMessage:
+      type: object
+      required: [id, name, email, message, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        subject:
+          type: ["string", "null"]
+        message:
+          type: string
+        createdAt:
+          type: string
