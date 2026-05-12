@@ -36,9 +36,11 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-md">
-              <Compass className="w-5 h-5 text-white" />
-            </div>
+            <img
+              src="/logo.png"
+              alt="Wanderly Trails"
+              className={`h-10 w-10 rounded-full object-cover shadow-md transition-all ${solid ? "" : "brightness-110"}`}
+            />
             <span className={`text-xl font-serif font-bold tracking-tight transition-colors ${solid ? "text-foreground" : "text-white"}`}>
               Wanderly<span className="text-accent">Trails</span>
             </span>
