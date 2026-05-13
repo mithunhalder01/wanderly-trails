@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
-import { Search, ChevronRight, Star, Users, Award, Shield, Headphones, MapPin, Plane, Mountain, Heart, Crown, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
-  featuredDestinations,
-  featuredPackages,
-  testimonials,
-  blogPosts,
-} from "@/data/staticData";
+  Search, ChevronRight, Star, Users, Award, Shield,
+  Headphones, MapPin, Plane, Mountain, Heart, Crown,
+  ArrowRight, CheckCircle, Phone, Globe, TrendingUp, Sparkles
+} from "lucide-react";
+import { featuredDestinations, featuredPackages, testimonials, blogPosts } from "@/data/staticData";
 import DestinationCard from "@/components/DestinationCard";
 import PackageCard from "@/components/PackageCard";
 import TestimonialCard from "@/components/TestimonialCard";
@@ -17,27 +16,77 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 
-const heroImages = [
-  "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80",
-  "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80",
-  "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=1920&q=80",
+const WHATSAPP_NUMBER = "911234567890";
+
+const heroSlides = [
+  {
+    img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80",
+    tag: "🏖️ Beach Getaways",
+    title: "Discover Your",
+    highlight: "Dream Destination",
+    sub: "Curated packages for every traveler — from Goa beaches to Bali villas.",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80",
+    tag: "🏔️ Mountain Escapes",
+    title: "Escape Into",
+    highlight: "Pure Adventure",
+    sub: "Trek through Kashmir, Ladakh & the Himalayas with expert local guides.",
+  },
+  {
+    img: "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=1920&q=80",
+    tag: "💑 Honeymoon Specials",
+    title: "Create",
+    highlight: "Lifelong Memories",
+    sub: "Romantic escapes in Bali, Maldives & Europe — tailored just for two.",
+  },
+];
+
+const stats = [
+  { num: 5000, suffix: "+", label: "Happy Travelers", icon: Users },
+  { num: 120, suffix: "+", label: "Destinations", icon: Globe },
+  { num: 4.9, suffix: "★", label: "Average Rating", icon: Star },
+  { num: 10, suffix: "+", label: "Years Experience", icon: Award },
 ];
 
 const categories = [
-  { label: "Adventure", icon: Mountain, color: "bg-orange-50 text-orange-600 hover:bg-orange-100" },
-  { label: "Honeymoon", icon: Heart, color: "bg-pink-50 text-pink-600 hover:bg-pink-100" },
-  { label: "Family", icon: Users, color: "bg-blue-50 text-blue-600 hover:bg-blue-100" },
-  { label: "Solo", icon: Plane, color: "bg-green-50 text-green-600 hover:bg-green-100" },
-  { label: "Luxury", icon: Crown, color: "bg-purple-50 text-purple-600 hover:bg-purple-100" },
+  { label: "Adventure", icon: Mountain, color: "from-orange-400 to-orange-600", bg: "bg-orange-50 hover:bg-orange-100 text-orange-700" },
+  { label: "Honeymoon", icon: Heart, color: "from-pink-400 to-rose-600", bg: "bg-pink-50 hover:bg-pink-100 text-pink-700" },
+  { label: "Family", icon: Users, color: "from-blue-400 to-blue-600", bg: "bg-blue-50 hover:bg-blue-100 text-blue-700" },
+  { label: "Solo", icon: Plane, color: "from-green-400 to-emerald-600", bg: "bg-green-50 hover:bg-green-100 text-green-700" },
+  { label: "Luxury", icon: Crown, color: "from-purple-400 to-purple-700", bg: "bg-purple-50 hover:bg-purple-100 text-purple-700" },
 ];
 
 const whyUs = [
-  { icon: Award, title: "Affordable Packages", desc: "Best prices guaranteed with no hidden charges" },
-  { icon: Users, title: "Trusted Guides", desc: "Expert local guides with 10+ years of experience" },
-  { icon: Headphones, title: "24/7 Support", desc: "Round-the-clock customer support for all travelers" },
-  { icon: Shield, title: "Safe Journey", desc: "Fully insured trips with safety protocols in place" },
-  { icon: Star, title: "Best Hotels", desc: "Curated 4-5 star hotels at every destination" },
+  { icon: Award, title: "Best Price Guarantee", desc: "No hidden charges — what you see is what you pay." },
+  { icon: Users, title: "Expert Local Guides", desc: "10+ years experienced guides at every destination." },
+  { icon: Headphones, title: "24/7 WhatsApp Support", desc: "Instant help anytime, anywhere on WhatsApp." },
+  { icon: Shield, title: "Fully Insured Trips", desc: "Your safety is our top priority on every journey." },
+  { icon: TrendingUp, title: "5000+ Happy Trips", desc: "A track record you can trust for your next adventure." },
 ];
+
+function AnimatedNumber({ target, suffix }: { target: number; suffix: string }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (!inView) return;
+    const isDecimal = target % 1 !== 0;
+    const duration = 1500;
+    const steps = 40;
+    const increment = target / steps;
+    let current = 0;
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= target) { setCount(target); clearInterval(timer); }
+      else setCount(isDecimal ? parseFloat(current.toFixed(1)) : Math.floor(current));
+    }, duration / steps);
+    return () => clearInterval(timer);
+  }, [inView, target]);
+
+  return <span ref={ref}>{count}{suffix}</span>;
+}
 
 const newsletterSchema = z.object({ email: z.string().email("Enter a valid email") });
 type NewsletterForm = z.infer<typeof newsletterSchema>;
@@ -46,19 +95,24 @@ export default function Home() {
   const [heroIdx, setHeroIdx] = useState(0);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [, setLocation] = useLocation();
+  const [searchDest, setSearchDest] = useState("");
   const { toast } = useToast();
-
   const form = useForm<NewsletterForm>({ resolver: zodResolver(newsletterSchema), defaultValues: { email: "" } });
 
   useEffect(() => {
-    const t = setInterval(() => setHeroIdx((i) => (i + 1) % heroImages.length), 5000);
+    const t = setInterval(() => setHeroIdx((i) => (i + 1) % heroSlides.length), 5500);
     return () => clearInterval(t);
   }, []);
 
   useEffect(() => {
-    const t = setInterval(() => setTestimonialIdx((i) => (i + 1) % Math.ceil(testimonials.length / 3)), 4000);
+    const t = setInterval(() => setTestimonialIdx((i) => (i + 1) % Math.ceil(testimonials.length / 3)), 4500);
     return () => clearInterval(t);
   }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLocation(`/packages${searchDest ? `?destination=${encodeURIComponent(searchDest)}` : ""}`);
+  };
 
   const onSubscribe = (data: NewsletterForm) => {
     toast({ title: "Subscribed!", description: "You'll receive our latest travel deals." });
@@ -66,66 +120,89 @@ export default function Home() {
     void data;
   };
 
-  const [searchDest, setSearchDest] = useState("");
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLocation(`/packages${searchDest ? `?destination=${encodeURIComponent(searchDest)}` : ""}`);
-  };
+  const slide = heroSlides[heroIdx];
 
   return (
-    <div>
-      {/* Hero */}
-      <section className="relative h-screen min-h-[600px] flex items-center">
+    <div className="overflow-x-hidden">
+
+      {/* ─── HERO ─── */}
+      <section className="relative h-screen min-h-[650px] flex items-center">
         <AnimatePresence mode="wait">
           <motion.div
             key={heroIdx}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, scale: 1.04 }}
+            animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 1 }}
+            transition={{ duration: 1.1 }}
             className="absolute inset-0"
           >
-            <img src={heroImages[heroIdx]} alt="hero" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
+            <img src={slide.img} alt="hero" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-black/70" />
           </motion.div>
         </AnimatePresence>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 text-center">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.7 }}>
-            <span className="inline-block bg-accent/90 text-white text-xs font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-6">
-              Adventure Starts Here
-            </span>
-            <h1 className="text-5xl md:text-7xl font-serif font-bold text-white mb-6 leading-tight">
-              Discover Your<br />
-              <span className="text-accent">Next Adventure</span>
-            </h1>
-            <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-10">
-              Explore breathtaking destinations worldwide with curated packages designed for unforgettable experiences.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Link href="/packages" data-testid="hero-explore-btn" className="bg-accent text-white font-bold px-8 py-4 rounded-2xl shadow-xl hover:bg-accent/90 transition-all hover:shadow-2xl hover:-translate-y-0.5 text-lg">
-                Explore Packages
-              </Link>
-              <Link href="/destinations" className="bg-white/20 backdrop-blur-sm text-white font-bold px-8 py-4 rounded-2xl border border-white/30 hover:bg-white/30 transition-all text-lg">
-                View Destinations
-              </Link>
-            </div>
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 text-center">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={heroIdx}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.7 }}
+            >
+              <span className="inline-block bg-white/15 backdrop-blur-md border border-white/25 text-white text-xs font-bold tracking-widest uppercase px-5 py-2 rounded-full mb-7">
+                {slide.tag}
+              </span>
+              <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif font-bold text-white mb-5 leading-[1.05]">
+                {slide.title}<br />
+                <span className="text-accent italic">{slide.highlight}</span>
+              </h1>
+              <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+                {slide.sub}
+              </p>
+            </motion.div>
+          </AnimatePresence>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
+          >
+            <Link
+              href="/packages"
+              data-testid="hero-explore-btn"
+              className="bg-accent text-white font-bold px-9 py-4 rounded-2xl shadow-2xl hover:bg-accent/90 transition-all hover:-translate-y-1 text-lg"
+            >
+              Explore Packages
+            </Link>
+            <a
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I want to plan a custom trip with Wanderly Trails.")}`}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center justify-center gap-2 bg-[#25D366] text-white font-bold px-9 py-4 rounded-2xl shadow-2xl hover:bg-[#20bd5c] transition-all hover:-translate-y-1 text-lg"
+            >
+              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-white shrink-0">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              Plan on WhatsApp
+            </a>
           </motion.div>
 
-          {/* Search */}
+          {/* Search bar */}
           <motion.form
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.7 }}
+            transition={{ delay: 0.55 }}
             onSubmit={handleSearch}
-            className="bg-white/95 backdrop-blur-md rounded-2xl p-4 md:p-6 shadow-2xl max-w-3xl mx-auto flex flex-col md:flex-row gap-4"
+            className="bg-white/95 backdrop-blur-md rounded-2xl p-3 shadow-2xl max-w-2xl mx-auto flex gap-2"
           >
-            <div className="flex-1 flex items-center gap-3 border border-border rounded-xl px-4 py-3">
-              <MapPin className="w-5 h-5 text-muted-foreground" />
+            <div className="flex-1 flex items-center gap-3 px-4 py-2.5">
+              <MapPin className="w-5 h-5 text-muted-foreground shrink-0" />
               <input
                 value={searchDest}
                 onChange={(e) => setSearchDest(e.target.value)}
-                placeholder="Where do you want to go?"
+                placeholder="Where do you want to go? e.g. Goa, Bali…"
                 data-testid="input-search-destination"
                 className="flex-1 bg-transparent outline-none text-sm text-foreground placeholder:text-muted-foreground"
               />
@@ -133,140 +210,220 @@ export default function Home() {
             <button
               type="submit"
               data-testid="btn-search-trips"
-              className="bg-primary text-white font-bold px-8 py-3 rounded-xl hover:bg-primary/90 transition-colors flex items-center gap-2 justify-center"
+              className="bg-primary text-white font-bold px-7 py-3 rounded-xl hover:bg-primary/90 transition-colors flex items-center gap-2 shrink-0"
             >
-              <Search className="w-5 h-5" /> Search Trips
+              <Search className="w-4 h-4" /> Search
             </button>
           </motion.form>
         </div>
 
-        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-10">
-          {heroImages.map((_, i) => (
-            <button key={i} onClick={() => setHeroIdx(i)} className={`w-2.5 h-2.5 rounded-full transition-all ${i === heroIdx ? "bg-white w-7" : "bg-white/40"}`} />
-          ))}
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="bg-primary py-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
-            {[
-              { num: "5000+", label: "Happy Travelers" },
-              { num: "120+", label: "Destinations" },
-              { num: "4.9", label: "Average Rating" },
-              { num: "10+", label: "Years Experience" },
-            ].map((s) => (
-              <div key={s.label}>
-                <p className="text-3xl md:text-4xl font-serif font-bold">{s.num}</p>
-                <p className="text-white/70 text-sm mt-1">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Destinations */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="flex items-end justify-between mb-12">
-          <SectionHeading
-            badge="Top Picks"
-            title="Featured Destinations"
-            subtitle="Handpicked destinations that offer extraordinary experiences"
-            center={false}
-          />
-          <Link href="/destinations" className="hidden md:flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all">
-            View All <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {featuredDestinations.map((d, i) => <DestinationCard key={d.id} destination={d} index={i} />)}
-        </div>
-      </section>
-
-      {/* Popular Packages */}
-      <section className="py-20 bg-muted/40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-12">
-            <SectionHeading
-              badge="Best Sellers"
-              title="Popular Packages"
-              subtitle="Our most loved travel packages with everything included"
-              center={false}
+        {/* Slide indicators */}
+        <div className="absolute bottom-8 left-0 right-0 flex justify-center gap-2 z-10">
+          {heroSlides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setHeroIdx(i)}
+              className={`h-1.5 rounded-full transition-all duration-500 ${i === heroIdx ? "bg-white w-10" : "bg-white/40 w-4"}`}
             />
-            <Link href="/packages" className="hidden md:flex items-center gap-2 text-primary font-semibold hover:gap-3 transition-all">
-              View All <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredPackages.map((p, i) => <PackageCard key={p.id} pkg={p} index={i} />)}
-          </div>
-        </div>
-      </section>
-
-      {/* Travel Categories */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <SectionHeading badge="Explore By" title="Travel Categories" subtitle="Find the perfect trip style for your next adventure" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-12">
-          {categories.map(({ label, icon: Icon, color }) => (
-            <Link
-              key={label}
-              href={`/packages?category=${label}`}
-              data-testid={`btn-category-${label.toLowerCase()}`}
-              className={`${color} flex flex-col items-center gap-3 py-8 px-4 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-md`}
-            >
-              <Icon className="w-8 h-8" />
-              <span className="font-semibold text-sm">{label}</span>
-            </Link>
           ))}
         </div>
+
+        {/* Scroll hint */}
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ repeat: Infinity, duration: 2 }}
+          className="absolute bottom-8 right-8 hidden md:flex flex-col items-center gap-1 text-white/50 text-xs"
+        >
+          <span>Scroll</span>
+          <div className="w-px h-8 bg-white/30" />
+        </motion.div>
       </section>
 
-      {/* Why Choose Us */}
-      <section className="py-20 bg-secondary text-secondary-foreground">
+      {/* ─── TRUST BAR ─── */}
+      <section className="bg-primary py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SectionHeading badge="Why Us" title="Why Choose Wanderly Trails" subtitle="We make every trip extraordinary" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-12">
-            {whyUs.map(({ icon: Icon, title, desc }) => (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center text-white">
+            {stats.map((s) => (
               <motion.div
-                key={title}
-                initial={{ opacity: 0, y: 20 }}
+                key={s.label}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/20 transition-colors"
+                className="space-y-1"
               >
-                <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center mx-auto mb-4">
-                  <Icon className="w-7 h-7 text-accent" />
+                <div className="flex justify-center mb-2">
+                  <div className="w-10 h-10 rounded-full bg-white/15 flex items-center justify-center">
+                    <s.icon className="w-5 h-5 text-white" />
+                  </div>
                 </div>
-                <h3 className="font-serif font-bold text-base mb-2">{title}</h3>
-                <p className="text-secondary-foreground/70 text-xs leading-relaxed">{desc}</p>
+                <p className="text-3xl md:text-4xl font-serif font-bold">
+                  <AnimatedNumber target={s.num} suffix={s.suffix} />
+                </p>
+                <p className="text-white/65 text-sm">{s.label}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <SectionHeading badge="Reviews" title="What Our Travelers Say" subtitle="Real experiences from real adventurers" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-          {testimonials.slice(testimonialIdx * 3, testimonialIdx * 3 + 3).map((t) => (
-            <TestimonialCard key={t.id} testimonial={t} />
+      {/* ─── FEATURED DESTINATIONS ─── */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="flex items-end justify-between mb-14">
+          <SectionHeading badge="Top Picks" title="Featured Destinations" subtitle="Handpicked places that offer truly extraordinary experiences" center={false} />
+          <Link href="/destinations" className="hidden md:flex items-center gap-2 text-primary font-semibold text-sm hover:gap-3 transition-all">
+            View All <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {featuredDestinations.map((d, i) => <DestinationCard key={d.id} destination={d} index={i} />)}
+        </div>
+        <div className="mt-8 text-center md:hidden">
+          <Link href="/destinations" className="inline-flex items-center gap-2 text-primary font-semibold text-sm">
+            View All Destinations <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
+
+      {/* ─── POPULAR PACKAGES ─── */}
+      <section className="py-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between mb-14">
+            <SectionHeading badge="Best Sellers" title="Popular Packages" subtitle="Our most loved packages with everything included" center={false} />
+            <Link href="/packages" className="hidden md:flex items-center gap-2 text-primary font-semibold text-sm hover:gap-3 transition-all">
+              View All <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredPackages.map((p, i) => <PackageCard key={p.id} pkg={p} index={i} />)}
+          </div>
+          <div className="mt-8 text-center md:hidden">
+            <Link href="/packages" className="inline-flex items-center gap-2 text-primary font-semibold text-sm">
+              View All Packages <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── WHATSAPP CTA BANNER ─── */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#075E54] to-[#128C7E] py-16">
+        <div className="absolute inset-0 opacity-10">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="absolute rounded-full bg-white" style={{ width: `${40 + i * 15}px`, height: `${40 + i * 15}px`, top: `${(i * 37) % 100}%`, left: `${(i * 23) % 100}%`, opacity: 0.3 }} />
           ))}
         </div>
-        <div className="flex justify-center gap-2 mt-8">
-          {Array.from({ length: Math.ceil(testimonials.length / 3) }).map((_, i) => (
-            <button key={i} onClick={() => setTestimonialIdx(i)} className={`w-2.5 h-2.5 rounded-full transition-all ${i === testimonialIdx ? "bg-primary w-7" : "bg-muted"}`} />
+        <div className="relative z-10 max-w-4xl mx-auto px-4 text-center text-white">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+            <div className="flex justify-center mb-5">
+              <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-9 h-9 fill-white">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+              </div>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-3">Book Your Dream Trip Instantly</h2>
+            <p className="text-white/80 text-lg mb-8 max-w-xl mx-auto">
+              No forms. No waiting. Just WhatsApp us your destination and travel dates — we'll handle the rest!
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I want to book a trip. Please help me plan.")}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-3 bg-white text-[#075E54] font-bold px-9 py-4 rounded-2xl hover:bg-green-50 transition-all shadow-lg hover:-translate-y-0.5 text-lg"
+              >
+                <Phone className="w-5 h-5" />
+                Chat on WhatsApp
+              </a>
+              <Link
+                href="/booking"
+                className="inline-flex items-center justify-center gap-2 border-2 border-white/50 text-white font-bold px-9 py-4 rounded-2xl hover:bg-white/10 transition-all text-lg"
+              >
+                <Sparkles className="w-5 h-5" />
+                Custom Package
+              </Link>
+            </div>
+            <div className="flex items-center justify-center gap-6 mt-8 text-white/70 text-sm">
+              {["Instant Reply", "Free Consultation", "Best Price Assured"].map((t) => (
+                <span key={t} className="flex items-center gap-1.5">
+                  <CheckCircle className="w-4 h-4 text-green-300" /> {t}
+                </span>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ─── TRAVEL CATEGORIES ─── */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <SectionHeading badge="Explore By Type" title="What Kind of Trip?" subtitle="Pick your travel style and we'll find the perfect package for you" />
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mt-12">
+          {categories.map(({ label, icon: Icon, bg }) => (
+            <motion.div key={label} whileHover={{ y: -6 }} transition={{ type: "spring", stiffness: 300 }}>
+              <Link
+                href={`/packages?category=${label}`}
+                data-testid={`btn-category-${label.toLowerCase()}`}
+                className={`${bg} flex flex-col items-center gap-4 py-9 px-4 rounded-2xl transition-all shadow-sm hover:shadow-md`}
+              >
+                <Icon className="w-9 h-9" />
+                <span className="font-bold text-sm">{label}</span>
+              </Link>
+            </motion.div>
           ))}
         </div>
       </section>
 
-      {/* Blog Preview */}
-      <section className="py-20 bg-muted/40">
+      {/* ─── WHY CHOOSE US ─── */}
+      <section className="py-24 bg-secondary text-secondary-foreground">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-end justify-between mb-12">
-            <SectionHeading badge="Travel Tips" title="From Our Blog" subtitle="Stories, guides, and travel inspiration" center={false} />
-            <Link href="/blog" className="hidden md:flex items-center gap-2 text-primary font-semibold">View All <ArrowRight className="w-4 h-4" /></Link>
+          <SectionHeading badge="Our Promise" title="Why Travelers Trust Us" subtitle="5000+ happy customers can't be wrong" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mt-14">
+            {whyUs.map(({ icon: Icon, title, desc }, i) => (
+              <motion.div
+                key={title}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/20 transition-colors group"
+              >
+                <div className="w-14 h-14 rounded-2xl bg-accent/20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                  <Icon className="w-7 h-7 text-accent" />
+                </div>
+                <h3 className="font-serif font-bold text-sm mb-2 leading-snug">{title}</h3>
+                <p className="text-secondary-foreground/65 text-xs leading-relaxed">{desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── TESTIMONIALS ─── */}
+      <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <SectionHeading badge="Real Reviews" title="What Our Travelers Say" subtitle="Authentic experiences from people who've traveled with us" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-14">
+          {testimonials.slice(testimonialIdx * 3, testimonialIdx * 3 + 3).map((t) => (
+            <TestimonialCard key={t.id} testimonial={t} />
+          ))}
+        </div>
+        <div className="flex justify-center gap-2 mt-10">
+          {Array.from({ length: Math.ceil(testimonials.length / 3) }).map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setTestimonialIdx(i)}
+              className={`h-1.5 rounded-full transition-all duration-500 ${i === testimonialIdx ? "bg-primary w-10" : "bg-muted-foreground/30 w-4"}`}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* ─── BLOG PREVIEW ─── */}
+      <section className="py-24 bg-slate-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between mb-14">
+            <SectionHeading badge="Travel Stories" title="From Our Blog" subtitle="Tips, guides, and inspiration for your next trip" center={false} />
+            <Link href="/blog" className="hidden md:flex items-center gap-2 text-primary font-semibold text-sm hover:gap-3 transition-all">
+              View All <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {blogPosts.slice(0, 3).map((post, i) => (
@@ -277,19 +434,18 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
                 data-testid={`card-blog-${post.id}`}
-                className="bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all group"
+                className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group"
               >
-                <div className="relative h-48 overflow-hidden">
-                  <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  <div className="absolute top-3 left-3">
-                    <span className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full">{post.category}</span>
-                  </div>
+                <div className="relative h-52 overflow-hidden">
+                  <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transition-transform duration-600 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                  <span className="absolute top-4 left-4 bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">{post.category}</span>
                 </div>
-                <div className="p-5">
-                  <p className="text-xs text-muted-foreground mb-2">{post.readTime} min read • {post.author}</p>
-                  <h3 className="font-serif font-bold text-base mb-2 line-clamp-2">{post.title}</h3>
-                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{post.excerpt}</p>
-                  <Link href={`/blog/${post.id}`} className="text-sm font-semibold text-primary hover:text-primary/80 flex items-center gap-1">
+                <div className="p-6">
+                  <p className="text-xs text-muted-foreground mb-2">{post.readTime} min read · {post.author}</p>
+                  <h3 className="font-serif font-bold text-base mb-3 line-clamp-2 leading-snug">{post.title}</h3>
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4 leading-relaxed">{post.excerpt}</p>
+                  <Link href={`/blog/${post.id}`} className="inline-flex items-center gap-1 text-sm font-bold text-primary hover:gap-2 transition-all">
                     Read More <ChevronRight className="w-4 h-4" />
                   </Link>
                 </div>
@@ -299,31 +455,36 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Newsletter */}
-      <section className="py-20 bg-primary text-white">
-        <div className="max-w-2xl mx-auto px-4 text-center">
-          <span className="text-xs font-bold tracking-widest uppercase text-white/60 mb-3 block">Newsletter</span>
+      {/* ─── NEWSLETTER ─── */}
+      <section className="py-20 bg-primary text-white relative overflow-hidden">
+        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-white/5" />
+        <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-white/5" />
+        <div className="relative z-10 max-w-2xl mx-auto px-4 text-center">
+          <span className="text-xs font-bold tracking-widest uppercase text-white/50 mb-3 block">Stay Updated</span>
           <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">Get Exclusive Travel Deals</h2>
-          <p className="text-white/70 mb-8">Subscribe to receive handpicked destinations, exclusive offers, and travel tips straight to your inbox.</p>
+          <p className="text-white/70 mb-8 leading-relaxed">
+            Subscribe to receive handpicked destinations, exclusive offers, and travel tips straight to your inbox.
+          </p>
           <form onSubmit={form.handleSubmit(onSubscribe)} className="flex flex-col sm:flex-row gap-3">
             <input
               {...form.register("email")}
               type="email"
               placeholder="Enter your email address"
               data-testid="input-newsletter-email"
-              className="flex-1 bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl px-5 py-3.5 text-white placeholder:text-white/50 outline-none focus:border-white transition-colors"
+              className="flex-1 bg-white/15 backdrop-blur-sm border border-white/25 rounded-xl px-5 py-3.5 text-white placeholder:text-white/45 outline-none focus:border-white transition-colors"
             />
             <button
               type="submit"
               data-testid="btn-subscribe-newsletter"
-              className="bg-accent hover:bg-accent/90 text-white font-bold px-6 py-3.5 rounded-xl transition-colors whitespace-nowrap"
+              className="bg-accent hover:bg-accent/90 text-white font-bold px-7 py-3.5 rounded-xl transition-colors whitespace-nowrap shadow-lg"
             >
-              Subscribe Now
+              Subscribe
             </button>
           </form>
           {form.formState.errors.email && (
             <p className="text-red-300 text-sm mt-2">{form.formState.errors.email.message}</p>
           )}
+          <p className="text-white/40 text-xs mt-4">No spam. Unsubscribe anytime.</p>
         </div>
       </section>
     </div>
