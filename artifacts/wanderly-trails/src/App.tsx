@@ -19,19 +19,12 @@ import Testimonials from "@/pages/Testimonials";
 import Booking from "@/pages/Booking";
 import FAQ from "@/pages/FAQ";
 import Contact from "@/pages/Contact";
-import Login from "@/pages/Login";
-import Dashboard from "@/pages/Dashboard";
-import Admin from "@/pages/Admin";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
 });
 
-const noLayoutRoutes = ["/login"];
-
-function Layout({ children, path }: { children: React.ReactNode; path: string }) {
-  const isNoLayout = noLayoutRoutes.some((r) => path.startsWith(r));
-  if (isNoLayout) return <>{children}</>;
+function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
@@ -44,23 +37,20 @@ function Layout({ children, path }: { children: React.ReactNode; path: string })
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={() => <Layout path="/"><Home /></Layout>} />
-      <Route path="/about" component={() => <Layout path="/about"><About /></Layout>} />
-      <Route path="/destinations/:id" component={() => <Layout path="/destinations"><DestinationDetail /></Layout>} />
-      <Route path="/destinations" component={() => <Layout path="/destinations"><Destinations /></Layout>} />
-      <Route path="/packages/:id" component={() => <Layout path="/packages"><PackageDetail /></Layout>} />
-      <Route path="/packages" component={() => <Layout path="/packages"><Packages /></Layout>} />
-      <Route path="/gallery" component={() => <Layout path="/gallery"><Gallery /></Layout>} />
-      <Route path="/blog/:id" component={() => <Layout path="/blog"><BlogDetail /></Layout>} />
-      <Route path="/blog" component={() => <Layout path="/blog"><Blog /></Layout>} />
-      <Route path="/testimonials" component={() => <Layout path="/testimonials"><Testimonials /></Layout>} />
-      <Route path="/booking" component={() => <Layout path="/booking"><Booking /></Layout>} />
-      <Route path="/faq" component={() => <Layout path="/faq"><FAQ /></Layout>} />
-      <Route path="/contact" component={() => <Layout path="/contact"><Contact /></Layout>} />
-      <Route path="/login" component={() => <Layout path="/login"><Login /></Layout>} />
-      <Route path="/dashboard" component={() => <Layout path="/dashboard"><Dashboard /></Layout>} />
-      <Route path="/admin" component={() => <Layout path="/admin"><Admin /></Layout>} />
-      <Route component={() => <Layout path="/404"><NotFound /></Layout>} />
+      <Route path="/" component={() => <Layout><Home /></Layout>} />
+      <Route path="/about" component={() => <Layout><About /></Layout>} />
+      <Route path="/destinations/:id" component={() => <Layout><DestinationDetail /></Layout>} />
+      <Route path="/destinations" component={() => <Layout><Destinations /></Layout>} />
+      <Route path="/packages/:id" component={() => <Layout><PackageDetail /></Layout>} />
+      <Route path="/packages" component={() => <Layout><Packages /></Layout>} />
+      <Route path="/gallery" component={() => <Layout><Gallery /></Layout>} />
+      <Route path="/blog/:id" component={() => <Layout><BlogDetail /></Layout>} />
+      <Route path="/blog" component={() => <Layout><Blog /></Layout>} />
+      <Route path="/testimonials" component={() => <Layout><Testimonials /></Layout>} />
+      <Route path="/booking" component={() => <Layout><Booking /></Layout>} />
+      <Route path="/faq" component={() => <Layout><FAQ /></Layout>} />
+      <Route path="/contact" component={() => <Layout><Contact /></Layout>} />
+      <Route component={() => <Layout><NotFound /></Layout>} />
     </Switch>
   );
 }
