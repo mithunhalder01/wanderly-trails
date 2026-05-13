@@ -37,14 +37,25 @@ export default function Navbar() {
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          <Link href="/" className="flex items-center gap-2 group">
+        <div className="flex min-h-16 items-center justify-between py-1.5 md:min-h-20 md:py-2">
+          <Link
+            href="/"
+            aria-label="Wanderly Trails — Home"
+            className="group flex shrink-0 items-center gap-3 md:gap-4"
+          >
             <img
               src="/logo.png"
-              alt="Wanderly Trails"
-              className={`h-10 w-10 rounded-full object-cover shadow-md transition-all ${solid ? "" : "brightness-110"}`}
+              alt=""
+              width={512}
+              height={512}
+              decoding="async"
+              className={`h-[52px] w-auto shrink-0 object-contain sm:h-14 md:h-[4.75rem] ${
+                solid ? "" : "drop-shadow-[0_2px_12px_rgba(0,0,0,0.55)]"
+              }`}
             />
-            <span className={`text-xl font-serif font-bold tracking-tight transition-colors ${solid ? "text-foreground" : "text-white"}`}>
+            <span
+              className={`font-serif text-xl font-bold tracking-tight sm:text-2xl md:text-[1.65rem] ${solid ? "text-foreground" : "text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"}`}
+            >
               Wanderly<span className="text-accent">Trails</span>
             </span>
           </Link>

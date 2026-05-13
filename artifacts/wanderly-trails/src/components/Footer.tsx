@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Compass, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube } from "lucide-react";
+import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -7,12 +7,23 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div>
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
-                <Compass className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-serif font-bold">Wanderly<span className="text-accent">Trails</span></span>
-            </div>
+            <Link
+              href="/"
+              className="mb-5 inline-flex min-h-0 items-center gap-2.5 md:gap-3"
+              aria-label="Wanderly Trails — Home"
+            >
+              <img
+                src="/logo.png"
+                alt=""
+                width={512}
+                height={512}
+                decoding="async"
+                className="h-10 max-h-10 w-auto shrink-0 object-contain md:h-11 md:max-h-11"
+              />
+              <span className="text-xl font-serif font-bold">
+                Wanderly<span className="text-accent">Trails</span>
+              </span>
+            </Link>
             <p className="text-sm text-secondary-foreground/70 leading-relaxed mb-6">
               Making travel easy and memorable since 2015. We craft experiences that last a lifetime, from serene beaches to majestic mountains.
             </p>
