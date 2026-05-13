@@ -81,7 +81,7 @@ cd Wanderly-Trails
 
 The upstream repository is hosted at **[github.com/veltrix-web/Wanderly-Trails](https://github.com/veltrix-web/Wanderly-Trails)** under the **[veltrix-web](https://github.com/veltrix-web)** GitHub organization. If your local folder name differs (e.g. `Wanderly-Trails-Website`), `cd` into that directory before running `pnpm install`.
 
-**Pushing changes:** `git push` must use credentials for a user who has **write access** to `veltrix-web/Wanderly-Trails` (org member/owner or invited collaborator). If macOS cached another GitHub account, see [Push denied (403)](#push-denied-403--wrong-github-account).
+**Pushing changes:** `git push` must use credentials for a user who has **write access** to `veltrix-web/Wanderly-Trails` (org member/owner or invited collaborator). If macOS cached another GitHub account, see [Push denied (403)](#push-denied-403).
 
 ### 2. Install dependencies
 
@@ -302,7 +302,7 @@ Change the port:
 PORT=5174 pnpm --filter @workspace/wanderly-trails dev
 ```
 
-### Push denied (403) / wrong GitHub account
+### Push denied (403)
 
 If you see `Permission to veltrix-web/Wanderly-Trails.git denied to <username>`:
 
