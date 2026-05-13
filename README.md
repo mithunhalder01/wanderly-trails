@@ -79,7 +79,9 @@ git clone https://github.com/veltrix-web/Wanderly-Trails.git
 cd Wanderly-Trails
 ```
 
-The upstream repository is hosted at **[github.com/veltrix-web/Wanderly-Trails](https://github.com/veltrix-web/Wanderly-Trails)**. If your local folder name differs (e.g. `Wanderly-Trails-Website`), `cd` into that directory before running `pnpm install`.
+The upstream repository is hosted at **[github.com/veltrix-web/Wanderly-Trails](https://github.com/veltrix-web/Wanderly-Trails)** under the **[veltrix-web](https://github.com/veltrix-web)** GitHub organization. If your local folder name differs (e.g. `Wanderly-Trails-Website`), `cd` into that directory before running `pnpm install`.
+
+**Pushing changes:** `git push` must use credentials for a user who has **write access** to `veltrix-web/Wanderly-Trails` (org member/owner or invited collaborator). If macOS cached another GitHub account, see [Push denied (403)](#push-denied-403--wrong-github-account).
 
 ### 2. Install dependencies
 
@@ -299,6 +301,27 @@ Change the port:
 ```bash
 PORT=5174 pnpm --filter @workspace/wanderly-trails dev
 ```
+
+### Push denied (403) / wrong GitHub account
+
+If you see `Permission to veltrix-web/Wanderly-Trails.git denied to <username>`:
+
+1. **Use an account with access** — log in as a **`veltrix-web`** org member who can push to this repo, or ask an org admin to add your GitHub user under **Repository → Settings → Collaborators and teams** with **Write** (or use a team that has write access).
+2. **Clear cached HTTPS credentials** (macOS), then push again and sign in with the correct account:
+
+   ```bash
+   printf "protocol=https\nhost=github.com\n" | git credential-osxkeychain erase
+   git push -u origin main
+   ```
+
+3. **Re-auth GitHub CLI** (optional): `gh auth login -h github.com` and choose the **`veltrix-web`**-authorized account.
+
+4. **SSH** (optional): add an SSH key to the account that has repo access, then:
+
+   ```bash
+   git remote set-url origin git@github.com:veltrix-web/Wanderly-Trails.git
+   git push -u origin main
+   ```
 
 ### Strict Vite `fs.allow` / missing files
 
