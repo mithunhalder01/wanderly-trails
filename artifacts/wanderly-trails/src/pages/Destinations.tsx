@@ -1,20 +1,22 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { useListDestinations } from "@workspace/api-client-react";
+import { destinations } from "@/data/staticData";
 import DestinationCard from "@/components/DestinationCard";
-import SectionHeading from "@/components/SectionHeading";
 
 const categories = ["All", "India", "International", "Beaches", "Mountains", "Desert"];
 
 export default function Destinations() {
   const [active, setActive] = useState("All");
-  const { data: destinations, isLoading } = useListDestinations(
-    active !== "All" ? { category: active } : {},
-  );
+
+  const filtered = useMemo(() => {
+    if (active === "All") return destinations;
+    if (active === "India") return destinations.filter((d) => d.country === "India");
+    if (active === "International") return destinations.filter((d) => d.country !== "India");
+    return destinations.filter((d) => d.category === active);
+  }, [active]);
 
   return (
     <div className="pt-20">
-      {/* Hero */}
       <section className="relative h-64 flex items-center overflow-hidden">
         <img src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80" alt="Destinations" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-secondary/70" />
@@ -44,15 +46,9 @@ export default function Destinations() {
           ))}
         </div>
 
-        {isLoading ? (
+        {filtered.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="bg-muted rounded-2xl h-72 animate-pulse" />
-            ))}
-          </div>
-        ) : destinations && destinations.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {destinations.map((d, i) => <DestinationCard key={d.id} destination={d} index={i} />)}
+            {filtered.map((d, i) => <DestinationCard key={d.id} destination={d} index={i} />)}
           </div>
         ) : (
           <div className="text-center py-20">

@@ -1,15 +1,18 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Clock, User, ChevronRight } from "lucide-react";
-import { useListBlogPosts } from "@workspace/api-client-react";
-import SectionHeading from "@/components/SectionHeading";
+import { blogPosts } from "@/data/staticData";
 
 const categories = ["All", "Travel Tips", "Destinations", "Budget Travel", "Visa Guide", "Beaches"];
 
 export default function Blog() {
   const [active, setActive] = useState("All");
-  const { data: posts, isLoading } = useListBlogPosts(active !== "All" ? { category: active } : {});
+
+  const posts = useMemo(() => {
+    if (active === "All") return blogPosts;
+    return blogPosts.filter((p) => p.category === active);
+  }, [active]);
 
   return (
     <div className="pt-20">
@@ -34,11 +37,7 @@ export default function Blog() {
           ))}
         </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {Array.from({ length: 6 }).map((_, i) => <div key={i} className="bg-muted rounded-2xl h-72 animate-pulse" />)}
-          </div>
-        ) : posts && posts.length > 0 ? (
+        {posts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {posts.map((post, i) => (
               <motion.article

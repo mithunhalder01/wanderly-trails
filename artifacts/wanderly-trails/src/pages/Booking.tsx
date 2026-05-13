@@ -1,9 +1,9 @@
+import { useState } from "react";
 import { useSearch } from "wouter";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useCreateBooking } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, CreditCard, Smartphone, Building2 } from "lucide-react";
 
@@ -24,24 +24,22 @@ export default function Booking() {
   const params = new URLSearchParams(search);
   const destDefault = params.get("destination") || "";
   const { toast } = useToast();
-  const createBooking = useCreateBooking();
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<BookingForm>({
     resolver: zodResolver(schema),
     defaultValues: { name: "", email: "", phone: "", destination: destDefault, travelers: 1, budget: "", travelDate: "", specialRequests: "" },
   });
 
-  const onSubmit = (data: BookingForm) => {
-    createBooking.mutate(
-      { data },
-      {
-        onSuccess: () => {
-          toast({ title: "Booking Confirmed!", description: "We'll contact you within 24 hours to finalize your trip." });
-          form.reset();
-        },
-        onError: () => toast({ title: "Error", description: "Failed to submit booking. Please try again.", variant: "destructive" }),
-      }
-    );
+  const onSubmit = (_data: BookingForm) => {
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setSubmitted(true);
+      toast({ title: "Booking Confirmed!", description: "We'll contact you within 24 hours to finalize your trip." });
+      form.reset();
+    }, 1200);
   };
 
   return (
@@ -127,12 +125,12 @@ export default function Booking() {
                     className="w-full border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors bg-background resize-none" />
                 </div>
 
-                <button type="submit" data-testid="btn-submit-booking" disabled={createBooking.isPending}
+                <button type="submit" data-testid="btn-submit-booking" disabled={isSubmitting}
                   className="w-full bg-accent text-white font-bold py-4 rounded-xl hover:bg-accent/90 transition-colors shadow-md text-lg disabled:opacity-60">
-                  {createBooking.isPending ? "Submitting..." : "Confirm Booking"}
+                  {isSubmitting ? "Submitting..." : "Confirm Booking"}
                 </button>
 
-                {createBooking.isSuccess && (
+                {submitted && (
                   <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-4">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <p className="text-green-700 text-sm font-medium">Booking confirmed! We'll be in touch soon.</p>

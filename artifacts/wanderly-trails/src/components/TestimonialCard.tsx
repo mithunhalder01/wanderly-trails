@@ -7,7 +7,7 @@ interface Testimonial {
   rating: number;
   review: string;
   avatarUrl: string;
-  packageName: string;
+  destination: string;
 }
 
 interface Props {
@@ -32,7 +32,7 @@ export default function TestimonialCard({ testimonial }: Props) {
         <Quote className="w-8 h-8 text-primary/20" />
       </div>
       <p className="text-sm text-muted-foreground leading-relaxed flex-1">"{testimonial.review}"</p>
-      <div className="text-xs text-accent font-semibold">{testimonial.packageName}</div>
+      <div className="text-xs text-accent font-semibold">{testimonial.destination}</div>
       <div className="flex items-center gap-3 pt-2 border-t border-border">
         <img
           src={testimonial.avatarUrl}

@@ -1,14 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, ChevronRight, Star, Users, Award, Shield, Headphones, MapPin, Plane, Mountain, Heart, Crown, ChevronLeft, ArrowRight } from "lucide-react";
+import { Search, ChevronRight, Star, Users, Award, Shield, Headphones, MapPin, Plane, Mountain, Heart, Crown, ArrowRight } from "lucide-react";
 import {
-  useListFeaturedDestinations,
-  useListFeaturedPackages,
-  useListTestimonials,
-  useListBlogPosts,
-  useSubscribeNewsletter,
-} from "@workspace/api-client-react";
+  featuredDestinations,
+  featuredPackages,
+  testimonials,
+  blogPosts,
+} from "@/data/staticData";
 import DestinationCard from "@/components/DestinationCard";
 import PackageCard from "@/components/PackageCard";
 import TestimonialCard from "@/components/TestimonialCard";
@@ -49,12 +48,6 @@ export default function Home() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const { data: destinations } = useListFeaturedDestinations();
-  const { data: packages } = useListFeaturedPackages();
-  const { data: testimonials } = useListTestimonials();
-  const { data: blogPosts } = useListBlogPosts();
-  const subscribeNewsletter = useSubscribeNewsletter();
-
   const form = useForm<NewsletterForm>({ resolver: zodResolver(newsletterSchema), defaultValues: { email: "" } });
 
   useEffect(() => {
@@ -63,22 +56,14 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (!testimonials?.length) return;
     const t = setInterval(() => setTestimonialIdx((i) => (i + 1) % Math.ceil(testimonials.length / 3)), 4000);
     return () => clearInterval(t);
-  }, [testimonials]);
+  }, []);
 
   const onSubscribe = (data: NewsletterForm) => {
-    subscribeNewsletter.mutate(
-      { data },
-      {
-        onSuccess: () => {
-          toast({ title: "Subscribed!", description: "You'll receive our latest travel deals." });
-          form.reset();
-        },
-        onError: () => toast({ title: "Already subscribed", description: "This email is already registered." }),
-      }
-    );
+    toast({ title: "Subscribed!", description: "You'll receive our latest travel deals." });
+    form.reset();
+    void data;
   };
 
   const [searchDest, setSearchDest] = useState("");
@@ -194,12 +179,8 @@ export default function Home() {
             View All <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-          {destinations?.map((d, i) => <DestinationCard key={d.id} destination={d} index={i} />) ?? (
-            Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="bg-muted rounded-2xl h-72 animate-pulse" />
-            ))
-          )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {featuredDestinations.map((d, i) => <DestinationCard key={d.id} destination={d} index={i} />)}
         </div>
       </section>
 
@@ -218,11 +199,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {packages?.map((p, i) => <PackageCard key={p.id} pkg={p} index={i} />) ?? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-muted rounded-2xl h-80 animate-pulse" />
-              ))
-            )}
+            {featuredPackages.map((p, i) => <PackageCard key={p.id} pkg={p} index={i} />)}
           </div>
         </div>
       </section>
@@ -270,63 +247,57 @@ export default function Home() {
       </section>
 
       {/* Testimonials */}
-      {testimonials && testimonials.length > 0 && (
-        <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-          <SectionHeading badge="Reviews" title="What Our Travelers Say" subtitle="Real experiences from real adventurers" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-            {testimonials.slice(testimonialIdx * 3, testimonialIdx * 3 + 3).map((t) => (
-              <TestimonialCard key={t.id} testimonial={t} />
-            ))}
-          </div>
-          {testimonials.length > 3 && (
-            <div className="flex justify-center gap-2 mt-8">
-              {Array.from({ length: Math.ceil(testimonials.length / 3) }).map((_, i) => (
-                <button key={i} onClick={() => setTestimonialIdx(i)} className={`w-2.5 h-2.5 rounded-full transition-all ${i === testimonialIdx ? "bg-primary w-7" : "bg-muted"}`} />
-              ))}
-            </div>
-          )}
-        </section>
-      )}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <SectionHeading badge="Reviews" title="What Our Travelers Say" subtitle="Real experiences from real adventurers" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+          {testimonials.slice(testimonialIdx * 3, testimonialIdx * 3 + 3).map((t) => (
+            <TestimonialCard key={t.id} testimonial={t} />
+          ))}
+        </div>
+        <div className="flex justify-center gap-2 mt-8">
+          {Array.from({ length: Math.ceil(testimonials.length / 3) }).map((_, i) => (
+            <button key={i} onClick={() => setTestimonialIdx(i)} className={`w-2.5 h-2.5 rounded-full transition-all ${i === testimonialIdx ? "bg-primary w-7" : "bg-muted"}`} />
+          ))}
+        </div>
+      </section>
 
       {/* Blog Preview */}
-      {blogPosts && blogPosts.length > 0 && (
-        <section className="py-20 bg-muted/40">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between mb-12">
-              <SectionHeading badge="Travel Tips" title="From Our Blog" subtitle="Stories, guides, and travel inspiration" center={false} />
-              <Link href="/blog" className="hidden md:flex items-center gap-2 text-primary font-semibold">View All <ArrowRight className="w-4 h-4" /></Link>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {blogPosts.slice(0, 3).map((post, i) => (
-                <motion.div
-                  key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  data-testid={`card-blog-${post.id}`}
-                  className="bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all group"
-                >
-                  <div className="relative h-48 overflow-hidden">
-                    <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    <div className="absolute top-3 left-3">
-                      <span className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full">{post.category}</span>
-                    </div>
-                  </div>
-                  <div className="p-5">
-                    <p className="text-xs text-muted-foreground mb-2">{post.readTime} min read • {post.author}</p>
-                    <h3 className="font-serif font-bold text-base mb-2 line-clamp-2">{post.title}</h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{post.excerpt}</p>
-                    <Link href={`/blog/${post.id}`} className="text-sm font-semibold text-primary hover:text-primary/80 flex items-center gap-1">
-                      Read More <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+      <section className="py-20 bg-muted/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-end justify-between mb-12">
+            <SectionHeading badge="Travel Tips" title="From Our Blog" subtitle="Stories, guides, and travel inspiration" center={false} />
+            <Link href="/blog" className="hidden md:flex items-center gap-2 text-primary font-semibold">View All <ArrowRight className="w-4 h-4" /></Link>
           </div>
-        </section>
-      )}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {blogPosts.slice(0, 3).map((post, i) => (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                data-testid={`card-blog-${post.id}`}
+                className="bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all group"
+              >
+                <div className="relative h-48 overflow-hidden">
+                  <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <div className="absolute top-3 left-3">
+                    <span className="bg-primary text-white text-xs font-semibold px-3 py-1 rounded-full">{post.category}</span>
+                  </div>
+                </div>
+                <div className="p-5">
+                  <p className="text-xs text-muted-foreground mb-2">{post.readTime} min read • {post.author}</p>
+                  <h3 className="font-serif font-bold text-base mb-2 line-clamp-2">{post.title}</h3>
+                  <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{post.excerpt}</p>
+                  <Link href={`/blog/${post.id}`} className="text-sm font-semibold text-primary hover:text-primary/80 flex items-center gap-1">
+                    Read More <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Newsletter */}
       <section className="py-20 bg-primary text-white">
@@ -345,10 +316,9 @@ export default function Home() {
             <button
               type="submit"
               data-testid="btn-subscribe-newsletter"
-              disabled={subscribeNewsletter.isPending}
-              className="bg-accent hover:bg-accent/90 text-white font-bold px-6 py-3.5 rounded-xl transition-colors whitespace-nowrap disabled:opacity-60"
+              className="bg-accent hover:bg-accent/90 text-white font-bold px-6 py-3.5 rounded-xl transition-colors whitespace-nowrap"
             >
-              {subscribeNewsletter.isPending ? "Subscribing..." : "Subscribe Now"}
+              Subscribe Now
             </button>
           </form>
           {form.formState.errors.email && (

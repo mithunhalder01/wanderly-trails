@@ -1,24 +1,16 @@
 import { useRoute, Link } from "wouter";
 import { motion } from "framer-motion";
 import { MapPin, Calendar, Star, Thermometer, ArrowLeft } from "lucide-react";
-import { useGetDestination, useListPackages, getGetDestinationQueryKey } from "@workspace/api-client-react";
+import { getDestinationById, getPackagesByDestination } from "@/data/staticData";
 import PackageCard from "@/components/PackageCard";
 import SectionHeading from "@/components/SectionHeading";
 
 export default function DestinationDetail() {
   const [, params] = useRoute("/destinations/:id");
   const id = params?.id ? parseInt(params.id) : 0;
-  const { data: destination, isLoading } = useGetDestination(id, { query: { enabled: !!id, queryKey: getGetDestinationQueryKey(id) } });
-  const { data: packages } = useListPackages();
-  const related = packages?.filter((p) => p.destinationId === id) ?? [];
+  const destination = getDestinationById(id);
+  const related = getPackagesByDestination(id);
 
-  if (isLoading) {
-    return (
-      <div className="pt-20 min-h-screen flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
   if (!destination) {
     return (
       <div className="pt-20 min-h-screen flex flex-col items-center justify-center gap-4">
@@ -70,13 +62,11 @@ export default function DestinationDetail() {
                 <p className="text-xs text-muted-foreground">Best Season</p>
                 <p className="font-semibold text-sm">{destination.bestSeason}</p>
               </div>
-              {destination.weather && (
-                <div className="bg-muted rounded-2xl p-4">
-                  <Thermometer className="w-5 h-5 text-primary mb-2" />
-                  <p className="text-xs text-muted-foreground">Weather</p>
-                  <p className="font-semibold text-sm">{destination.weather}</p>
-                </div>
-              )}
+              <div className="bg-muted rounded-2xl p-4">
+                <Thermometer className="w-5 h-5 text-primary mb-2" />
+                <p className="text-xs text-muted-foreground">Weather</p>
+                <p className="font-semibold text-sm">{destination.weather}</p>
+              </div>
               <div className="bg-muted rounded-2xl p-4">
                 <MapPin className="w-5 h-5 text-primary mb-2" />
                 <p className="text-xs text-muted-foreground">Category</p>
@@ -112,12 +102,12 @@ export default function DestinationDetail() {
         </div>
 
         {related.length > 0 && (
-          <div className="mt-16">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-16">
             <SectionHeading badge="Available" title={`Packages for ${destination.name}`} subtitle="Choose from our curated packages" center={false} />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
               {related.map((p, i) => <PackageCard key={p.id} pkg={p} index={i} />)}
             </div>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

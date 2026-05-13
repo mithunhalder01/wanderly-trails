@@ -1,8 +1,8 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useSubmitContact } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import { Phone, Mail, MapPin, MessageCircle, CheckCircle } from "lucide-react";
 
@@ -17,23 +17,22 @@ type ContactForm = z.infer<typeof schema>;
 
 export default function Contact() {
   const { toast } = useToast();
-  const submit = useSubmitContact();
+  const [submitted, setSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+
   const form = useForm<ContactForm>({
     resolver: zodResolver(schema),
     defaultValues: { name: "", email: "", phone: "", subject: "", message: "" },
   });
 
-  const onSubmit = (data: ContactForm) => {
-    submit.mutate(
-      { data },
-      {
-        onSuccess: () => {
-          toast({ title: "Message Sent!", description: "We'll get back to you within 24 hours." });
-          form.reset();
-        },
-        onError: () => toast({ title: "Error", description: "Failed to send message.", variant: "destructive" }),
-      }
-    );
+  const onSubmit = (_data: ContactForm) => {
+    setIsSending(true);
+    setTimeout(() => {
+      setIsSending(false);
+      setSubmitted(true);
+      toast({ title: "Message Sent!", description: "We'll get back to you within 24 hours." });
+      form.reset();
+    }, 1000);
   };
 
   return (
@@ -134,11 +133,11 @@ export default function Contact() {
                     className="w-full border border-border rounded-xl px-4 py-3 text-sm outline-none focus:border-primary transition-colors bg-background resize-none" />
                   {form.formState.errors.message && <p className="text-red-500 text-xs mt-1">{form.formState.errors.message.message}</p>}
                 </div>
-                <button type="submit" data-testid="btn-submit-contact" disabled={submit.isPending}
+                <button type="submit" data-testid="btn-submit-contact" disabled={isSending}
                   className="w-full bg-primary text-white font-bold py-4 rounded-xl hover:bg-primary/90 transition-colors shadow-md text-base disabled:opacity-60">
-                  {submit.isPending ? "Sending..." : "Send Message"}
+                  {isSending ? "Sending..." : "Send Message"}
                 </button>
-                {submit.isSuccess && (
+                {submitted && (
                   <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl p-4">
                     <CheckCircle className="w-5 h-5 text-green-600" />
                     <p className="text-green-700 text-sm font-medium">Message sent! We'll reply within 24 hours.</p>

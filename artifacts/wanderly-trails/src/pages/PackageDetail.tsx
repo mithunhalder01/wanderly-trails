@@ -2,9 +2,8 @@ import { useState } from "react";
 import { useRoute, Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, Star, Clock, Hotel, Utensils, Bus, Check, X, MapPin } from "lucide-react";
-import { useGetPackage, useGetRelatedPackages, getGetPackageQueryKey, getGetRelatedPackagesQueryKey } from "@workspace/api-client-react";
+import { getPackageById, getRelatedPackages } from "@/data/staticData";
 import PackageCard from "@/components/PackageCard";
-import SectionHeading from "@/components/SectionHeading";
 
 const tabs = ["Overview", "Itinerary", "Included", "Related"];
 
@@ -13,12 +12,9 @@ export default function PackageDetail() {
   const id = params?.id ? parseInt(params.id) : 0;
   const [activeTab, setActiveTab] = useState("Overview");
 
-  const { data: pkg, isLoading } = useGetPackage(id, { query: { enabled: !!id, queryKey: getGetPackageQueryKey(id) } });
-  const { data: related } = useGetRelatedPackages(id, { query: { enabled: !!id, queryKey: getGetRelatedPackagesQueryKey(id) } });
+  const pkg = getPackageById(id);
+  const related = getRelatedPackages(id);
 
-  if (isLoading) {
-    return <div className="pt-20 min-h-screen flex items-center justify-center"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>;
-  }
   if (!pkg) {
     return (
       <div className="pt-20 min-h-screen flex flex-col items-center justify-center gap-4">
@@ -28,21 +24,12 @@ export default function PackageDetail() {
     );
   }
 
-  const included = pkg.includedItems ? pkg.includedItems.split(",").map((s) => s.trim()) : ["Hotel accommodation", "Breakfast daily", "Airport transfers", "Tour guide", "All taxes"];
-  const excluded = pkg.excludedItems ? pkg.excludedItems.split(",").map((s) => s.trim()) : ["International flights", "Travel insurance", "Personal expenses", "Meals not mentioned", "Entry fees not listed"];
-  const itinerary = pkg.itinerary ? pkg.itinerary.split("\n") : [
-    "Day 1: Arrival & Hotel Check-in — Meet your guide and settle into your luxury accommodation.",
-    "Day 2: City Tour — Explore the iconic landmarks and local culture with an expert guide.",
-    "Day 3: Adventure Activities — Choose from a range of activities tailored to your interests.",
-    "Day 4: Scenic Excursion — A full-day trip to nearby natural wonders.",
-    "Day 5: Leisure Day — Free time to explore at your own pace or relax.",
-    "Day 6: Shopping & Cultural Evening — Browse local markets and enjoy a cultural performance.",
-    "Day 7: Departure — Hotel checkout and airport transfer.",
-  ].slice(0, pkg.duration);
+  const included = pkg.includedItems.split(",").map((s) => s.trim());
+  const excluded = pkg.excludedItems.split(",").map((s) => s.trim());
+  const itinerary = pkg.itinerary.split("\n");
 
   return (
     <div className="pt-20">
-      {/* Banner */}
       <div className="relative h-[50vh] min-h-80 overflow-hidden">
         <img src={pkg.imageUrl} alt={pkg.title} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -73,7 +60,6 @@ export default function PackageDetail() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2">
-            {/* Tabs */}
             <div className="flex gap-2 mb-8 border-b border-border overflow-x-auto">
               {tabs.map((tab) => (
                 <button
@@ -151,7 +137,7 @@ export default function PackageDetail() {
 
             {activeTab === "Related" && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                {related && related.length > 0 ? (
+                {related.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {related.map((p, i) => <PackageCard key={p.id} pkg={p} index={i} />)}
                   </div>
@@ -160,7 +146,6 @@ export default function PackageDetail() {
             )}
           </div>
 
-          {/* Booking Sidebar */}
           <div className="lg:col-span-1">
             <div className="bg-card border border-border rounded-2xl p-6 sticky top-24">
               <h3 className="font-serif font-bold text-xl mb-2">Book This Package</h3>

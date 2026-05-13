@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useSearch } from "wouter";
 import { motion } from "framer-motion";
-import { SlidersHorizontal, X } from "lucide-react";
-import { useListPackages } from "@workspace/api-client-react";
+import { SlidersHorizontal } from "lucide-react";
+import { packages } from "@/data/staticData";
 import PackageCard from "@/components/PackageCard";
 
-const categories = ["All", "Adventure", "Honeymoon", "Family", "Solo", "Luxury"];
+const categories = ["All", "Adventure", "Honeymoon", "Family", "Solo", "Luxury", "Beaches"];
 const durations = ["All", "1-3", "4-7", "8-14", "15+"];
 const budgets = ["All", "Under ₹15,000", "₹15,000-₹30,000", "₹30,000-₹60,000", "₹60,000+"];
 
@@ -19,23 +19,22 @@ export default function Packages() {
   const [budget, setBudget] = useState("All");
   const [showFilters, setShowFilters] = useState(false);
 
-  const queryParams: Record<string, string | number> = {};
-  if (category !== "All") queryParams.category = category;
-  if (duration !== "All") {
-    const [min, max] = duration.split("-").map(Number);
-    if (min) queryParams.minPrice = min;
-    if (max) queryParams.maxPrice = max;
-  }
-
-  const { data: packages, isLoading } = useListPackages(queryParams);
-
-  const filteredPackages = packages?.filter((p) => {
-    if (budget === "Under ₹15,000") return p.price < 15000;
-    if (budget === "₹15,000-₹30,000") return p.price >= 15000 && p.price <= 30000;
-    if (budget === "₹30,000-₹60,000") return p.price >= 30000 && p.price <= 60000;
-    if (budget === "₹60,000+") return p.price > 60000;
-    return true;
-  });
+  const filteredPackages = useMemo(() => {
+    return packages.filter((p) => {
+      if (category !== "All" && p.category !== category) return false;
+      if (duration !== "All") {
+        if (duration === "1-3" && !(p.duration >= 1 && p.duration <= 3)) return false;
+        if (duration === "4-7" && !(p.duration >= 4 && p.duration <= 7)) return false;
+        if (duration === "8-14" && !(p.duration >= 8 && p.duration <= 14)) return false;
+        if (duration === "15+" && p.duration < 15) return false;
+      }
+      if (budget === "Under ₹15,000" && p.price >= 15000) return false;
+      if (budget === "₹15,000-₹30,000" && !(p.price >= 15000 && p.price <= 30000)) return false;
+      if (budget === "₹30,000-₹60,000" && !(p.price >= 30000 && p.price <= 60000)) return false;
+      if (budget === "₹60,000+" && p.price <= 60000) return false;
+      return true;
+    });
+  }, [category, duration, budget]);
 
   return (
     <div className="pt-20">
@@ -52,7 +51,7 @@ export default function Packages() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex items-center justify-between mb-6">
-          <p className="text-muted-foreground">{filteredPackages?.length ?? 0} packages found</p>
+          <p className="text-muted-foreground">{filteredPackages.length} packages found</p>
           <button
             onClick={() => setShowFilters(!showFilters)}
             data-testid="btn-toggle-filters"
@@ -63,7 +62,6 @@ export default function Packages() {
         </div>
 
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Filters Sidebar */}
           <div className={`${showFilters ? "block" : "hidden"} md:block w-full md:w-64 shrink-0`}>
             <div className="bg-card border border-border rounded-2xl p-6 sticky top-24">
               <div className="flex items-center justify-between mb-5">
@@ -109,13 +107,8 @@ export default function Packages() {
             </div>
           </div>
 
-          {/* Package Grid */}
           <div className="flex-1">
-            {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {Array.from({ length: 6 }).map((_, i) => <div key={i} className="bg-muted rounded-2xl h-80 animate-pulse" />)}
-              </div>
-            ) : filteredPackages && filteredPackages.length > 0 ? (
+            {filteredPackages.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredPackages.map((p, i) => <PackageCard key={p.id} pkg={p} index={i} />)}
               </div>

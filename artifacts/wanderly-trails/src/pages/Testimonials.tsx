@@ -1,12 +1,9 @@
 import { motion } from "framer-motion";
-import { Star } from "lucide-react";
-import { useListTestimonials } from "@workspace/api-client-react";
+import { testimonials } from "@/data/staticData";
 import TestimonialCard from "@/components/TestimonialCard";
 import SectionHeading from "@/components/SectionHeading";
 
 export default function Testimonials() {
-  const { data: testimonials, isLoading } = useListTestimonials();
-
   return (
     <div className="pt-20">
       <section className="relative h-64 flex items-center overflow-hidden">
@@ -24,7 +21,7 @@ export default function Testimonials() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             {[
-              { num: "4.9", label: "Average Rating", icon: Star },
+              { num: "4.9", label: "Average Rating" },
               { num: "5000+", label: "Happy Travelers" },
               { num: "98%", label: "Would Recommend" },
               { num: "120+", label: "Destinations" },
@@ -39,23 +36,14 @@ export default function Testimonials() {
       </section>
 
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => <div key={i} className="bg-muted rounded-2xl h-48 animate-pulse" />)}
-          </div>
-        ) : testimonials && testimonials.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials.map((t, i) => (
-              <motion.div key={t.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
-                <TestimonialCard testimonial={t} />
-              </motion.div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-20">
-            <p className="text-muted-foreground">No testimonials yet.</p>
-          </div>
-        )}
+        <SectionHeading badge="Reviews" title="Customer Stories" subtitle="Real experiences from our travellers" />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
+          {testimonials.map((t, i) => (
+            <motion.div key={t.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}>
+              <TestimonialCard testimonial={t} />
+            </motion.div>
+          ))}
+        </div>
       </section>
     </div>
   );

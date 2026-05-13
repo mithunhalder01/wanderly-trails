@@ -1,17 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Package, MapPin, BookOpen, Users, Calendar, Plus, Trash2, Edit, Eye } from "lucide-react";
-import {
-  useListPackages,
-  useListBookings,
-  useListDestinations,
-  useListBlogPosts,
-  useDeletePackage,
-  getListPackagesQueryKey,
-  getListBookingsQueryKey,
-} from "@workspace/api-client-react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
+import { Package, MapPin, BookOpen, Calendar, Plus, Trash2, Edit, Eye } from "lucide-react";
+import { packages, destinations, blogPosts } from "@/data/staticData";
 import { Link } from "wouter";
 
 const tabs = [
@@ -23,28 +13,6 @@ const tabs = [
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("packages");
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-
-  const { data: packages, isLoading: pkgLoading } = useListPackages();
-  const { data: bookings, isLoading: bookLoading } = useListBookings();
-  const { data: destinations } = useListDestinations({});
-  const { data: blogPosts } = useListBlogPosts({});
-  const deletePackage = useDeletePackage();
-
-  const handleDeletePackage = (id: number) => {
-    if (!confirm("Delete this package?")) return;
-    deletePackage.mutate(
-      { id },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getListPackagesQueryKey() });
-          toast({ title: "Package deleted" });
-        },
-        onError: () => toast({ title: "Error deleting package", variant: "destructive" }),
-      }
-    );
-  };
 
   return (
     <div className="pt-20 min-h-screen bg-muted/40">
@@ -63,10 +31,10 @@ export default function Admin() {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             {[
-              { icon: Package, label: "Packages", val: packages?.length ?? 0, color: "bg-primary/10 text-primary" },
-              { icon: Calendar, label: "Bookings", val: bookings?.length ?? 0, color: "bg-accent/10 text-accent" },
-              { icon: MapPin, label: "Destinations", val: destinations?.length ?? 0, color: "bg-green-50 text-green-600" },
-              { icon: BookOpen, label: "Blog Posts", val: blogPosts?.length ?? 0, color: "bg-purple-50 text-purple-600" },
+              { icon: Package, label: "Packages", val: packages.length, color: "bg-primary/10 text-primary" },
+              { icon: Calendar, label: "Bookings", val: 0, color: "bg-accent/10 text-accent" },
+              { icon: MapPin, label: "Destinations", val: destinations.length, color: "bg-green-50 text-green-600" },
+              { icon: BookOpen, label: "Blog Posts", val: blogPosts.length, color: "bg-purple-50 text-purple-600" },
             ].map(({ icon: Icon, label, val, color }) => (
               <div key={label} className="bg-card border border-border rounded-2xl p-5 flex items-center gap-3">
                 <div className={`w-11 h-11 rounded-xl ${color} flex items-center justify-center shrink-0`}><Icon className="w-5 h-5" /></div>
@@ -98,79 +66,52 @@ export default function Admin() {
                       <Plus className="w-4 h-4" /> Add Package
                     </Link>
                   </div>
-                  {pkgLoading ? <div className="space-y-3">{Array.from({length:3}).map((_,i)=><div key={i} className="bg-muted h-16 rounded-xl animate-pulse"/>)}</div> : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead><tr className="border-b border-border">
-                          {["Package", "Destination", "Price", "Category", "Rating", "Actions"].map((h) => (
-                            <th key={h} className="pb-3 text-left font-semibold text-muted-foreground text-xs pr-4">{h}</th>
-                          ))}
-                        </tr></thead>
-                        <tbody className="divide-y divide-border">
-                          {packages?.map((pkg) => (
-                            <tr key={pkg.id} data-testid={`admin-pkg-row-${pkg.id}`} className="hover:bg-muted/50">
-                              <td className="py-3 pr-4"><p className="font-medium">{pkg.title}</p></td>
-                              <td className="py-3 pr-4 text-muted-foreground">{pkg.destinationName}</td>
-                              <td className="py-3 pr-4 font-semibold text-primary">₹{pkg.price.toLocaleString()}</td>
-                              <td className="py-3 pr-4"><span className="bg-accent/10 text-accent text-xs font-semibold px-2 py-1 rounded-full">{pkg.category}</span></td>
-                              <td className="py-3 pr-4">{pkg.rating}</td>
-                              <td className="py-3 pr-4">
-                                <div className="flex items-center gap-2">
-                                  <Link href={`/packages/${pkg.id}`} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors"><Eye className="w-4 h-4" /></Link>
-                                  <button className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors"><Edit className="w-4 h-4" /></button>
-                                  <button onClick={() => handleDeletePackage(pkg.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-muted-foreground hover:text-red-500 transition-colors" data-testid={`btn-delete-pkg-${pkg.id}`}><Trash2 className="w-4 h-4" /></button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead><tr className="border-b border-border">
+                        {["Package", "Destination", "Price", "Category", "Rating", "Actions"].map((h) => (
+                          <th key={h} className="pb-3 text-left font-semibold text-muted-foreground text-xs pr-4">{h}</th>
+                        ))}
+                      </tr></thead>
+                      <tbody className="divide-y divide-border">
+                        {packages.map((pkg) => (
+                          <tr key={pkg.id} data-testid={`admin-pkg-row-${pkg.id}`} className="hover:bg-muted/50">
+                            <td className="py-3 pr-4"><p className="font-medium">{pkg.title}</p></td>
+                            <td className="py-3 pr-4 text-muted-foreground">{pkg.destinationName}</td>
+                            <td className="py-3 pr-4 font-semibold text-primary">₹{pkg.price.toLocaleString()}</td>
+                            <td className="py-3 pr-4"><span className="bg-accent/10 text-accent text-xs font-semibold px-2 py-1 rounded-full">{pkg.category}</span></td>
+                            <td className="py-3 pr-4">{pkg.rating}</td>
+                            <td className="py-3 pr-4">
+                              <div className="flex items-center gap-2">
+                                <Link href={`/packages/${pkg.id}`} className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors"><Eye className="w-4 h-4" /></Link>
+                                <button className="p-1.5 hover:bg-muted rounded-lg text-muted-foreground hover:text-foreground transition-colors"><Edit className="w-4 h-4" /></button>
+                                <button className="p-1.5 hover:bg-red-50 rounded-lg text-muted-foreground hover:text-red-500 transition-colors" data-testid={`btn-delete-pkg-${pkg.id}`}><Trash2 className="w-4 h-4" /></button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
 
               {activeTab === "bookings" && (
                 <div>
                   <h3 className="font-serif font-bold text-lg mb-4">All Bookings</h3>
-                  {bookLoading ? <div className="bg-muted h-48 rounded-xl animate-pulse"/> : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead><tr className="border-b border-border">
-                          {["Customer", "Destination", "Date", "Travelers", "Budget", "Status"].map((h) => (
-                            <th key={h} className="pb-3 text-left font-semibold text-muted-foreground text-xs pr-4">{h}</th>
-                          ))}
-                        </tr></thead>
-                        <tbody className="divide-y divide-border">
-                          {bookings?.map((b) => (
-                            <tr key={b.id} data-testid={`admin-booking-row-${b.id}`} className="hover:bg-muted/50">
-                              <td className="py-3 pr-4"><p className="font-medium">{b.name}</p><p className="text-xs text-muted-foreground">{b.email}</p></td>
-                              <td className="py-3 pr-4 text-muted-foreground">{b.destination}</td>
-                              <td className="py-3 pr-4 text-muted-foreground">{b.travelDate}</td>
-                              <td className="py-3 pr-4">{b.travelers}</td>
-                              <td className="py-3 pr-4 text-xs">{b.budget}</td>
-                              <td className="py-3 pr-4">
-                                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${b.status === "confirmed" ? "bg-green-50 text-green-600" : b.status === "pending" ? "bg-yellow-50 text-yellow-600" : "bg-blue-50 text-blue-600"}`}>
-                                  {b.status}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                      {!bookings?.length && <p className="text-muted-foreground text-center py-8">No bookings yet.</p>}
-                    </div>
-                  )}
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Calendar className="w-12 h-12 mx-auto mb-3 opacity-30" />
+                    <p>No bookings yet.</p>
+                    <p className="text-sm mt-1">Bookings from the Booking form will appear here.</p>
+                  </div>
                 </div>
               )}
 
               {activeTab === "destinations" && (
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-serif font-bold text-lg">All Destinations</h3>
-                  </div>
+                  <h3 className="font-serif font-bold text-lg mb-4">All Destinations</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {destinations?.map((d) => (
+                    {destinations.map((d) => (
                       <div key={d.id} data-testid={`admin-dest-${d.id}`} className="flex items-center gap-3 bg-muted rounded-xl p-4">
                         <img src={d.imageUrl} alt={d.name} className="w-12 h-12 rounded-lg object-cover" />
                         <div className="flex-1 min-w-0">
@@ -186,11 +127,9 @@ export default function Admin() {
 
               {activeTab === "blog" && (
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-serif font-bold text-lg">Blog Posts</h3>
-                  </div>
+                  <h3 className="font-serif font-bold text-lg mb-4">Blog Posts</h3>
                   <div className="space-y-3">
-                    {blogPosts?.map((post) => (
+                    {blogPosts.map((post) => (
                       <div key={post.id} data-testid={`admin-blog-${post.id}`} className="flex items-center gap-4 bg-muted rounded-xl p-4">
                         <img src={post.imageUrl} alt={post.title} className="w-14 h-14 rounded-lg object-cover shrink-0" />
                         <div className="flex-1 min-w-0">
@@ -203,7 +142,6 @@ export default function Admin() {
                         </div>
                       </div>
                     ))}
-                    {!blogPosts?.length && <p className="text-muted-foreground text-center py-8">No blog posts yet.</p>}
                   </div>
                 </div>
               )}
