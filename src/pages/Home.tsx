@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
-  Search, ChevronRight, Star, Users, Award, Shield,
+  Search, ChevronRight, ChevronLeft, Star, Users, Award, Shield,
   Headphones, MapPin, Plane, Mountain, Heart, Crown,
   ArrowRight, CheckCircle, Phone, Globe, TrendingUp, Sparkles
 } from "lucide-react";
@@ -116,9 +116,20 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const t = setInterval(() => setTestimonialIdx((i) => (i + 1) % Math.ceil(testimonials.length / 3)), 4500);
+    if (testimonials.length <= 1) return;
+    const t = setInterval(() => {
+      setTestimonialIdx((i) => (i + 1) % testimonials.length);
+    }, 4500);
     return () => clearInterval(t);
   }, []);
+
+  const nextTestimonial = () => {
+    setTestimonialIdx((i) => (i + 1) % testimonials.length);
+  };
+
+  const prevTestimonial = () => {
+    setTestimonialIdx((i) => (i - 1 + testimonials.length) % testimonials.length);
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -430,15 +441,47 @@ export default function Home() {
       {/* ─── TESTIMONIALS ─── */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <SectionHeading badge="Real Reviews" title="What Our Travelers Say" subtitle="Authentic experiences from people who've traveled with us" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-14">
-          {testimonials.slice(testimonialIdx * 3, testimonialIdx * 3 + 3).map((t) => (
-            <TestimonialCard key={t.id} testimonial={t} />
-          ))}
+        <div className="relative mt-14">
+          <div className="overflow-hidden">
+            <motion.div
+              className="flex"
+              animate={{ x: `-${testimonialIdx * 100}%` }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+            >
+              {testimonials.map((t) => (
+                <div key={t.id} className="w-full shrink-0 px-1 sm:px-2">
+                  <div className="mx-auto max-w-3xl">
+                    <TestimonialCard testimonial={t} />
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </div>
+
+          <button
+            type="button"
+            aria-label="Previous testimonial"
+            onClick={prevTestimonial}
+            className="absolute left-0 top-1/2 hidden -translate-y-1/2 rounded-full border border-border bg-white p-2 text-foreground shadow-sm transition-colors hover:bg-muted md:inline-flex"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            aria-label="Next testimonial"
+            onClick={nextTestimonial}
+            className="absolute right-0 top-1/2 hidden -translate-y-1/2 rounded-full border border-border bg-white p-2 text-foreground shadow-sm transition-colors hover:bg-muted md:inline-flex"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
+
         <div className="flex justify-center gap-2 mt-10">
-          {Array.from({ length: Math.ceil(testimonials.length / 3) }).map((_, i) => (
+          {testimonials.map((t, i) => (
             <button
-              key={i}
+              key={t.id}
+              type="button"
+              aria-label={`Go to testimonial ${i + 1}`}
               onClick={() => setTestimonialIdx(i)}
               className={`h-1.5 rounded-full transition-all duration-500 ${i === testimonialIdx ? "bg-primary w-10" : "bg-muted-foreground/30 w-4"}`}
             />
