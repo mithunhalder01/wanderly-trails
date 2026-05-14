@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Clock, User, ChevronRight } from "lucide-react";
 import { blogPosts } from "@/data/staticData";
+import PageHero from "@/components/PageHero";
 
 const categories = ["All", "Travel Tips", "Destinations", "Budget Travel", "Visa Guide", "Beaches"];
 
@@ -16,18 +17,20 @@ export default function Blog() {
 
   return (
     <div className="pt-20">
-      <section className="relative h-64 flex items-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=80" alt="Blog" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-secondary/70" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Travel Stories</span>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold">Our Blog</h1>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero
+        image="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=80"
+        alt="Blog"
+        badge="Travel Stories"
+        title="Our Blog"
+        subtitle="Expert travel guides, planning tips, and destination insights."
+      />
 
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="mb-10 flex items-center justify-between rounded-2xl border border-border bg-card px-5 py-4">
+          <p className="text-sm text-muted-foreground">{posts.length} articles available</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-foreground/70">{active}</p>
+        </div>
+
         <div className="flex flex-wrap gap-3 justify-center mb-12">
           {categories.map((cat) => (
             <button key={cat} onClick={() => setActive(cat)} data-testid={`filter-blog-${cat.toLowerCase().replace(/ /g, "-")}`}

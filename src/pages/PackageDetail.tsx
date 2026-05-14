@@ -4,8 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Star, Clock, Hotel, Utensils, Bus, Check, X, MapPin } from "lucide-react";
 import { getPackageById, getRelatedPackages } from "@/data/staticData";
 import PackageCard from "@/components/PackageCard";
-
-const WHATSAPP_NUMBER = "911234567890";
+import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
 const tabs = ["Overview", "Itinerary", "Included", "Related"];
 
 export default function PackageDetail() {
@@ -32,7 +31,7 @@ export default function PackageDetail() {
   const whatsappMsg = encodeURIComponent(
     `Hi! Main "${pkg.title}" package book karna chahta/chahti hoon.\n\nDestination: ${pkg.destinationName}\nDuration: ${pkg.duration} Days / ${pkg.nights} Nights\nPrice: ₹${pkg.price.toLocaleString()} per person\n\nPlease mujhe booking details batayein. Shukriya!`
   );
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMsg}`;
+  const whatsappUrl = `https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${whatsappMsg}`;
 
   return (
     <div className="pt-20">

@@ -2,20 +2,18 @@ import { motion } from "framer-motion";
 import { testimonials } from "@/data/staticData";
 import TestimonialCard from "@/components/TestimonialCard";
 import SectionHeading from "@/components/SectionHeading";
+import PageHero from "@/components/PageHero";
 
 export default function Testimonials() {
   return (
     <div className="pt-20">
-      <section className="relative h-64 flex items-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=1920&q=80" alt="Testimonials" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-secondary/70" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Real Reviews</span>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold">What Travelers Say</h1>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero
+        image="https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=1920&q=80"
+        alt="Traveler Testimonials"
+        badge="Real Reviews"
+        title="What Travelers Say"
+        subtitle="Verified guest feedback from domestic and international tours."
+      />
 
       <section className="py-16 bg-muted/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,9 +24,9 @@ export default function Testimonials() {
               { num: "98%", label: "Would Recommend" },
               { num: "120+", label: "Destinations" },
             ].map(({ num, label }) => (
-              <div key={label} className="bg-card rounded-2xl p-6 shadow-sm">
-                <p className="text-3xl font-serif font-bold text-primary">{num}</p>
-                <p className="text-muted-foreground text-sm mt-1">{label}</p>
+              <div key={label} className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                <p className="text-3xl font-serif font-bold text-foreground">{num}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{label}</p>
               </div>
             ))}
           </div>

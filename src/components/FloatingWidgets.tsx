@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Bot, ChevronDown } from "lucide-react";
-
-const WHATSAPP_NUMBER = "911234567890";
+import {
+  CONTACT_PHONE_DISPLAY,
+  CONTACT_WHATSAPP_NUMBER,
+} from "@/lib/contact";
 const WHATSAPP_MSG = encodeURIComponent("Hi! I'm interested in booking a travel package with Wanderly Trails.");
 
 const chatResponses: Record<string, string> = {
@@ -13,7 +15,7 @@ const chatResponses: Record<string, string> = {
   kashmir: "Kashmir — Paradise on Earth! Our Kashmir Valley Romance (7 days) starts at ₹22,999 🏔️",
   honeymoon: "We have amazing honeymoon packages! Bali, Maldives, and Kashmir are our top picks. Prices start at ₹22,999 💑",
   budget: "We have packages for every budget, starting from just ₹8,999! Check our Packages page for full details 💰",
-  booking: "To book a trip, visit our Booking page or call us at +91 12345 67890. We're available 24/7! 📞",
+  booking: `To book a trip, visit our Booking page or call us at ${CONTACT_PHONE_DISPLAY}. We're available 24/7! 📞`,
   help: "I can help with:\n• Destination info\n• Package details\n• Booking queries\n• Visa guidance\n• Travel tips\n\nJust ask away! 😊",
 };
 
@@ -27,7 +29,7 @@ function getResponse(input: string): string {
   if (lower.includes("budget") || lower.includes("cheap") || lower.includes("price") || lower.includes("cost")) return chatResponses.budget;
   if (lower.includes("book") || lower.includes("reserve") || lower.includes("confirm")) return chatResponses.booking;
   if (lower.includes("help") || lower.includes("hi") || lower.includes("hello") || lower.includes("hey")) return chatResponses.help;
-  return "That's a great question! For detailed help, our travel experts are just a call away at +91 12345 67890, or you can WhatsApp us for a quick reply 😊";
+  return `That's a great question! For detailed help, our travel experts are just a call away at ${CONTACT_PHONE_DISPLAY}, or you can WhatsApp us for a quick reply 😊`;
 }
 
 interface Message {
@@ -158,7 +160,7 @@ export default function FloatingWidgets() {
       <div className="flex items-center gap-3">
         {/* WhatsApp */}
         <motion.a
-          href={`https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
+          href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
           target="_blank"
           rel="noreferrer"
           data-testid="whatsapp-float-btn"

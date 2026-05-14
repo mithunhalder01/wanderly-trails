@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ZoomIn } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
+import PageHero from "@/components/PageHero";
 
 const photos = [
   { src: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80", alt: "Beach Sunset", cat: "Beaches", span: "col-span-2" },
@@ -28,16 +29,13 @@ export default function Gallery() {
 
   return (
     <div className="pt-20">
-      <section className="relative h-64 flex items-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80" alt="Gallery" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-secondary/70" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Our Memories</span>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold">Travel Gallery</h1>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero
+        image="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80"
+        alt="Travel Gallery"
+        badge="Our Memories"
+        title="Travel Gallery"
+        subtitle="A visual collection of places, experiences, and traveler moments."
+      />
 
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap gap-3 justify-center mb-12">

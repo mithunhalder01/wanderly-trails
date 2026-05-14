@@ -2,6 +2,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
+import PageHero from "@/components/PageHero";
+import { CONTACT_EMAIL, CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
 
 const faqs = [
   { q: "What is your refund policy?", a: "We offer a full refund if you cancel 30+ days before departure, 50% refund for 15-29 days, and no refund for cancellations within 14 days. Travel insurance is strongly recommended." },
@@ -21,18 +23,15 @@ export default function FAQ() {
 
   return (
     <div className="pt-20">
-      <section className="relative h-64 flex items-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80" alt="FAQ" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-secondary/70" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Got Questions?</span>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold">Frequently Asked Questions</h1>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero
+        image="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80"
+        alt="Frequently asked questions"
+        badge="Got Questions?"
+        title="Frequently Asked Questions"
+        subtitle="Quick answers about booking, cancellation, payments, and support."
+      />
 
-      <section className="py-16 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-16 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading badge="FAQ" title="Everything You Need to Know" subtitle="Can't find what you're looking for? Contact our support team." />
 
         <div className="mt-12 space-y-4">
@@ -74,8 +73,8 @@ export default function FAQ() {
           <h3 className="font-serif font-bold text-xl mb-2">Still have questions?</h3>
           <p className="text-white/70 mb-5 text-sm">Our team is ready to help you plan your perfect journey.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a href="mailto:hello@wanderlytrails.com" className="bg-white/20 hover:bg-white/30 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm">Email Us</a>
-            <a href="https://wa.me/911234567890" target="_blank" rel="noreferrer" className="bg-accent hover:bg-accent/90 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm">WhatsApp Us</a>
+            <a href={`mailto:${CONTACT_EMAIL}`} className="bg-white/20 hover:bg-white/30 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm">Email Us</a>
+            <a href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" className="bg-accent hover:bg-accent/90 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm">WhatsApp Us</a>
           </div>
         </div>
       </section>

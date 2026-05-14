@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Users, MapPin, Star, Award, Target, Eye } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
+import PageHero from "@/components/PageHero";
 
 const team = [
   { name: "Arjun Mehta", role: "Founder & CEO", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80", bio: "15+ years in travel industry, passionate about creating unforgettable journeys." },
@@ -19,17 +20,14 @@ const achievements = [
 export default function About() {
   return (
     <div className="pt-20">
-      {/* Hero */}
-      <section className="relative h-72 md:h-96 flex items-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80" alt="About" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-secondary/70" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Our Story</span>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold">About Wanderly Trails</h1>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero
+        image="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80"
+        alt="About Wanderly Trails"
+        badge="Our Story"
+        title="About Wanderly Trails"
+        subtitle="A trusted India tour and travel agency focused on safe, memorable, and well-planned holidays."
+        heightClass="h-72 md:h-96"
+      />
 
       {/* Story */}
       <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -85,17 +83,19 @@ export default function About() {
       </section>
 
       {/* Achievements */}
-      <section className="py-20 bg-primary text-white">
+      <section className="py-20 bg-muted/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading badge="Our Track Record" title="Our Achievements" />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12 text-center">
             {achievements.map(({ icon: Icon, num, label }) => (
               <motion.div key={label} initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
-                <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mx-auto mb-4">
-                  <Icon className="w-8 h-8" />
+                <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
+                    <Icon className="h-7 w-7 text-primary" />
+                  </div>
+                  <p className="mb-2 text-3xl font-serif font-bold text-foreground">{num}</p>
+                  <p className="text-sm text-muted-foreground">{label}</p>
                 </div>
-                <p className="text-4xl font-serif font-bold mb-2">{num}</p>
-                <p className="text-white/70">{label}</p>
               </motion.div>
             ))}
           </div>

@@ -1,6 +1,13 @@
 import { useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import { getBlogPostById, getDestinationById, getPackageById } from "@/data/staticData";
+import {
+  CONTACT_EMAIL,
+  CONTACT_MAPS_URL,
+  CONTACT_OFFICE_ADDRESS,
+  CONTACT_PHONE_DISPLAY,
+  SOCIAL_LINKS,
+} from "@/lib/contact";
 
 const SITE_NAME = "Wanderly Trails";
 const SITE_URL = "https://wanderlytrails.com";
@@ -310,8 +317,18 @@ export default function SeoManager() {
         image: DEFAULT_IMAGE,
         description: DEFAULT_DESCRIPTION,
         areaServed: "India",
-        telephone: "+91 12345 67890",
-        email: "hello@wanderlytrails.com",
+        telephone: CONTACT_PHONE_DISPLAY,
+        email: CONTACT_EMAIL,
+        address: {
+          "@type": "PostalAddress",
+          streetAddress: CONTACT_OFFICE_ADDRESS,
+          addressLocality: "Noida",
+          addressRegion: "Uttar Pradesh",
+          postalCode: "201301",
+          addressCountry: "IN",
+        },
+        hasMap: CONTACT_MAPS_URL,
+        sameAs: [SOCIAL_LINKS.instagram, SOCIAL_LINKS.x, SOCIAL_LINKS.facebook, SOCIAL_LINKS.youtube],
       },
       {
         "@type": "WebSite",

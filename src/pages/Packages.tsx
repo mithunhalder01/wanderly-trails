@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react";
 import { useSearch } from "wouter";
-import { motion } from "framer-motion";
 import { SlidersHorizontal } from "lucide-react";
 import { packages } from "@/data/staticData";
 import PackageCard from "@/components/PackageCard";
+import PageHero from "@/components/PageHero";
 
 const categories = ["All", "Adventure", "Honeymoon", "Family", "Solo", "Luxury", "Beaches"];
 const durations = ["All", "1-3", "4-7", "8-14", "15+"];
@@ -38,19 +38,16 @@ export default function Packages() {
 
   return (
     <div className="pt-20">
-      <section className="relative h-64 flex items-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80" alt="Packages" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-secondary/70" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Find Your Trip</span>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold">All Packages</h1>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero
+        image="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80"
+        alt="Packages"
+        badge="Find Your Trip"
+        title="All Packages"
+        subtitle="Compare curated itineraries by category, duration, and budget."
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 rounded-2xl border border-border bg-card px-5 py-4">
           <p className="text-muted-foreground">{filteredPackages.length} packages found</p>
           <button
             onClick={() => setShowFilters(!showFilters)}

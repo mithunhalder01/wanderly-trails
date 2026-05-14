@@ -1,5 +1,13 @@
 import { Link } from "wouter";
 import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube } from "lucide-react";
+import {
+  CONTACT_EMAIL,
+  CONTACT_MAPS_URL,
+  CONTACT_OFFICE_ADDRESS,
+  CONTACT_PHONE_DIGITS,
+  CONTACT_PHONE_DISPLAY,
+  SOCIAL_LINKS,
+} from "@/lib/contact";
 
 export default function Footer() {
   return (
@@ -28,8 +36,20 @@ export default function Footer() {
               Making travel easy and memorable since 2015. We craft experiences that last a lifetime, from serene beaches to majestic mountains.
             </p>
             <div className="flex items-center gap-3">
-              {[Facebook, Twitter, Instagram, Youtube].map((Icon, i) => (
-                <a key={i} href="#" className="w-9 h-9 rounded-full bg-white/10 hover:bg-primary transition-colors flex items-center justify-center">
+              {[
+                { Icon: Facebook, href: SOCIAL_LINKS.facebook, label: "Facebook" },
+                { Icon: Twitter, href: SOCIAL_LINKS.x, label: "X" },
+                { Icon: Instagram, href: SOCIAL_LINKS.instagram, label: "Instagram" },
+                { Icon: Youtube, href: SOCIAL_LINKS.youtube, label: "YouTube" },
+              ].map(({ Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={label}
+                  className="w-9 h-9 rounded-full bg-white/10 hover:bg-primary transition-colors flex items-center justify-center"
+                >
                   <Icon className="w-4 h-4" />
                 </a>
               ))}
@@ -74,15 +94,22 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-accent mt-0.5 shrink-0" />
-                <span className="text-sm text-secondary-foreground/70">123 Travel Street, Mumbai, Maharashtra 400001</span>
+                <a
+                  href={CONTACT_MAPS_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-sm text-secondary-foreground/70 hover:text-accent transition-colors"
+                >
+                  {CONTACT_OFFICE_ADDRESS}
+                </a>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-accent shrink-0" />
-                <a href="tel:+911234567890" className="text-sm text-secondary-foreground/70 hover:text-accent transition-colors">+91 12345 67890</a>
+                <a href={`tel:+91${CONTACT_PHONE_DIGITS}`} className="text-sm text-secondary-foreground/70 hover:text-accent transition-colors">{CONTACT_PHONE_DISPLAY}</a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-accent shrink-0" />
-                <a href="mailto:hello@wanderlytrails.com" className="text-sm text-secondary-foreground/70 hover:text-accent transition-colors">hello@wanderlytrails.com</a>
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-sm text-secondary-foreground/70 hover:text-accent transition-colors">{CONTACT_EMAIL}</a>
               </li>
             </ul>
           </div>

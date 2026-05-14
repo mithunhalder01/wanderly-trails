@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
-  Search, ChevronRight, ChevronLeft, Star, Users, Award, Shield,
+  Search, ChevronRight, ChevronLeft, ChevronDown, Star, Users, Award, Shield,
   Headphones, MapPin, Plane, Mountain, Heart, Crown,
   ArrowRight, CheckCircle, Phone, Globe, TrendingUp, Sparkles
 } from "lucide-react";
@@ -15,8 +15,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
-
-const WHATSAPP_NUMBER = "911234567890";
+import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
 
 const heroSlides = [
   {
@@ -65,6 +64,29 @@ const whyUs = [
   { icon: TrendingUp, title: "5000+ Happy Trips", desc: "A track record you can trust for your next adventure." },
 ];
 
+const homeFaqs = [
+  {
+    q: "How do I book a trip with Wanderly Trails?",
+    a: "You can book directly from the Booking page or WhatsApp us with your destination, travel dates, and number of travelers.",
+  },
+  {
+    q: "Can I customize my tour package?",
+    a: "Yes. We create custom itineraries based on your budget, travel style, and preferred destinations.",
+  },
+  {
+    q: "What is included in the package price?",
+    a: "Most packages include hotel stay, transfers, and sightseeing. Exact inclusions are listed on each package detail page.",
+  },
+  {
+    q: "Do you support international trips from India?",
+    a: "Absolutely. We offer both domestic and international tours including Bali, Dubai, Maldives, and more.",
+  },
+  {
+    q: "How can I contact your support team quickly?",
+    a: `You can call us or send a WhatsApp message on +${CONTACT_WHATSAPP_NUMBER} for faster assistance.`,
+  },
+];
+
 function AnimatedNumber({ target, suffix }: { target: number; suffix: string }) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
@@ -98,6 +120,7 @@ const heroTextFade = { duration: 0.45, ease: heroEase };
 export default function Home() {
   const [heroIdx, setHeroIdx] = useState(0);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
+  const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
   const [, setLocation] = useLocation();
   const [searchDest, setSearchDest] = useState("");
   const { toast } = useToast();
@@ -208,7 +231,7 @@ export default function Home() {
               Explore Packages
             </Link>
             <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I want to plan a custom trip with Wanderly Trails.")}`}
+              href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I want to plan a custom trip with Wanderly Trails.")}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#25D366] px-9 py-4 text-center text-lg font-bold text-white shadow-2xl transition-all hover:-translate-y-1 hover:bg-[#20bd5c] sm:w-auto"
@@ -367,7 +390,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a
-                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I want to book a trip. Please help me plan.")}`}
+                href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I want to book a trip. Please help me plan.")}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center justify-center gap-3 bg-white text-[#075E54] font-bold px-9 py-4 rounded-2xl hover:bg-green-50 transition-all shadow-lg hover:-translate-y-0.5 text-lg"
@@ -525,6 +548,46 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ─── FAQ PREVIEW ─── */}
+      <section className="py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SectionHeading
+          badge="FAQ"
+          title="Frequently Asked Questions"
+          subtitle="Quick answers before you book your next trip."
+        />
+        <div className="mt-10 space-y-4">
+          {homeFaqs.map((faq, i) => (
+            <div key={faq.q} className="rounded-2xl border border-border bg-card overflow-hidden">
+              <button
+                type="button"
+                onClick={() => setOpenFaqIdx(openFaqIdx === i ? null : i)}
+                className="flex w-full items-center justify-between px-5 py-4 text-left hover:bg-muted/40 transition-colors"
+                data-testid={`home-faq-toggle-${i}`}
+              >
+                <span className="pr-4 text-sm md:text-base font-semibold text-foreground">{faq.q}</span>
+                <ChevronDown
+                  className={`h-5 w-5 shrink-0 text-primary transition-transform ${
+                    openFaqIdx === i ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              <AnimatePresence initial={false}>
+                {openFaqIdx === i && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">{faq.a}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ))}
         </div>
       </section>
 

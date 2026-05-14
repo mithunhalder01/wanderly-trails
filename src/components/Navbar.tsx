@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
 
-const WHATSAPP_NUMBER = "911234567890";
 const WHATSAPP_MSG = encodeURIComponent("Hi! I want to book a travel package with Wanderly Trails. Please help me.");
 
 const navLinks = [
@@ -79,7 +79,7 @@ export default function Navbar() {
 
           <div className="hidden lg:flex items-center gap-3">
             <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
+              href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
               target="_blank"
               rel="noreferrer"
               data-testid="nav-book-now"
@@ -125,7 +125,7 @@ export default function Navbar() {
               ))}
               <div className="pt-3 border-t border-border mt-2">
                 <a
-                  href={`https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
+                  href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
                   target="_blank"
                   rel="noreferrer"
                   onClick={() => setOpen(false)}

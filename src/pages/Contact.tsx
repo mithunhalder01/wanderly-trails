@@ -1,10 +1,19 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Phone, Mail, MapPin, MessageCircle, CheckCircle } from "lucide-react";
+import PageHero from "@/components/PageHero";
+import {
+  CONTACT_EMAIL,
+  CONTACT_MAPS_EMBED_URL,
+  CONTACT_MAPS_URL,
+  CONTACT_OFFICE_ADDRESS,
+  CONTACT_PHONE_DIGITS,
+  CONTACT_PHONE_DISPLAY,
+  CONTACT_WHATSAPP_NUMBER,
+} from "@/lib/contact";
 
 const schema = z.object({
   name: z.string().min(2),
@@ -37,29 +46,26 @@ export default function Contact() {
 
   return (
     <div className="pt-20">
-      <section className="relative h-64 flex items-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=1920&q=80" alt="Contact" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-secondary/70" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Get In Touch</span>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold">Contact Us</h1>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero
+        image="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=1920&q=80"
+        alt="Contact Wanderly Trails"
+        badge="Get In Touch"
+        title="Contact Us"
+        subtitle="Our travel experts are ready to help you plan the right trip."
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <div className="space-y-6">
+          <div className="space-y-6 rounded-2xl border border-border bg-card p-6 lg:p-8">
             <div>
               <h2 className="text-2xl font-serif font-bold mb-2">Let's Talk</h2>
               <p className="text-muted-foreground">Have a question or ready to plan your next adventure? Our team is here to help.</p>
             </div>
 
             {[
-              { icon: Phone, label: "Phone", val: "+91 12345 67890", href: "tel:+911234567890" },
-              { icon: Mail, label: "Email", val: "hello@wanderlytrails.com", href: "mailto:hello@wanderlytrails.com" },
-              { icon: MapPin, label: "Office", val: "123 Travel Street, Mumbai, MH 400001" },
+              { icon: Phone, label: "Phone", val: CONTACT_PHONE_DISPLAY, href: `tel:+91${CONTACT_PHONE_DIGITS}` },
+              { icon: Mail, label: "Email", val: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
+              { icon: MapPin, label: "Office", val: CONTACT_OFFICE_ADDRESS, href: CONTACT_MAPS_URL },
             ].map(({ icon: Icon, label, val, href }) => (
               <div key={label} className="flex items-start gap-4">
                 <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -77,7 +83,7 @@ export default function Contact() {
             ))}
 
             <a
-              href="https://wa.me/911234567890"
+              href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}`}
               target="_blank"
               rel="noreferrer"
               data-testid="btn-whatsapp"
@@ -87,12 +93,22 @@ export default function Contact() {
               Chat on WhatsApp
             </a>
 
-            <div className="bg-muted rounded-2xl h-52 flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <MapPin className="w-8 h-8 mx-auto mb-2" />
-                <p className="text-sm">123 Travel Street, Mumbai</p>
-                <p className="text-xs">Google Maps Integration</p>
-              </div>
+            <div className="overflow-hidden rounded-2xl border border-border/60 bg-muted">
+              <iframe
+                title="Wanderly Trails Office Location"
+                src={CONTACT_MAPS_EMBED_URL}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-56 w-full border-0"
+              />
+              <a
+                href={CONTACT_MAPS_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="block px-4 py-2 text-xs font-semibold text-primary hover:text-primary/80"
+              >
+                Open in Google Maps
+              </a>
             </div>
           </div>
 
