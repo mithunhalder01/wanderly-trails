@@ -14,15 +14,9 @@
   "postCreateCommand": "npm install",
   "customizations": {
     "vscode": {
-      "extensions": [
-        "dbaeumer.vscode-eslint",
-        "esbenp.prettier-vscode",
-        "bradlc.vscode-tailwindcss"
-      ],
+      "extensions": ["bradlc.vscode-tailwindcss"],
       "settings": {
-        "editor.formatOnSave": true,
-        "typescript.tsdk": "node_modules/typescript/lib",
-        "typescript.enablePromptUseWorkspaceTsdk": true
+        "editor.formatOnSave": false
       }
     }
   },
