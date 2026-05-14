@@ -19,6 +19,7 @@ import Testimonials from "@/pages/Testimonials";
 import Booking from "@/pages/Booking";
 import FAQ from "@/pages/FAQ";
 import Contact from "@/pages/Contact";
+import SeoManager from "@/components/SeoManager";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
@@ -60,6 +61,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+          <SeoManager />
           <Router />
           <FloatingWidgets />
         </WouterRouter>
