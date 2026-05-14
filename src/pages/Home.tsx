@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
@@ -6,7 +6,6 @@ import {
   Headphones, MapPin, Plane, Mountain, Heart, Crown,
   ArrowRight, CheckCircle, Phone, Globe, TrendingUp, Sparkles
 } from "lucide-react";
-import { featuredDestinations, featuredPackages, testimonials, blogPosts } from "@/data/staticData";
 import DestinationCard from "@/components/DestinationCard";
 import PackageCard from "@/components/PackageCard";
 import TestimonialCard from "@/components/TestimonialCard";
@@ -16,8 +15,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
+import { useContent } from "@/context/content";
 
-const heroSlides = [
+const defaultHeroSlides = [
   {
     img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80",
     tag: "🏖️ Beach Getaways",
@@ -118,6 +118,7 @@ const heroBgCrossfade = { duration: 1.05, ease: heroEase };
 const heroTextFade = { duration: 0.45, ease: heroEase };
 
 export default function Home() {
+  const { featuredDestinations, featuredPackages, testimonials, blogPosts, settings } = useContent();
   const [heroIdx, setHeroIdx] = useState(0);
   const [testimonialIdx, setTestimonialIdx] = useState(0);
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(0);
@@ -125,18 +126,44 @@ export default function Home() {
   const [searchDest, setSearchDest] = useState("");
   const { toast } = useToast();
   const form = useForm<NewsletterForm>({ resolver: zodResolver(newsletterSchema), defaultValues: { email: "" } });
+  const heroSlides = useMemo(
+    () => [
+      {
+        ...defaultHeroSlides[0],
+        tag: settings.heroTag,
+        title: settings.heroTitle,
+        highlight: settings.heroHighlight,
+        sub: settings.heroSubtitle,
+      },
+      ...defaultHeroSlides.slice(1),
+    ],
+    [settings.heroHighlight, settings.heroSubtitle, settings.heroTag, settings.heroTitle]
+  );
 
   useEffect(() => {
     heroSlides.forEach((s) => {
       const img = new Image();
       img.src = s.img;
     });
-  }, []);
+  }, [heroSlides]);
 
   useEffect(() => {
+    if (heroSlides.length <= 1) return;
     const t = setInterval(() => setHeroIdx((i) => (i + 1) % heroSlides.length), 5500);
     return () => clearInterval(t);
-  }, []);
+  }, [heroSlides]);
+
+  useEffect(() => {
+    if (heroIdx >= heroSlides.length) {
+      setHeroIdx(0);
+    }
+  }, [heroIdx, heroSlides.length]);
+
+  useEffect(() => {
+    if (testimonialIdx >= testimonials.length && testimonials.length > 0) {
+      setTestimonialIdx(0);
+    }
+  }, [testimonialIdx, testimonials.length]);
 
   useEffect(() => {
     if (testimonials.length <= 1) return;
@@ -144,13 +171,15 @@ export default function Home() {
       setTestimonialIdx((i) => (i + 1) % testimonials.length);
     }, 4500);
     return () => clearInterval(t);
-  }, []);
+  }, [testimonials]);
 
   const nextTestimonial = () => {
+    if (testimonials.length === 0) return;
     setTestimonialIdx((i) => (i + 1) % testimonials.length);
   };
 
   const prevTestimonial = () => {
+    if (testimonials.length === 0) return;
     setTestimonialIdx((i) => (i - 1 + testimonials.length) % testimonials.length);
   };
 
@@ -165,7 +194,7 @@ export default function Home() {
     void data;
   };
 
-  const slide = heroSlides[heroIdx];
+  const slide = heroSlides[heroIdx] ?? heroSlides[0];
 
   return (
     <div className="overflow-x-hidden">
@@ -228,7 +257,7 @@ export default function Home() {
               data-testid="hero-explore-btn"
               className="inline-flex w-full items-center justify-center rounded-2xl bg-accent px-9 py-4 text-center text-lg font-bold text-white shadow-2xl transition-all hover:-translate-y-1 hover:bg-accent/90 sm:w-auto"
             >
-              Explore Packages
+              {settings.heroPrimaryCta}
             </Link>
             <a
               href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi! I want to plan a custom trip with Wanderly Trails.")}`}
@@ -299,36 +328,38 @@ export default function Home() {
       </section>
 
       {/* ─── TRUST BAR ─── */}
-      <section className="border-y border-border bg-white py-12 md:py-14">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="mb-8 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground md:text-xs">
-            Trusted by travelers · Real trips · Real reviews
-          </p>
+      {settings.showTrustBar && (
+        <section className="border-y border-border bg-white py-12 md:py-14">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <p className="mb-8 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground md:text-xs">
+              Trusted by travelers · Real trips · Real reviews
+            </p>
 
-          <div className="grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-4">
-            {stats.map((s, i) => (
-              <motion.div
-                key={s.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.06 }}
-                className="flex flex-col items-center text-center lg:border-l lg:border-border first:lg:border-l-0"
-              >
-                <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground/70">
-                  <s.icon className="h-4 w-4" strokeWidth={1.9} />
-                </div>
-                <p className="font-sans text-2xl font-bold tabular-nums tracking-tight text-foreground md:text-3xl">
-                  <AnimatedNumber target={s.num} suffix={s.suffix} />
-                </p>
-                <p className="mt-1 text-[11px] font-medium leading-snug text-muted-foreground md:text-xs">
-                  {s.label}
-                </p>
-              </motion.div>
-            ))}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-4">
+              {stats.map((s, i) => (
+                <motion.div
+                  key={s.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.06 }}
+                  className="flex flex-col items-center text-center lg:border-l lg:border-border first:lg:border-l-0"
+                >
+                  <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground/70">
+                    <s.icon className="h-4 w-4" strokeWidth={1.9} />
+                  </div>
+                  <p className="font-sans text-2xl font-bold tabular-nums tracking-tight text-foreground md:text-3xl">
+                    <AnimatedNumber target={s.num} suffix={s.suffix} />
+                  </p>
+                  <p className="mt-1 text-[11px] font-medium leading-snug text-muted-foreground md:text-xs">
+                    {s.label}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ─── FEATURED DESTINATIONS ─── */}
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -339,7 +370,9 @@ export default function Home() {
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {featuredDestinations.map((d, i) => <DestinationCard key={d.id} destination={d} index={i} />)}
+          {featuredDestinations
+            .slice(0, settings.featuredDestinationCount)
+            .map((d, i) => <DestinationCard key={d.id} destination={d} index={i} />)}
         </div>
         <div className="mt-8 text-center md:hidden">
           <Link href="/destinations" className="inline-flex items-center gap-2 text-primary font-semibold text-sm">
@@ -358,7 +391,9 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {featuredPackages.map((p, i) => <PackageCard key={p.id} pkg={p} index={i} />)}
+            {featuredPackages
+              .slice(0, settings.featuredPackageCount)
+              .map((p, i) => <PackageCard key={p.id} pkg={p} index={i} />)}
           </div>
           <div className="mt-8 text-center md:hidden">
             <Link href="/packages" className="inline-flex items-center gap-2 text-primary font-semibold text-sm">
@@ -403,7 +438,7 @@ export default function Home() {
                 className="inline-flex items-center justify-center gap-2 border-2 border-white/50 text-white font-bold px-9 py-4 rounded-2xl hover:bg-white/10 transition-all text-lg"
               >
                 <Sparkles className="w-5 h-5" />
-                Custom Package
+                {settings.heroSecondaryCta}
               </Link>
             </div>
             <div className="flex items-center justify-center gap-6 mt-8 text-white/70 text-sm">
@@ -465,38 +500,46 @@ export default function Home() {
       <section className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <SectionHeading badge="Real Reviews" title="What Our Travelers Say" subtitle="Authentic experiences from people who've traveled with us" />
         <div className="relative mt-14">
-          <div className="overflow-hidden">
-            <motion.div
-              className="flex"
-              animate={{ x: `-${testimonialIdx * 100}%` }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-            >
-              {testimonials.map((t) => (
-                <div key={t.id} className="w-full shrink-0 px-1 sm:px-2">
-                  <div className="mx-auto max-w-3xl">
-                    <TestimonialCard testimonial={t} />
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          </div>
+          {testimonials.length > 0 ? (
+            <>
+              <div className="overflow-hidden">
+                <motion.div
+                  className="flex"
+                  animate={{ x: `-${testimonialIdx * 100}%` }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                >
+                  {testimonials.map((t) => (
+                    <div key={t.id} className="w-full shrink-0 px-1 sm:px-2">
+                      <div className="mx-auto max-w-3xl">
+                        <TestimonialCard testimonial={t} />
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              </div>
 
-          <button
-            type="button"
-            aria-label="Previous testimonial"
-            onClick={prevTestimonial}
-            className="absolute left-0 top-1/2 hidden -translate-y-1/2 rounded-full border border-border bg-white p-2 text-foreground shadow-sm transition-colors hover:bg-muted md:inline-flex"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            aria-label="Next testimonial"
-            onClick={nextTestimonial}
-            className="absolute right-0 top-1/2 hidden -translate-y-1/2 rounded-full border border-border bg-white p-2 text-foreground shadow-sm transition-colors hover:bg-muted md:inline-flex"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+              <button
+                type="button"
+                aria-label="Previous testimonial"
+                onClick={prevTestimonial}
+                className="absolute left-0 top-1/2 hidden -translate-y-1/2 rounded-full border border-border bg-white p-2 text-foreground shadow-sm transition-colors hover:bg-muted md:inline-flex"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                aria-label="Next testimonial"
+                onClick={nextTestimonial}
+                className="absolute right-0 top-1/2 hidden -translate-y-1/2 rounded-full border border-border bg-white p-2 text-foreground shadow-sm transition-colors hover:bg-muted md:inline-flex"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </>
+          ) : (
+            <div className="rounded-2xl border border-dashed border-border bg-muted/40 p-8 text-center text-sm text-muted-foreground">
+              No testimonials added yet. You can add them from Admin Panel.
+            </div>
+          )}
         </div>
 
         <div className="flex justify-center gap-2 mt-10">
@@ -522,7 +565,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {blogPosts.slice(0, 3).map((post, i) => (
+            {blogPosts.slice(0, settings.featuredBlogCount).map((post, i) => (
               <motion.div
                 key={post.id}
                 initial={{ opacity: 0, y: 20 }}

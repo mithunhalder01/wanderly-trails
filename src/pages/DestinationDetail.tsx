@@ -1,11 +1,12 @@
 import { useRoute, Link } from "wouter";
 import { motion } from "framer-motion";
 import { MapPin, Calendar, Star, Thermometer, ArrowLeft } from "lucide-react";
-import { getDestinationById, getPackagesByDestination } from "@/data/staticData";
 import PackageCard from "@/components/PackageCard";
 import SectionHeading from "@/components/SectionHeading";
+import { useContent } from "@/context/content";
 
 export default function DestinationDetail() {
+  const { getDestinationById, getPackagesByDestination } = useContent();
   const [, params] = useRoute("/destinations/:id");
   const id = params?.id ? parseInt(params.id) : 0;
   const destination = getDestinationById(id);

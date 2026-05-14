@@ -2,12 +2,13 @@ import { useState, useMemo } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Clock, User, ChevronRight } from "lucide-react";
-import { blogPosts } from "@/data/staticData";
 import PageHero from "@/components/PageHero";
+import { useContent } from "@/context/content";
 
 const categories = ["All", "Travel Tips", "Destinations", "Budget Travel", "Visa Guide", "Beaches"];
 
 export default function Blog() {
+  const { blogPosts } = useContent();
   const [active, setActive] = useState("All");
 
   const posts = useMemo(() => {

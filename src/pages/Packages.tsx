@@ -1,15 +1,16 @@
 import { useState, useMemo } from "react";
 import { useSearch } from "wouter";
 import { SlidersHorizontal } from "lucide-react";
-import { packages } from "@/data/staticData";
 import PackageCard from "@/components/PackageCard";
 import PageHero from "@/components/PageHero";
+import { useContent } from "@/context/content";
 
 const categories = ["All", "Adventure", "Honeymoon", "Family", "Solo", "Luxury", "Beaches"];
 const durations = ["All", "1-3", "4-7", "8-14", "15+"];
 const budgets = ["All", "Under ₹15,000", "₹15,000-₹30,000", "₹30,000-₹60,000", "₹60,000+"];
 
 export default function Packages() {
+  const { packages } = useContent();
   const search = useSearch();
   const params = new URLSearchParams(search);
   const defaultCategory = params.get("category") || "All";

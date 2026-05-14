@@ -1,11 +1,12 @@
 import { useState, useMemo } from "react";
-import { destinations } from "@/data/staticData";
 import DestinationCard from "@/components/DestinationCard";
 import PageHero from "@/components/PageHero";
+import { useContent } from "@/context/content";
 
 const categories = ["All", "India", "International", "Beaches", "Mountains", "Desert"];
 
 export default function Destinations() {
+  const { destinations } = useContent();
   const [active, setActive] = useState("All");
 
   const filtered = useMemo(() => {

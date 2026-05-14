@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { testimonials } from "@/data/staticData";
 import TestimonialCard from "@/components/TestimonialCard";
 import SectionHeading from "@/components/SectionHeading";
 import PageHero from "@/components/PageHero";
+import { useContent } from "@/context/content";
 
 export default function Testimonials() {
+  const { testimonials } = useContent();
   return (
     <div className="pt-20">
       <PageHero

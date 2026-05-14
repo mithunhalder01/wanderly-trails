@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
-import { getBlogPostById, getDestinationById, getPackageById } from "@/data/staticData";
 import {
   CONTACT_EMAIL,
   CONTACT_MAPS_URL,
@@ -8,6 +7,7 @@ import {
   CONTACT_PHONE_DISPLAY,
   SOCIAL_LINKS,
 } from "@/lib/contact";
+import { useContent } from "@/context/content";
 
 const SITE_NAME = "Wanderly Trails";
 const SITE_URL = "https://wanderlytrails.com";
@@ -131,7 +131,35 @@ const getNotFoundSeo = (path: string): SeoPayload => ({
   ogImage: DEFAULT_IMAGE,
 });
 
-const buildSeoForPath = (path: string): SeoPayload => {
+type SeoLookupFns = {
+  getDestinationById: (id: number) => {
+    name: string;
+    startingPrice: number;
+    description: string;
+    imageUrl: string;
+    category: string;
+  } | undefined;
+  getPackageById: (id: number) => {
+    title: string;
+    duration: number;
+    nights: number;
+    description: string;
+    destinationName: string;
+    itinerary: string;
+    price: number;
+    imageUrl: string;
+  } | undefined;
+  getBlogPostById: (id: number) => {
+    title: string;
+    excerpt: string;
+    category: string;
+    imageUrl: string;
+    author: string;
+    publishedAt: string;
+  } | undefined;
+};
+
+const buildSeoForPath = (path: string, lookups: SeoLookupFns): SeoPayload => {
   const staticSeo = STATIC_PAGES[path];
   if (staticSeo) {
     return {
@@ -143,7 +171,7 @@ const buildSeoForPath = (path: string): SeoPayload => {
 
   const destinationMatch = path.match(/^\/destinations\/(\d+)$/);
   if (destinationMatch) {
-    const destination = getDestinationById(Number(destinationMatch[1]));
+    const destination = lookups.getDestinationById(Number(destinationMatch[1]));
     if (!destination) return getNotFoundSeo(path);
 
     return {
@@ -168,7 +196,7 @@ const buildSeoForPath = (path: string): SeoPayload => {
 
   const packageMatch = path.match(/^\/packages\/(\d+)$/);
   if (packageMatch) {
-    const pkg = getPackageById(Number(packageMatch[1]));
+    const pkg = lookups.getPackageById(Number(packageMatch[1]));
     if (!pkg) return getNotFoundSeo(path);
 
     return {
@@ -197,7 +225,7 @@ const buildSeoForPath = (path: string): SeoPayload => {
 
   const blogMatch = path.match(/^\/blog\/(\d+)$/);
   if (blogMatch) {
-    const post = getBlogPostById(Number(blogMatch[1]));
+    const post = lookups.getBlogPostById(Number(blogMatch[1]));
     if (!post) return getNotFoundSeo(path);
 
     const publishedDate = new Date(post.publishedAt);
@@ -267,12 +295,17 @@ const upsertJsonLd = (schema: Record<string, unknown>) => {
 };
 
 export default function SeoManager() {
+  const { getDestinationById, getPackageById, getBlogPostById } = useContent();
   const [location] = useLocation();
 
   const seo = useMemo(() => {
     const path = normalizePath(location || "/");
-    return buildSeoForPath(path);
-  }, [location]);
+    return buildSeoForPath(path, {
+      getDestinationById,
+      getPackageById,
+      getBlogPostById,
+    });
+  }, [location, getBlogPostById, getDestinationById, getPackageById]);
 
   useEffect(() => {
     const canonicalUrl = toAbsoluteUrl(seo.canonicalPath);

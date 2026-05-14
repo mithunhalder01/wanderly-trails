@@ -1,9 +1,10 @@
 import { useRoute, Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, Clock, User, Calendar } from "lucide-react";
-import { getBlogPostById } from "@/data/staticData";
+import { useContent } from "@/context/content";
 
 export default function BlogDetail() {
+  const { getBlogPostById } = useContent();
   const [, params] = useRoute("/blog/:id");
   const id = params?.id ? parseInt(params.id) : 0;
   const post = getBlogPostById(id);

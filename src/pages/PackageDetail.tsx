@@ -2,12 +2,13 @@ import { useState } from "react";
 import { useRoute, Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, Star, Clock, Hotel, Utensils, Bus, Check, X, MapPin } from "lucide-react";
-import { getPackageById, getRelatedPackages } from "@/data/staticData";
 import PackageCard from "@/components/PackageCard";
 import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
+import { useContent } from "@/context/content";
 const tabs = ["Overview", "Itinerary", "Included", "Related"];
 
 export default function PackageDetail() {
+  const { getPackageById, getRelatedPackages } = useContent();
   const [, params] = useRoute("/packages/:id");
   const id = params?.id ? parseInt(params.id) : 0;
   const [activeTab, setActiveTab] = useState("Overview");
