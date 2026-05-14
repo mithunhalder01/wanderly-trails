@@ -43,10 +43,10 @@ const heroSlides = [
 ];
 
 const stats = [
-  { num: 5000, suffix: "+", label: "Happy Travelers", icon: Users },
+  { num: 5000, suffix: "+", label: "Travelers", icon: Users },
   { num: 120, suffix: "+", label: "Destinations", icon: Globe },
-  { num: 4.9, suffix: "★", label: "Average Rating", icon: Star },
-  { num: 10, suffix: "+", label: "Years Experience", icon: Award },
+  { num: 4.9, suffix: "★", label: "Avg. Rating", icon: Star },
+  { num: 10, suffix: "+", label: "Years", icon: Award },
 ];
 
 const categories = [
@@ -277,11 +277,11 @@ export default function Home() {
         <div className="pointer-events-none absolute -right-16 bottom-0 h-56 w-56 rounded-full bg-accent/25 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="mb-10 text-center text-[11px] font-semibold uppercase tracking-[0.28em] text-white/60 md:text-xs">
-            Trusted by travelers · Real trips · Real reviews
+          <p className="mb-8 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-white/70 md:text-xs">
+            Trusted by travelers
           </p>
 
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-5">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-4">
             {stats.map((s, i) => (
               <motion.div
                 key={s.label}
@@ -289,15 +289,15 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.06 }}
-                className="group relative flex flex-col items-center rounded-2xl border border-white/15 bg-white/[0.07] px-4 py-5 text-center shadow-lg shadow-black/15 ring-1 ring-white/5 backdrop-blur-md transition-[transform,background-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:bg-white/[0.11] hover:shadow-xl md:px-6 md:py-7"
+                className="flex flex-col items-center rounded-xl border border-white/20 bg-white/[0.08] px-4 py-5 text-center backdrop-blur-sm md:px-5 md:py-6"
               >
-                <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20 transition-colors group-hover:bg-white/20 md:h-12 md:w-12">
+                <div className="mb-2.5 flex h-10 w-10 items-center justify-center rounded-lg bg-white/12">
                   <s.icon className="h-5 w-5 text-white md:h-5 md:w-5" strokeWidth={1.75} />
                 </div>
-                <p className="font-sans text-2xl font-bold tabular-nums tracking-tight text-white md:text-3xl lg:text-4xl">
+                <p className="font-sans text-2xl font-bold tabular-nums tracking-tight text-white md:text-3xl">
                   <AnimatedNumber target={s.num} suffix={s.suffix} />
                 </p>
-                <p className="mt-1.5 max-w-[11rem] text-[11px] font-medium leading-snug text-white/75 md:text-xs">
+                <p className="mt-1 text-[11px] font-medium text-white/75 md:text-xs">
                   {s.label}
                 </p>
               </motion.div>
