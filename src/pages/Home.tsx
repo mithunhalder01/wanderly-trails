@@ -43,10 +43,10 @@ const heroSlides = [
 ];
 
 const stats = [
-  { num: 5000, suffix: "+", label: "Travelers", icon: Users },
+  { num: 5000, suffix: "+", label: "Happy Travelers", icon: Users },
   { num: 120, suffix: "+", label: "Destinations", icon: Globe },
-  { num: 4.9, suffix: "★", label: "Avg. Rating", icon: Star },
-  { num: 10, suffix: "+", label: "Years", icon: Award },
+  { num: 4.9, suffix: "★", label: "Average Rating", icon: Star },
+  { num: 10, suffix: "+", label: "Years Experience", icon: Award },
 ];
 
 const categories = [
@@ -265,23 +265,13 @@ export default function Home() {
       </section>
 
       {/* ─── TRUST BAR ─── */}
-      <section className="relative overflow-hidden border-y border-white/10 bg-gradient-to-b from-[hsl(218,89%,48%)] via-primary to-[hsl(220,75%,34%)] py-14 text-white md:py-16">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-[0.35]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 20% 50%, rgba(255,255,255,0.12) 0%, transparent 45%), radial-gradient(circle at 85% 20%, rgba(255,255,255,0.08) 0%, transparent 40%)",
-          }}
-        />
-        <div className="pointer-events-none absolute -left-20 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-white/10 blur-3xl" />
-        <div className="pointer-events-none absolute -right-16 bottom-0 h-56 w-56 rounded-full bg-accent/25 blur-3xl" />
-
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="mb-8 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-white/70 md:text-xs">
-            Trusted by travelers
+      <section className="border-y border-border bg-white py-12 md:py-14">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <p className="mb-8 text-center text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground md:text-xs">
+            Trusted by travelers · Real trips · Real reviews
           </p>
 
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4 lg:gap-4">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-4">
             {stats.map((s, i) => (
               <motion.div
                 key={s.label}
@@ -289,15 +279,15 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.06 }}
-                className="flex flex-col items-center rounded-xl border border-white/20 bg-white/[0.08] px-4 py-5 text-center backdrop-blur-sm md:px-5 md:py-6"
+                className="flex flex-col items-center text-center lg:border-l lg:border-border first:lg:border-l-0"
               >
-                <div className="mb-2.5 flex h-10 w-10 items-center justify-center rounded-lg bg-white/12">
-                  <s.icon className="h-5 w-5 text-white md:h-5 md:w-5" strokeWidth={1.75} />
+                <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground/70">
+                  <s.icon className="h-4 w-4" strokeWidth={1.9} />
                 </div>
-                <p className="font-sans text-2xl font-bold tabular-nums tracking-tight text-white md:text-3xl">
+                <p className="font-sans text-2xl font-bold tabular-nums tracking-tight text-foreground md:text-3xl">
                   <AnimatedNumber target={s.num} suffix={s.suffix} />
                 </p>
-                <p className="mt-1 text-[11px] font-medium text-white/75 md:text-xs">
+                <p className="mt-1 text-[11px] font-medium leading-snug text-muted-foreground md:text-xs">
                   {s.label}
                 </p>
               </motion.div>
