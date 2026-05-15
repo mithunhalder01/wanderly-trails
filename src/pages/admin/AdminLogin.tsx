@@ -5,9 +5,12 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, ShieldCheck } from "lucide-react";
+import { AlertCircle, ShieldCheck, Mail } from "lucide-react";
 
-const ADMIN_PASSWORD = "admin";
+import { Badge } from "@/components/ui/badge";
+
+import { validateAdminCredentials } from "@/data/admins";
+
 const SESSION_KEY = "wanderly_admin";
 
 export default function AdminLogin() {
@@ -17,6 +20,7 @@ export default function AdminLogin() {
   };
 
 
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,22 +30,23 @@ export default function AdminLogin() {
     setError(null);
     setLoading(true);
 
-    // minimal demo auth
-    const ok = password === ADMIN_PASSWORD;
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const ok = validateAdminCredentials(normalizedEmail, password);
     if (!ok) {
-      setError("Invalid password");
+      setError("Invalid email or password");
       setLoading(false);
       return;
     }
 
     try {
       sessionStorage.setItem(SESSION_KEY, "true");
+      sessionStorage.setItem("wanderly_admin_email", normalizedEmail);
     } catch {
       // ignore
     }
 
     navigateToAdmin();
-
   };
 
   return (
@@ -50,17 +55,63 @@ export default function AdminLogin() {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <Card className="border-border shadow-sm">
             <CardContent className="p-6">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-4 mb-5">
+                <div className="min-w-0">
+                  <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground/70">
+                    Hello 👋
+                  </p>
+                  <h1 className="mt-3 text-2xl font-serif font-bold">Admin Login</h1>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Enter your password to continue.
+                  </p>
+
+                  <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
+                    <Badge variant="outline">Local Storage CMS</Badge>
+                    <span>Live site data synced</span>
+                  </div>
+                </div>
+
+                {/* Notifications icon */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    aria-label="Messages"
+                    className="h-10 w-10 rounded-xl border border-border bg-background hover:bg-muted transition-colors flex items-center justify-center"
+                  >
+                    <Mail className="h-5 w-5" />
+                  </button>
+                  <span className="absolute -top-1 -right-1 h-5 min-w-5 rounded-full bg-accent text-white text-[10px] font-bold flex items-center justify-center">
+                    1
+                  </span>
+                </div>
+              </div>
+
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-2xl bg-accent/15 flex items-center justify-center">
                   <ShieldCheck className="w-5 h-5 text-accent" />
                 </div>
                 <div>
-                  <h1 className="text-xl font-serif font-bold">Admin Login</h1>
-                  <p className="text-sm text-muted-foreground">Demo access (password: <span className="font-semibold text-foreground">admin</span>)</p>
+                  <p className="text-sm text-muted-foreground">
+                    Demo access (password: <span className="font-semibold text-foreground">admin</span>)
+
+
+                  </p>
                 </div>
               </div>
 
               <form onSubmit={onSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold mb-1">Email</label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@example.com"
+                    autoComplete="username"
+                  />
+                </div>
+
                 <div>
                   <label className="block text-sm font-semibold mb-1">Password</label>
                   <Input
