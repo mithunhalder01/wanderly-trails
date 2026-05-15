@@ -3,14 +3,20 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import {
   Download,
+  FileText,
+  Home,
   LogOut,
+  MapPin,
+  Package as PackageIcon,
   Pencil,
   Plus,
   Search,
   Settings,
+  MessageSquare,
   Trash2,
   Upload,
 } from "lucide-react";
+import { getAdminByEmail, type AdminUser } from "@/data/admins";
 import {
   type BlogPost,
   type Destination,
@@ -22,13 +28,15 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const SESSION_KEY = "wanderly_admin";
+const SESSION_EMAIL_KEY = "wanderly_admin_email";
 
 type DestinationDraft = Omit<Destination, "id">;
 type PackageDraft = Omit<Package, "id" | "destinationName"> & { destinationName?: string };
@@ -88,9 +96,19 @@ const testimonialTemplate: TestimonialDraft = {
   destination: "",
 };
 
+const navItems = [
+  { value: "overview", label: "Overview", icon: Home },
+  { value: "destinations", label: "Destinations", icon: MapPin },
+  { value: "packages", label: "Packages", icon: PackageIcon },
+  { value: "blogs", label: "Blogs", icon: FileText },
+  { value: "testimonials", label: "Testimonials", icon: MessageSquare },
+  { value: "settings", label: "Settings", icon: Settings },
+];
+
 function logout() {
   try {
     sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem("wanderly_admin_email");
   } catch {
     // Ignore browser storage errors.
   }
@@ -144,10 +162,20 @@ export default function AdminDashboard() {
 
   const [settingsForm, setSettingsForm] = useState<SiteSettings>(settings);
   const [jsonBuffer, setJsonBuffer] = useState("");
+  const [adminProfile, setAdminProfile] = useState<AdminUser | null>(null);
 
   useEffect(() => {
     setSettingsForm(settings);
   }, [settings]);
+
+  useEffect(() => {
+    try {
+      const email = sessionStorage.getItem(SESSION_EMAIL_KEY) ?? "";
+      setAdminProfile(getAdminByEmail(email));
+    } catch {
+      setAdminProfile(null);
+    }
+  }, []);
 
   useEffect(() => {
     if (destinations.length === 0) {
@@ -448,29 +476,124 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-muted/30 pt-24 px-4 pb-16">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-3xl font-serif font-bold">Wanderly Admin Panel</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Add, edit, delete, customize aur publish content from one place.
+    <div className="min-h-screen bg-muted/30">
+      <div className="mx-auto flex min-h-screen max-w-[1600px]">
+        <aside className="hidden w-80 shrink-0 flex-col border-r border-border bg-card p-6 md:flex md:sticky md:top-0 md:h-screen md:overflow-hidden">
+          <div className="mb-8">
+            <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground/70">Admin Panel</p>
+            <h2 className="mt-4 text-2xl font-serif font-bold">Wanderly</h2>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Manage destinations, packages, content and settings from one place.
             </p>
-            <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-              <Badge variant="outline">Local Storage CMS</Badge>
-              <span>Live site data synced</span>
-            </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            <Link href="/" className="text-sm font-semibold text-primary hover:underline">
+          <nav className="flex-1 space-y-2">
+            {navItems.map(({ value, label, icon: Icon }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setActiveTab(value)}
+                className={`flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition ${
+                  activeTab === value
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-primary/5 hover:text-foreground"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{label}</span>
+              </button>
+            ))}
+          </nav>
+
+          <div className="mt-8 rounded-3xl border border-border bg-background p-4 text-sm">
+            <p className="font-semibold text-foreground">Quick actions</p>
+            <p className="mt-2 text-muted-foreground text-sm">Use this sidebar to switch sections fast and stay in control of your content.</p>
+          </div>
+
+          <div className="mt-6 border-t border-border pt-6 space-y-3">
+            <Link
+              href="/"
+              className="block rounded-2xl border border-border bg-background px-4 py-3 text-sm font-medium text-muted-foreground hover:border-primary hover:text-primary"
+            >
               Back to Website
             </Link>
-            <Button variant="outline" onClick={logout} className="gap-2">
-              <LogOut className="w-4 h-4" /> Logout
-            </Button>
+            <button
+              type="button"
+              onClick={logout}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-destructive px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-destructive/90"
+            >
+              <LogOut className="h-4 w-4" /> Logout
+            </button>
           </div>
-        </div>
+        </aside>
+
+        <main className="flex-1 px-4 pb-16 pt-24 md:px-8">
+          <div className="max-w-7xl mx-auto space-y-6">
+            <div className="flex items-start justify-between gap-6 flex-wrap">
+              <div className="min-w-[320px]">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="rounded-2xl border border-border bg-card p-2">
+                    <span className="inline-block h-10 w-10 rounded-xl bg-primary/10" aria-hidden />
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.35em] text-muted-foreground/70">
+                      Hello, {adminProfile ? adminProfile.name : "Admin"} 👋
+                    </p>
+                    <h1 className="mt-2 text-2xl md:text-3xl font-serif font-bold">Wanderly Admin Panel</h1>
+                    <p className="text-sm text-muted-foreground mt-1">Add, edit, delete, customize aur publish content from one place.</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <Badge variant="outline">Local Storage CMS</Badge>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span>Live site data synced</span>
+                  </div>
+
+                  {/* Notifications icon + count */}
+                  <div className="ml-auto flex items-center gap-2">
+                    <div className="relative">
+                      <button
+                        type="button"
+                        className="h-10 w-10 rounded-xl border border-border bg-background hover:bg-muted transition-colors"
+                        aria-label="Notifications"
+                      >
+                        <span className="block h-5 w-5 mx-auto rounded" aria-hidden />
+                      </button>
+                      <span className="absolute -top-1 -right-1 h-5 min-w-5 rounded-full bg-accent text-white text-[10px] font-bold flex items-center justify-center">
+                        1
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {adminProfile ? (
+                  <div className="flex items-center gap-3 rounded-2xl border border-border bg-background px-4 py-3">
+                    <img
+                      src={adminProfile.avatarUrl}
+                      alt={adminProfile.name}
+                      className="h-12 w-12 rounded-full object-cover"
+                    />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground">{adminProfile.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">{adminProfile.email}</p>
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Link href="/" className="text-sm font-semibold text-primary hover:underline">
+                    Back to Website
+                  </Link>
+                  <Button variant="outline" onClick={logout} className="gap-2">
+                    <LogOut className="w-4 h-4" /> Logout
+                  </Button>
+                </div>
+              </div>
+            </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {stats.map((item) => (
@@ -502,7 +625,7 @@ export default function AdminDashboard() {
         </Card>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="w-full grid grid-cols-3 md:grid-cols-6 h-auto gap-1 bg-transparent p-0">
+          <TabsList className="w-full grid grid-cols-3 md:hidden h-auto gap-1 bg-transparent p-0">
             {[
               ["overview", "Overview"],
               ["destinations", "Destinations"],
@@ -1562,6 +1685,8 @@ export default function AdminDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </main>
+  </div>
+</div>
   );
 }

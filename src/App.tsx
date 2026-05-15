@@ -51,7 +51,7 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
 }
 
 function AdminRoute() {
-  return isAdminAuthenticated() ? <AdminDashboard /> : <AdminLogin />;
+  return isAdminAuthenticated() ? <AdminDashboard /> : <Redirect to="/admin/login" />;
 }
 
 function AdminLoginRoute() {
