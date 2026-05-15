@@ -3,11 +3,13 @@ import { Users, MapPin, Star, Award, Target, Eye } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import PageHero from "@/components/PageHero";
 
+const placeholderAvatar = "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original";
+
 const team = [
-  { name: "Arjun Mehta", role: "Founder & CEO", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80", bio: "15+ years in travel industry, passionate about creating unforgettable journeys." },
-  { name: "Priya Sharma", role: "Head of Destinations", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&q=80", bio: "Expert in international travel with knowledge of 80+ countries." },
-  { name: "Rohit Verma", role: "Lead Tour Guide", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&q=80", bio: "Award-winning guide with deep expertise in adventure and luxury travel." },
-  { name: "Sneha Patel", role: "Customer Experience", img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&q=80", bio: "Dedicated to making every traveler's experience seamless and memorable." },
+  { name: "Arjun Mehta", role: "Founder & CEO", img: placeholderAvatar, bio: "15+ years in travel industry, passionate about creating unforgettable journeys." },
+  { name: "Priya Sharma", role: "Head of Destinations", img: placeholderAvatar, bio: "Expert in international travel with knowledge of 80+ countries." },
+  { name: "Rohit Verma", role: "Lead Tour Guide", img: placeholderAvatar, bio: "Award-winning guide with deep expertise in adventure and luxury travel." },
+  { name: "Sneha Patel", role: "Customer Experience", img: placeholderAvatar, bio: "Dedicated to making every traveler's experience seamless and memorable." },
 ];
 
 const achievements = [
