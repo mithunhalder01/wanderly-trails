@@ -26,7 +26,7 @@ export default function Footer() {
                 width={512}
                 height={512}
                 decoding="async"
-                className="h-10 max-h-10 w-auto shrink-0 object-contain md:h-11 md:max-h-11"
+                className="h-14 max-h-14 w-auto shrink-0 object-contain md:h-16 md:max-h-16"
               />
               <span className="text-xl font-serif font-bold">
                 Wanderly<span className="text-accent">Trails</span>

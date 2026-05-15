@@ -58,7 +58,7 @@ export default function Contact() {
 
             {[
               { icon: Phone, label: "Phone", val: "+91 12345 67890", href: "tel:+911234567890" },
-              { icon: Mail, label: "Email", val: "hello@wanderlytrails.com", href: "mailto:hello@wanderlytrails.com" },
+              { icon: Mail, label: "Email", val: "wanderlytrails.in@gmail.com", href: "mailto:wanderlytrails.in@gmail.com" },
               { icon: MapPin, label: "Office", val: "123 Travel Street, Mumbai, MH 400001" },
             ].map(({ icon: Icon, label, val, href }) => (
               <div key={label} className="flex items-start gap-4">

@@ -1,6 +1,6 @@
 export const CONTACT_PHONE_DIGITS = "7521824197";
 export const CONTACT_PHONE_DISPLAY = "+91 7521824197";
-export const CONTACT_EMAIL = "info@wanderlytrails.com";
+export const CONTACT_EMAIL = "wanderlytrails.in@gmail.com";
 export const CONTACT_WHATSAPP_NUMBER = `91${CONTACT_PHONE_DIGITS}`;
 export const CONTACT_OFFICE_ADDRESS =
   "Gali no -5 Amar vihar khoda colony Noida -62 Gaziabad";
