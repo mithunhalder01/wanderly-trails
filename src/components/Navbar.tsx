@@ -56,7 +56,7 @@ export default function Navbar() {
             <span
               className={`font-serif text-xl font-bold tracking-tight sm:text-2xl md:text-[1.65rem] ${solid ? "text-foreground" : "text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]"}`}
             >
-              Wanderly<span className="text-accent">Trails</span>
+              Wanderly<span className="text-accent">Trails MITHUN</span>
             </span>
           </Link>
 
