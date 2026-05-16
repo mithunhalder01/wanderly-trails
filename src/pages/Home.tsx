@@ -10,6 +10,8 @@ import DestinationCard from "@/components/DestinationCard";
 import PackageCard from "@/components/PackageCard";
 import TestimonialCard from "@/components/TestimonialCard";
 import SectionHeading from "@/components/SectionHeading";
+import ToursSection from "@/components/ToursSection";
+import VibeSection from "@/components/VibeSection";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -403,6 +405,12 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─── TOURS SECTION ─── */}
+      <ToursSection />
+
+      {/* ─── VIBE SECTION ─── */}
+      <VibeSection />
+
       {/* ─── WHATSAPP CTA BANNER ─── */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#075E54] to-[#128C7E] py-16">
         <div className="absolute inset-0 opacity-10">
@@ -472,10 +480,20 @@ export default function Home() {
       </section>
 
       {/* ─── WHY CHOOSE US ─── */}
-      <section className="py-24 bg-secondary text-secondary-foreground">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 bg-secondary text-secondary-foreground relative overflow-hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/our-promiss.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-secondary/80" />
+        <div className="relative z-10 text-white max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading badge="Our Promise" title="Why Travelers Trust Us" subtitle="5000+ happy customers can't be wrong" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mt-14">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5 mt-14">
             {whyUs.map(({ icon: Icon, title, desc }, i) => (
               <motion.div
                 key={title}
@@ -483,12 +501,12 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 text-center hover:bg-white/20 transition-colors group"
+                className={`bg-white/10 backdrop-blur-sm rounded-2xl p-4 text-center hover:bg-white/20 transition-colors group ${i === whyUs.length - 1 ? 'col-span-2 sm:col-span-1' : ''}`}
               >
-                <div className="w-14 h-14 rounded-2xl bg-accent/20 flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                  <Icon className="w-7 h-7 text-accent" />
+                <div className="w-12 h-12 rounded-2xl bg-accent/20 flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                  <Icon className="w-6 h-6 text-accent" />
                 </div>
-                <h3 className="font-serif font-bold text-sm mb-2 leading-snug">{title}</h3>
+                <h3 className="font-serif font-bold text-sm mb-1.5 leading-snug">{title}</h3>
                 <p className="text-secondary-foreground/65 text-xs leading-relaxed">{desc}</p>
               </motion.div>
             ))}
