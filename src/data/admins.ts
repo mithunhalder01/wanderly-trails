@@ -18,8 +18,8 @@ export const admins: AdminUser[] = [
     avatarUrl: "https://avatars.githubusercontent.com/u/245109270?v=4",
   },
   {
-    name: "Dummy Admin",
-    email: "dummy.admin@example.com",
+    name: "Harsh",
+    email: "wanderlytrails.in@gmail.com",
     avatarUrl: "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original",
   },
 ];
