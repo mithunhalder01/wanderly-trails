@@ -1,8 +1,29 @@
 import Link from "next/link";
 import Image from "next/image";
-import { packages } from "@/data/staticData";
+import { fetchSiteContent } from "@/lib/siteContent";
 
-export default function PackagesPage() {
+type PackageLike = {
+  id: number;
+  imageUrl: string;
+  title: string;
+  destinationName: string;
+  price: number;
+};
+
+type ContentShape = {
+  packages?: PackageLike[];
+};
+
+export default async function PackagesPage() {
+  const res = await fetchSiteContent();
+
+  // content.json shape: { destinations, packages, blogPosts, testimonials, settings }
+  const packages: PackageLike[] =
+    res.ok && res.data && typeof res.data === "object"
+      ? ((res.data as ContentShape).packages ?? [])
+      : [];
+
+
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <h1 className="text-3xl font-bold">Tour Packages from India</h1>
@@ -20,7 +41,9 @@ export default function PackagesPage() {
               <div className="p-5">
                 <h2 className="text-lg font-semibold">{p.title}</h2>
                 <p className="text-sm text-muted-foreground mt-2">{p.destinationName}</p>
-                <p className="mt-3 font-bold">₹{p.price.toLocaleString()} <span className="text-sm font-normal">/ person</span></p>
+                <p className="mt-3 font-bold">
+                  ₹{Number(p.price).toLocaleString()} <span className="text-sm font-normal">/ person</span>
+                </p>
               </div>
             </Link>
           </article>
@@ -29,4 +52,5 @@ export default function PackagesPage() {
     </main>
   );
 }
+
 
