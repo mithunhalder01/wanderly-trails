@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import DestinationCard from "@/components/DestinationCard";
 import PageHero from "@/components/PageHero";
+import PageHeader from "@/components/PageHeader";
 import { useContent } from "@/context/content";
 
 const categories = ["All", "India", "International", "Beaches", "Mountains", "Desert"];
@@ -24,6 +25,8 @@ export default function Destinations() {
         badge="Explore the World"
         title="All Destinations"
         subtitle="Discover curated domestic and international destinations for every travel style."
+        backHref="/"
+        breadcrumbs={[{ label: "Home", href: "/" }]}
       />
 
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Clock, User, ChevronRight } from "lucide-react";
 import PageHero from "@/components/PageHero";
+import PageHeader from "@/components/PageHeader";
 import { useContent } from "@/context/content";
 
 const categories = ["All", "Travel Tips", "Destinations", "Budget Travel", "Visa Guide", "Beaches"];
@@ -24,6 +25,8 @@ export default function Blog() {
         badge="Travel Stories"
         title="Our Blog"
         subtitle="Expert travel guides, planning tips, and destination insights."
+        backHref="/"
+        breadcrumbs={[{ label: "Home", href: "/" }]}
       />
 
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -56,8 +59,11 @@ export default function Blog() {
                 <div className="relative h-52 overflow-hidden">
                   <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute top-3 left-3">
-                    <span className="bg-primary text-white text-xs font-bold px-3 py-1 rounded-full">{post.category}</span>
+                    <span className="bg-white/10 backdrop-blur-md text-white/85 text-xs font-bold px-3 py-1 rounded-full border border-white/15 shadow-sm">
+                      {post.category}
+                    </span>
                   </div>
+
                 </div>
                 <div className="p-6">
                   <div className="flex items-center gap-4 text-xs text-muted-foreground mb-3">

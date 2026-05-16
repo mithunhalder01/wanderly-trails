@@ -1,6 +1,8 @@
 import { useRoute, Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, Clock, User, Calendar } from "lucide-react";
+
+import PageHeader from "@/components/PageHeader";
 import { useContent } from "@/context/content";
 
 export default function BlogDetail() {
@@ -20,14 +22,20 @@ export default function BlogDetail() {
 
   return (
     <div className="pt-20">
-      <div className="relative h-96 overflow-hidden">
+      <div className="relative h-[450px] overflow-hidden">
         <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-black/40" />
+
+        <div className="absolute top-0 left-0 right-0 z-20 pt-6">
+          <PageHeader 
+            backHref="/" 
+            breadcrumbs={[{ label: "Home", href: "/" }, { label: "Blog", href: "/blog" }]} 
+            currentTitle={post.title} 
+          />
+        </div>
+
         <div className="absolute inset-0 flex flex-col justify-end p-8">
           <div className="max-w-4xl mx-auto w-full">
-            <Link href="/blog" className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 text-sm transition-colors">
-              <ArrowLeft className="w-4 h-4" /> All Articles
-            </Link>
             <span className="inline-block bg-primary text-white text-xs font-bold px-3 py-1 rounded-full mb-4">{post.category}</span>
             <h1 className="text-3xl md:text-5xl font-serif font-bold text-white mb-4">{post.title}</h1>
             <div className="flex items-center gap-6 text-white/70 text-sm flex-wrap">

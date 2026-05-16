@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Users, MapPin, Star, Award, Target, Eye } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
+import PageHeader from "@/components/PageHeader";
 import PageHero from "@/components/PageHero";
 
 const placeholderAvatar = "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original";
@@ -28,7 +29,8 @@ export default function About() {
         badge="Our Story"
         title="About Wanderly Trails"
         subtitle="A trusted India tour and travel agency focused on safe, memorable, and well-planned holidays."
-        heightClass="h-72 md:h-96"
+        backHref="/"
+        breadcrumbs={[{ label: "Home", href: "/" }]}
       />
 
       {/* Story */}

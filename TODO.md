@@ -1,12 +1,18 @@
-# TODO - wanderly-trails (Next SEO + Sync)
+# TODO
 
-- [x] Validate admin update + content fetch endpoints exist.
-- [x] Fix packages page to fetch from /api/content (no staticData).
-- [ ] Fix full SEO:
-  - [ ] Replace `next-app/src/app/page.tsx` template with real Home UI.
-  - [ ] Update `next-app/src/app/layout.tsx` metadata (title/description/open graph/canonical).
-  - [ ] Add page-level metadata via `generateMetadata()` if needed.
-  - [ ] Ensure images used in Next pages have `alt` attributes.
-- [ ] Run `next-app` build + lint after SEO edits.
-- [ ] Re-check Seobility score for home URL.
+## Information gathered
+- `src/pages/Home.tsx` contains the hero section and a separate “TRUST BAR” section below it.
+- There is no existing “hero trust badge” component that matches the requested layout (heading + avatar group + rating).
+
+## Plan execution status
+- [x] Create `src/components/HeroTrustBadge.tsx`
+- [x] Insert `HeroTrustBadge` at the top of the hero section in `src/pages/Home.tsx`
+- [ ] Ensure styling matches modern minimal premium style and is responsive (already implemented per spec; will verify visually via dev server/lint).
+- [x] Verify build/lint (attempted via `pnpm build` / `pnpm exec vite build`; failed due to Corepack/pnpm download TLS error: `UNABLE_TO_GET_ISSUER_CERT_LOCALLY`).
+
+## Dependent files
+- `src/pages/Home.tsx`
+- `src/components/HeroTrustBadge.tsx`
+
+
 

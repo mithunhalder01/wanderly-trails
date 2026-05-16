@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useRoute, Link } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, Star, Clock, Hotel, Utensils, Bus, Check, X, MapPin } from "lucide-react";
+import { Star, Clock, Hotel, Utensils, Bus, Check, X, MapPin } from "lucide-react";
+import PageHeader from "@/components/PageHeader";
 import PackageCard from "@/components/PackageCard";
 import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
 import { useContent } from "@/context/content";
@@ -36,14 +37,20 @@ export default function PackageDetail() {
 
   return (
     <div className="pt-20">
-      <div className="relative h-[50vh] min-h-80 overflow-hidden">
+      <div className="relative h-[500px] overflow-hidden">
         <img src={pkg.imageUrl} alt={pkg.title} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-black/40" />
+
+        <div className="absolute top-0 left-0 right-0 z-20 pt-6">
+          <PageHeader 
+            backHref="/" 
+            breadcrumbs={[{ label: "Home", href: "/" }, { label: "Packages", href: "/packages" }]} 
+            currentTitle={pkg.title} 
+          />
+        </div>
+
         <div className="absolute inset-0 flex flex-col justify-end p-8">
           <div className="max-w-7xl mx-auto w-full">
-            <Link href="/packages" className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 text-sm transition-colors">
-              <ArrowLeft className="w-4 h-4" /> All Packages
-            </Link>
             <div className="flex items-end justify-between flex-wrap gap-4">
               <div>
                 <span className="inline-block bg-accent text-white text-xs font-bold uppercase px-3 py-1 rounded-full mb-3">{pkg.category}</span>

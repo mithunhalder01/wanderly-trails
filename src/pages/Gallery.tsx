@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ZoomIn } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
+import PageHeader from "@/components/PageHeader";
 import PageHero from "@/components/PageHero";
 
 const photos = [
@@ -35,6 +36,8 @@ export default function Gallery() {
         badge="Our Memories"
         title="Travel Gallery"
         subtitle="A visual collection of places, experiences, and traveler moments."
+        backHref="/"
+        breadcrumbs={[{ label: "Home", href: "/" }]}
       />
 
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

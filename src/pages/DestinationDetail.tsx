@@ -1,8 +1,9 @@
 import { useRoute, Link } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Calendar, Star, Thermometer, ArrowLeft } from "lucide-react";
+import { MapPin, Calendar, Star, Thermometer } from "lucide-react";
 import PackageCard from "@/components/PackageCard";
 import SectionHeading from "@/components/SectionHeading";
+import PageHeader from "@/components/PageHeader";
 import { useContent } from "@/context/content";
 
 export default function DestinationDetail() {
@@ -23,14 +24,20 @@ export default function DestinationDetail() {
 
   return (
     <div className="pt-20">
-      <div className="relative h-96 overflow-hidden">
+      <div className="relative h-[450px] overflow-hidden">
         <img src={destination.imageUrl} alt={destination.name} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 p-8">
+        <div className="absolute inset-0 bg-black/40" />
+        
+        <div className="absolute top-0 left-0 right-0 z-20 pt-6">
+          <PageHeader 
+            backHref="/" 
+            breadcrumbs={[{ label: "Home", href: "/" }, { label: "Destinations", href: "/destinations" }]} 
+            currentTitle={destination.name} 
+          />
+        </div>
+
+        <div className="absolute inset-0 flex flex-col justify-end p-8">
           <div className="max-w-7xl mx-auto">
-            <Link href="/destinations" className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 text-sm transition-colors">
-              <ArrowLeft className="w-4 h-4" /> Back to Destinations
-            </Link>
             <div className="flex items-end justify-between flex-wrap gap-4">
               <div>
                 <h1 className="text-4xl md:text-5xl font-serif font-bold text-white">{destination.name}</h1>

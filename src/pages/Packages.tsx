@@ -3,6 +3,7 @@ import { useSearch } from "wouter";
 import { SlidersHorizontal } from "lucide-react";
 import PackageCard from "@/components/PackageCard";
 import PageHero from "@/components/PageHero";
+import PageHeader from "@/components/PageHeader";
 import { useContent } from "@/context/content";
 
 const categories = ["All", "Adventure", "Honeymoon", "Family", "Solo", "Luxury", "Beaches"];
@@ -45,6 +46,8 @@ export default function Packages() {
         badge="Find Your Trip"
         title="All Packages"
         subtitle="Compare curated itineraries by category, duration, and budget."
+        backHref="/"
+        breadcrumbs={[{ label: "Home", href: "/" }]}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

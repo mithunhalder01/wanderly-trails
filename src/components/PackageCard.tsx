@@ -41,10 +41,11 @@ export default function PackageCard({ pkg, index = 0 }: Props) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         <div className="absolute top-3 left-3">
-          <span className="bg-accent text-white text-xs font-semibold px-3 py-1 rounded-full">
+          <span className="bg-white/10 backdrop-blur-md text-white/85 text-xs font-bold px-3 py-1 rounded-full border border-white/15 shadow-sm">
             {pkg.category}
           </span>
         </div>
+
         <div className="absolute top-3 right-3 flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-full px-2 py-1">
           <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
           <span className="text-xs font-bold text-foreground">{pkg.rating.toFixed(1)}</span>
