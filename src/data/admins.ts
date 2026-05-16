@@ -27,7 +27,7 @@ export const admins: AdminUser[] = [
 export function validateAdminCredentials(email: string, password: string) {
   const normalizedEmail = email.trim().toLowerCase();
   const admin = admins.find((item) => item.email.toLowerCase() === normalizedEmail);
-  if (!admin) {
+  if (!admin) { 
     return false;
   }
 

@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "settings": {
+    "heroTag": "Travel Smart",
+    "heroTitle": "Discover Your",
+    "heroHighlight": "Dream Destination",
+    "heroSubtitle": "Curated packages for every traveler — from Goa beaches to Bali villas.",
+    "heroPrimaryCta": "Explore Packages",
+    "heroSecondaryCta": "Customize Trip",
+    "featuredDestinationCount": 4,
+    "featuredPackageCount": 6,
+    "featuredBlogCount": 3,
+    "showTrustBar": true
+  },
+  "destinations": [],
+  "packages": [],
+  "blogPosts": [],
+  "testimonials": []
+}
+
