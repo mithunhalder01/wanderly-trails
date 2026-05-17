@@ -63,7 +63,8 @@ git remote add origin https://github.com/mithunhalder01/wenderly-tails.git
 
 git branch -M main
 git push -u origin main
-```
+```as
+':
 
 **Collaborators:** In GitHub, open the repository → **Settings** → **Collaborators** → add people by username or email (GitHub sends an invite).
 
