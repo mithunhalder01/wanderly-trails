@@ -18,7 +18,6 @@ import {
   type Testimonial,
 } from "@/data/staticData";
 
-const STORAGE_KEY = "wanderly_content_v1";
 
 export interface SiteSettings {
   heroTag: string;
