@@ -120,6 +120,60 @@ const parseNumber = (value: string, fallback: number) => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
+function toBackendPayload(snapshot: {
+  destinations: Destination[];
+  packages: Package[];
+  blogPosts: BlogPost[];
+  testimonials: Testimonial[];
+  settings: SiteSettings;
+}) {
+  // must match api/admin/update-content.ts expected content.json shape
+  return {
+    settings: snapshot.settings,
+    destinations: snapshot.destinations,
+    packages: snapshot.packages,
+    blogPosts: snapshot.blogPosts,
+    testimonials: snapshot.testimonials,
+  };
+}
+
+function useBackendSync() {
+  const { toast } = useToast();
+
+  const syncToBackend = async (snapshot: {
+    destinations: Destination[];
+    packages: Package[];
+    blogPosts: BlogPost[];
+    testimonials: Testimonial[];
+    settings: SiteSettings;
+  }) => {
+    try {
+      const res = await fetch("/api/admin/update-content", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(toBackendPayload(snapshot)),
+      });
+
+      if (!res.ok) {
+        toast({
+          title: "Backend sync failed",
+          description: "Server ne update reject kar diya.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } catch {
+      toast({
+        title: "Backend sync failed",
+        description: "Network/server error. Changes localStorage me rahe.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return { syncToBackend };
+}
+
 export default function AdminDashboard() {
   const {
     settings,
@@ -142,6 +196,7 @@ export default function AdminDashboard() {
   } = useContent();
 
   const { toast } = useToast();
+  const { syncToBackend } = useBackendSync();
 
   const [activeTab, setActiveTab] = useState("overview");
   const [query, setQuery] = useState("");
@@ -284,6 +339,17 @@ export default function AdminDashboard() {
     });
 
     resetDestinationForm();
+
+    // write-through to backend (so Vercel/live site updates)
+    setTimeout(() => {
+      void syncToBackend({
+        destinations: destinations,
+        packages: packages,
+        blogPosts: blogPosts,
+        testimonials: testimonials,
+        settings: settings,
+      });
+    }, 0);
   };
 
   const savePackage = () => {
@@ -321,6 +387,16 @@ export default function AdminDashboard() {
     });
 
     resetPackageForm();
+
+    setTimeout(() => {
+      void syncToBackend({
+        destinations: destinations,
+        packages: packages,
+        blogPosts: blogPosts,
+        testimonials: testimonials,
+        settings: settings,
+      });
+    }, 0);
   };
 
   const saveBlog = () => {
@@ -354,6 +430,16 @@ export default function AdminDashboard() {
     });
 
     resetBlogForm();
+
+    setTimeout(() => {
+      void syncToBackend({
+        destinations: destinations,
+        packages: packages,
+        blogPosts: blogPosts,
+        testimonials: testimonials,
+        settings: settings,
+      });
+    }, 0);
   };
 
   const saveTestimonial = () => {
@@ -383,6 +469,16 @@ export default function AdminDashboard() {
     });
 
     resetTestimonialForm();
+
+    setTimeout(() => {
+      void syncToBackend({
+        destinations: destinations,
+        packages: packages,
+        blogPosts: blogPosts,
+        testimonials: testimonials,
+        settings: settings,
+      });
+    }, 0);
   };
 
   const saveSettings = () => {
@@ -391,6 +487,16 @@ export default function AdminDashboard() {
       title: "Settings updated",
       description: "Homepage customization values apply ho gaye.",
     });
+
+    setTimeout(() => {
+      void syncToBackend({
+        destinations,
+        packages,
+        blogPosts,
+        testimonials,
+        settings: settingsForm,
+      });
+    }, 0);
   };
 
   const handleResetAll = () => {
@@ -412,6 +518,17 @@ export default function AdminDashboard() {
       title: "Content reset",
       description: "Default data restore kar diya gaya hai.",
     });
+
+    // let localStorage/state update first
+    setTimeout(() => {
+      void syncToBackend({
+        destinations: destinations,
+        packages: packages,
+        blogPosts: blogPosts,
+        testimonials: testimonials,
+        settings: settings,
+      });
+    }, 0);
   };
 
   const handleExport = () => {
@@ -466,6 +583,16 @@ export default function AdminDashboard() {
       title: "Import successful",
       description: "Admin content updated from JSON payload.",
     });
+
+    setTimeout(() => {
+      void syncToBackend({
+        destinations: destinations,
+        packages: packages,
+        blogPosts: blogPosts,
+        testimonials: testimonials,
+        settings: settings,
+      });
+    }, 0);
   };
 
   const stats = [
