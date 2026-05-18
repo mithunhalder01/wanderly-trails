@@ -19,29 +19,62 @@ function getAuthToken(req: Request) {
   return tokenFromHeader || tokenFromQuery;
 }
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: Request) {
   try {
     const token = getAuthToken(req);
     const expected = process.env.CONTENT_ADMIN_TOKEN;
 
     if (expected && token !== expected) {
-      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { ok: false, error: "Unauthorized" },
+        {
+          status: 401,
+          headers: {
+            "cache-control": "no-store, max-age=0, s-maxage=0",
+          },
+        }
+      );
     }
 
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== "object") {
-      return NextResponse.json({ ok: false, error: "Invalid payload" }, { status: 400 });
+      return NextResponse.json(
+        { ok: false, error: "Invalid payload" },
+        {
+          status: 400,
+          headers: {
+            "cache-control": "no-store, max-age=0, s-maxage=0",
+          },
+        }
+      );
     }
 
-    // Write-through to repo file
+    // NOTE: Vercel serverless filesystem is not persistent.
+    // This will likely not update what GET reads after deploy/restart.
     await fs.writeFile(contentPath, JSON.stringify(body, null, 2), "utf-8");
 
-    return NextResponse.json({ ok: true }, { status: 200 });
+    return NextResponse.json(
+      { ok: true },
+      {
+        status: 200,
+        headers: {
+          "cache-control": "no-store, max-age=0, s-maxage=0",
+        },
+      }
+    );
   } catch {
     return NextResponse.json(
       { ok: false, error: "Update failed" },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          "cache-control": "no-store, max-age=0, s-maxage=0",
+        },
+      }
     );
   }
 }
+
 
