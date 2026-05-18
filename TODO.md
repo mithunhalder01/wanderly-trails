@@ -1,18 +1,11 @@
-# TODO
+# TODO - Admin Sync + LocalStorage removal
 
-## Information gathered
-- `src/pages/Home.tsx` contains the hero section and a separate “TRUST BAR” section below it.
-- There is no existing “hero trust badge” component that matches the requested layout (heading + avatar group + rating).
-
-## Plan execution status
-- [x] Create `src/components/HeroTrustBadge.tsx`
-- [x] Insert `HeroTrustBadge` at the top of the hero section in `src/pages/Home.tsx`
-- [ ] Ensure styling matches modern minimal premium style and is responsive (already implemented per spec; will verify visually via dev server/lint).
-- [x] Verify build/lint (attempted via `pnpm build` / `pnpm exec vite build`; failed due to Corepack/pnpm download TLS error: `UNABLE_TO_GET_ISSUER_CERT_LOCALLY`).
-
-## Dependent files
-- `src/pages/Home.tsx`
-- `src/components/HeroTrustBadge.tsx`
-
-
+- [ ] Inspect all places where `window.localStorage` / `STORAGE_KEY` / localStorage CMS is used.
+- [ ] Modify `src/context/content.tsx` to remove localStorage persistence entirely (read/write).
+- [ ] Add backend sync status logic:
+  - [ ] If backend update API succeeds -> show message “Supabase/DB (backend) updated successfully”.
+  - [ ] If backend update fails -> show message “Saved locally (offline)”.
+- [ ] Update admin dashboard UI badge/text to reflect real behavior.
+- [ ] Ensure admin update API returns clear success/failure (already returns ok/error; may refine message).
+- [ ] Run typecheck/build/tests for both Vite/Next apps (as applicable).
 

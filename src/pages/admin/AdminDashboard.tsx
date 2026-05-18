@@ -156,19 +156,26 @@ function useBackendSync() {
 
       if (!res.ok) {
         toast({
-          title: "Backend sync failed",
-          description: "Server ne update reject kar diya.",
+          title: "Saved locally (offline)",
+          description: "Backend update fail hua, content DB me nahi gaya.",
           variant: "destructive",
         });
         return;
       }
+
+      toast({
+        title: "Supabase/DB (backend) updated successfully",
+        description: "Content DB me change update ho gaya.",
+      });
+
     } catch {
       toast({
-        title: "Backend sync failed",
-        description: "Network/server error. Changes localStorage me rahe.",
+        title: "Saved locally (offline)",
+        description: "Network/server error. Content DB me nahi gaya.",
         variant: "destructive",
       });
     }
+
   };
 
   return { syncToBackend };
@@ -672,10 +679,12 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <Badge variant="outline">Local Storage CMS</Badge>
+                  <Badge variant="outline">Backend CMS</Badge>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
+
                     <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    <span>Live site data synced</span>
+                    <span>Backend sync ready</span>
+
                   </div>
 
                   {/* Notifications icon + count */}

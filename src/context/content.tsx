@@ -154,21 +154,11 @@ const sanitizeSnapshot = (rawValue: unknown): SiteContentSnapshot => {
 };
 
 const loadInitialSnapshot = (): SiteContentSnapshot => {
-  if (typeof window === "undefined") {
-    return buildDefaultSnapshot();
-  }
-
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return buildDefaultSnapshot();
-    }
-
-    return sanitizeSnapshot(JSON.parse(raw));
-  } catch {
-    return buildDefaultSnapshot();
-  }
+  // LocalStorage-based persistence removed.
+  // Admin edits now live in memory and must be synced via backend.
+  return buildDefaultSnapshot();
 };
+
 
 const SiteContentContext = createContext<SiteContentContextValue | null>(null);
 
@@ -178,13 +168,8 @@ const getNextId = <T extends { id: number }>(rows: T[]): number =>
 export function ContentProvider({ children }: { children: ReactNode }) {
   const [snapshot, setSnapshot] = useState<SiteContentSnapshot>(() => loadInitialSnapshot());
 
-  useEffect(() => {
-    try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
-    } catch {
-      // Ignore storage errors (private mode / quotas)
-    }
-  }, [snapshot]);
+  // LocalStorage persistence removed.
+
 
   const upsertDestination = useCallback(
     (payload: Omit<Destination, "id"> & { id?: number }) => {
