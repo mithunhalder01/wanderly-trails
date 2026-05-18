@@ -154,10 +154,31 @@ const sanitizeSnapshot = (rawValue: unknown): SiteContentSnapshot => {
 };
 
 const loadInitialSnapshot = (): SiteContentSnapshot => {
-  // LocalStorage-based persistence removed.
-  // Admin edits now live in memory and must be synced via backend.
+  // Fallback snapshot (until /api/content loads)
   return buildDefaultSnapshot();
 };
+
+async function fetchSiteContentSnapshot(): Promise<SiteContentSnapshot | null> {
+  try {
+    const res = await fetch("/api/content", { cache: "no-store" });
+    const json: unknown = await res.json();
+
+    if (
+      typeof json === "object" &&
+      json !== null &&
+      "ok" in json &&
+      (json as { ok?: unknown }).ok === true &&
+      "data" in json
+    ) {
+      return sanitizeSnapshot((json as { data: unknown }).data);
+    }
+
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 
 
 const SiteContentContext = createContext<SiteContentContextValue | null>(null);
@@ -168,7 +189,21 @@ const getNextId = <T extends { id: number }>(rows: T[]): number =>
 export function ContentProvider({ children }: { children: ReactNode }) {
   const [snapshot, setSnapshot] = useState<SiteContentSnapshot>(() => loadInitialSnapshot());
 
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchSiteContentSnapshot().then((remote) => {
+      if (cancelled) return;
+      if (remote) setSnapshot(remote);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // LocalStorage persistence removed.
+
 
 
   const upsertDestination = useCallback(

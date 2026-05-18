@@ -1,11 +1,8 @@
-# TODO - Admin Sync + LocalStorage removal
+# TODO - Static content dummy data
 
-- [ ] Inspect all places where `window.localStorage` / `STORAGE_KEY` / localStorage CMS is used.
-- [ ] Modify `src/context/content.tsx` to remove localStorage persistence entirely (read/write).
-- [ ] Add backend sync status logic:
-  - [ ] If backend update API succeeds -> show message “Supabase/DB (backend) updated successfully”.
-  - [ ] If backend update fails -> show message “Saved locally (offline)”.
-- [ ] Update admin dashboard UI badge/text to reflect real behavior.
-- [ ] Ensure admin update API returns clear success/failure (already returns ok/error; may refine message).
-- [ ] Run typecheck/build/tests for both Vite/Next apps (as applicable).
+- [ ] Add dummy data into `src/data/content.json` for: destinations, packages, blogPosts, testimonials.
+- [ ] Keep `src/data/content.json.settings` as-is (unless user requests changes).
+- [ ] Ensure dummy objects include all required fields per TS types in `src/data/staticData.ts`.
+- [ ] Validate JSON shape (no trailing commas, correct types).
+- [ ] Run a quick local check: start dev server or run a simple node script to ensure arrays are non-empty.
 

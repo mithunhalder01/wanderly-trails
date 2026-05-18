@@ -7,8 +7,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // next-app/src/app/api/content/route.ts => go to repo root
-const repoRoot = path.resolve(__dirname, "../../../../../");
-const contentPath = path.join(repoRoot, "src", "data", "content.json");
+// Repo-root source of truth (backend + admin update)
+const contentPath = path.join(__dirname, "../../../data/content.json");
 
 
 export async function GET() {
