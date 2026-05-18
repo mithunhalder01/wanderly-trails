@@ -156,10 +156,11 @@ function useBackendSync() {
 
       if (!res.ok) {
         toast({
-          title: "Saved locally (offline)",
-          description: "Backend update fail hua, content DB me nahi gaya.",
+          title: "Backend write failed. Data not saved.",
+          description: "Supabase/DB update fail hua. Content DB me nahi gaya.",
           variant: "destructive",
         });
+
         return;
       }
 
@@ -170,10 +171,11 @@ function useBackendSync() {
 
     } catch {
       toast({
-        title: "Saved locally (offline)",
-        description: "Network/server error. Content DB me nahi gaya.",
+        title: "Backend write failed. Data not saved.",
+        description: "Supabase/DB update fail hua. Content DB me nahi gaya.",
         variant: "destructive",
       });
+
     }
 
   };
