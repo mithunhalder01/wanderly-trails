@@ -31,10 +31,10 @@ export default function AdminTopHeader({
 
           {showSyncBadge ? (
             <div className="mt-4 flex flex-wrap items-center gap-3">
-              <Badge variant="outline">Local Storage CMS</Badge>
+              <Badge variant="outline">Backend CMS</Badge>
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                <span>Live site data synced</span>
+                <span>Backend sync ready</span>
               </div>
             </div>
           ) : null}

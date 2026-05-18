@@ -67,8 +67,9 @@ export default function AdminLogin() {
                   </p>
 
                   <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                    <Badge variant="outline">Local Storage CMS</Badge>
-                    <span>Live site data synced</span>
+                    <Badge variant="outline">Backend CMS</Badge>
+                    <span>Backend sync ready</span>
+
                   </div>
                 </div>
 
