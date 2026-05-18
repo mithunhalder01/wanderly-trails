@@ -1,8 +1,8 @@
-# TODO - Static content dummy data
+# TODO - Content sync + caching fix
 
-- [ ] Add dummy data into `src/data/content.json` for: destinations, packages, blogPosts, testimonials.
-- [ ] Keep `src/data/content.json.settings` as-is (unless user requests changes).
-- [ ] Ensure dummy objects include all required fields per TS types in `src/data/staticData.ts`.
-- [ ] Validate JSON shape (no trailing commas, correct types).
-- [ ] Run a quick local check: start dev server or run a simple node script to ensure arrays are non-empty.
-
+- [ ] Identify all Next App Router pages in `next-app/src/app/**` that render content from `/api/content`.
+- [ ] Force dynamic rendering for those pages (e.g. `export const dynamic = "force-dynamic"` or `revalidate = 0`) to avoid stale payloads.
+- [ ] Add strict no-store cache headers in `next-app/src/app/api/content/route.ts` and verify admin update route.
+- [ ] Add temporary logging in API routes to confirm the resolved `contentPath` on local vs Vercel.
+- [ ] If Vercel not updating from repo file, switch to a persistent storage approach (or ensure Vercel reads updated `data/content.json`).
+- [ ] Retest: local dev refresh + Vercel redeploy, confirm content changes propagate.
