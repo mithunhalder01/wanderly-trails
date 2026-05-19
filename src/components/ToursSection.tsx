@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import { Link } from "wouter";
-import { ArrowRight, MapPin, Clock, Users } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { ArrowRight, Clock, Users } from "lucide-react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+
 
 const tours = [
   {
@@ -50,81 +51,93 @@ export default function ToursSection() {
   // Duplicate tours for infinite loop (only on mobile)
   const displayTours = isMobile ? [...tours, ...tours, ...tours] : tours;
 
-  useEffect(() => {
+  const [pageStep, setPageStep] = useState<number>(0);
+
+  useLayoutEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+
+    const computeStep = () => {
+      const el = carouselRef.current;
+      if (!el) return;
+      const firstCard = el.querySelector<HTMLElement>(".tour-card");
+      if (!firstCard) return;
+
+      const cardRect = firstCard.getBoundingClientRect();
+      const containerRect = el.getBoundingClientRect();
+
+      // width of one horizontal item (including its snap gap)
+      const gap = 24; // matches `gap-6` used in the container
+      const step = cardRect.width + gap;
+
+      setPageStep(step);
+
+      // Initialize to the middle set to fake infinite scroll.
+      if (window.innerWidth < 768) {
+        const singleSetWidth = step * tours.length;
+        el.scrollLeft = singleSetWidth;
+      } else {
+        el.scrollLeft = 0;
+      }
+
+      // Avoid layout surprises
+      el.scrollLeft = el.scrollLeft;
+      // silence unused var warning
+      void containerRect;
+    };
+
+    computeStep();
+    window.addEventListener('resize', () => {
+      checkMobile();
+      computeStep();
+    });
+
+    return () => {
+      window.removeEventListener('resize', computeStep);
+    };
   }, []);
 
   useEffect(() => {
     if (!isMobile || !carouselRef.current || isPaused) return;
+    const el = carouselRef.current;
+    if (!pageStep) return;
 
-    const container = carouselRef.current;
-    let scrollAmount = 0;
-    let isInitialized = false;
+    const singleSetWidth = pageStep * tours.length;
 
-    const initializeScroll = () => {
-      const cardWidth = container.querySelector('.shrink-0')?.getBoundingClientRect().width || 0;
-      if (cardWidth === 0) return;
-
-      const gap = 24;
-      const singleSetWidth = (cardWidth + gap) * tours.length;
-
-      if (!isInitialized) {
-        container.scrollTo({ left: singleSetWidth, behavior: 'auto' });
-        scrollAmount = singleSetWidth;
-        isInitialized = true;
-      }
-    };
-
-    // Delay initialization to ensure cards are rendered
-    const initTimeout = setTimeout(initializeScroll, 100);
-
-    const scrollInterval = setInterval(() => {
+    const id = window.setInterval(() => {
       if (isPaused) return;
+      const maxScroll = singleSetWidth * 2;
+      const next = el.scrollLeft + pageStep;
 
-      const currentCardWidth = container.querySelector('.shrink-0')?.getBoundingClientRect().width || 0;
-      if (currentCardWidth === 0) return;
-
-      const gap = 24;
-      const scrollStep = currentCardWidth + gap;
-
-      scrollAmount += scrollStep;
-
-      // If we've scrolled past the second set, reset to middle
-      const singleSetWidth = (currentCardWidth + gap) * tours.length;
-      if (scrollAmount >= singleSetWidth * 2) {
-        container.scrollTo({ left: scrollAmount - singleSetWidth, behavior: 'auto' });
-        scrollAmount = scrollAmount - singleSetWidth;
+      if (next >= maxScroll) {
+        el.scrollTo({ left: next - singleSetWidth, behavior: 'auto' });
       } else {
-        container.scrollTo({ left: scrollAmount, behavior: 'smooth' });
+        el.scrollTo({ left: next, behavior: 'smooth' });
       }
-    }, 4000);
+    }, 3800);
 
-    return () => {
-      clearTimeout(initTimeout);
-      clearInterval(scrollInterval);
-    };
-  }, [isMobile, isPaused]);
+    return () => window.clearInterval(id);
+  }, [isMobile, isPaused, pageStep]);
+
 
   return (
-    <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div className="text-center mb-14">
-        <span className="inline-block bg-primary/10 text-primary text-xs font-bold tracking-widest uppercase px-4 py-2 rounded-full mb-4">
+    <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mobile:py-10">
+      <div className="text-center mb-14 mobile:mb-8">
+        <span className="inline-block bg-primary/10 text-primary text-[11px] sm:text-xs font-bold tracking-widest uppercase px-3 sm:px-4 py-2 rounded-full mb-3">
           Handpicked Experiences
         </span>
-        <h2 className="text-4xl md:text-5xl font-serif font-bold text-foreground mb-4">
+        <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-foreground mb-3">
           Unforgettable Moments For You
         </h2>
-        <p className="text-muted-foreground text-lg max-w-3xl mx-auto leading-relaxed">
+        <p className="text-muted-foreground text-sm sm:text-lg max-w-3xl mx-auto leading-relaxed">
           Discover our handpicked travel experiences across India, crafted to turn every journey into a memory worth keeping.
         </p>
       </div>
 
+
       <div
         ref={carouselRef}
-        className="flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto pb-4 md:pb-0 snap-x snap-mandatory scrollbar-hide px-4 md:px-0"
+        className="relative flex md:grid md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto overflow-y-hidden pb-4 md:pb-0 snap-x snap-mandatory scrollbar-hide px-4 md:px-0 touch-pan-x"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
       >
@@ -135,19 +148,20 @@ export default function ToursSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: (index % tours.length) * 0.1 }}
-            className="relative rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group shrink-0 w-[75vw] md:w-auto snap-center"
+            className="tour-card relative rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group shrink-0 w-[75vw] md:w-auto snap-center"
           >
             <img
               src={tour.image}
               alt={tour.title}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-600 group-hover:scale-110"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-600 group-hover:scale-110 md:group-hover:scale-110"
             />
             <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md border border-white/30 px-4 py-2 rounded-xl shadow-lg z-10">
               <span className="text-white/90 font-bold text-xs">Starting at</span>
               <span className="block text-white font-bold text-xl">{tour.price}</span>
             </div>
 
-            <div className="relative h-56" />
+            <div className="relative h-56 overflow-hidden" />
+
 
             <div className="relative mx-4 mb-4 p-4 backdrop-blur-xl bg-white/40 rounded-2xl border border-white/30">
               <h3 className="font-serif font-bold text-lg mb-1.5 text-foreground group-hover:text-primary transition-colors">

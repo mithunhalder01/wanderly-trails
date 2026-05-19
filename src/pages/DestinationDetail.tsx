@@ -38,20 +38,29 @@ export default function DestinationDetail() {
 
         <div className="absolute inset-0 flex flex-col justify-end p-8">
           <div className="max-w-7xl mx-auto">
-            <div className="flex items-end justify-between flex-wrap gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-end">
               <div>
                 <h1 className="text-4xl md:text-5xl font-serif font-bold text-white">{destination.name}</h1>
-                <div className="flex items-center gap-2 mt-2">
+
+                <div className="mt-3 flex items-center gap-2">
                   <MapPin className="w-4 h-4 text-accent" />
-                  <span className="text-white/80">{destination.country}</span>
+                  <span className="text-white/80 text-sm md:text-base">{destination.country}</span>
                 </div>
               </div>
-              <div className="flex flex-col items-end gap-2">
-                <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-3 py-1.5 rounded-full">
+
+              <div className="flex flex-col md:items-end gap-3">
+                <div className="flex items-center gap-2 bg-white/15 backdrop-blur-sm px-4 py-2 rounded-2xl w-fit">
                   <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                  <span className="text-white font-semibold">{destination.rating.toFixed(1)}</span>
+                  <div className="flex flex-col leading-tight">
+                    <span className="text-white text-[11px] font-semibold uppercase tracking-wider">Rating</span>
+                    <span className="text-white font-bold text-base">{destination.rating.toFixed(1)}</span>
+                  </div>
                 </div>
-                <span className="text-white font-bold text-xl">From ₹{destination.startingPrice.toLocaleString()}</span>
+
+                <div className="flex items-end gap-3">
+                  <span className="text-white/70 text-[11px] font-semibold uppercase tracking-wider">From</span>
+                  <span className="text-white font-bold text-2xl">₹{destination.startingPrice.toLocaleString()}</span>
+                </div>
               </div>
             </div>
           </div>
