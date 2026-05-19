@@ -31,7 +31,7 @@ export default function PackageCard({ pkg, index = 0 }: Props) {
       viewport={{ once: true }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
       data-testid={`card-package-${pkg.id}`}
-      className="group bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+      className="luxury-card group overflow-hidden hover:-translate-y-0.5"
     >
       <div className="relative overflow-hidden h-52">
         <img

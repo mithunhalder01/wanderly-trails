@@ -27,7 +27,7 @@ export default function DestinationCard({ destination, index = 0 }: Props) {
       viewport={{ once: true }}
       transition={{ delay: index * 0.1, duration: 0.5 }}
       data-testid={`card-destination-${destination.id}`}
-      className="group bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+      className="luxury-card group overflow-hidden hover:-translate-y-0.5"
     >
       <div className="relative overflow-hidden h-56">
         <img
@@ -46,7 +46,7 @@ export default function DestinationCard({ destination, index = 0 }: Props) {
             <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
             <span className="text-white text-xs font-semibold">{destination.rating.toFixed(1)}</span>
           </div>
-          <span className="text-white text-xs font-semibold bg-accent/90 px-2 py-1 rounded-full">
+          <span className="rounded-full border border-white/30 bg-white/20 px-2 py-1 text-xs font-semibold text-white backdrop-blur-sm">
             From ₹{destination.startingPrice.toLocaleString()}
           </span>
         </div>

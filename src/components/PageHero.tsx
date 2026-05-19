@@ -35,8 +35,10 @@ export default function PageHero({
 
       <div className="relative z-10 flex-1 flex flex-col justify-center mx-auto max-w-7xl w-full px-4 text-white sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <span className="mb-3 block text-xs font-bold uppercase tracking-widest text-accent">{badge}</span>
-          <h1 className="text-4xl font-serif font-bold md:text-5xl lg:text-6xl">{title}</h1>
+          <span className="luxury-label mb-3 inline-block rounded-full border border-white/25 bg-white/10 px-4 py-1.5 backdrop-blur-md text-white/80">
+            {badge}
+          </span>
+          <h1 className="text-4xl font-semibold md:text-5xl lg:text-6xl">{title}</h1>
           {subtitle && <p className="mt-4 max-w-2xl text-base text-white/90 md:text-lg leading-relaxed">{subtitle}</p>}
         </motion.div>
       </div>

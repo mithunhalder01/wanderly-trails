@@ -1,4 +1,7 @@
 import { Link } from "wouter";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Mail, Phone, MapPin, Facebook, Twitter, Instagram, Youtube } from "lucide-react";
 import {
   CONTACT_EMAIL,
@@ -8,47 +11,60 @@ import {
   CONTACT_PHONE_DISPLAY,
   SOCIAL_LINKS,
 } from "@/lib/contact";
+import { footerDestinations } from "@/data/homeContent";
+import { useToast } from "@/hooks/use-toast";
+
+const quickLinks = [
+  { label: "Home", href: "/" },
+  { label: "About Us", href: "/about" },
+  { label: "Destinations", href: "/destinations" },
+  { label: "Contact Us", href: "/contact" },
+  { label: "Our Blog", href: "/blog" },
+];
+
+const emailSchema = z.object({ email: z.string().email("Enter a valid email") });
 
 export default function Footer() {
+  const { toast } = useToast();
+  const form = useForm({ resolver: zodResolver(emailSchema), defaultValues: { email: "" } });
+
+  const onNewsletter = (data: z.infer<typeof emailSchema>) => {
+    toast({ title: "Subscribed!", description: "Travel deals headed to your inbox." });
+    form.reset();
+    void data;
+  };
+
   return (
-    <footer className="relative overflow-hidden bg-secondary text-secondary-foreground">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-60"
-        style={{
-          background:
-            "radial-gradient(800px 400px at 20% 0%, rgba(37,211,102,0.18), transparent 60%), radial-gradient(700px 380px at 90% 20%, rgba(59,130,246,0.18), transparent 55%), radial-gradient(500px 320px at 30% 90%, rgba(236,72,153,0.12), transparent 60%)",
-        }}
-      />
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+    <footer className="bg-secondary text-secondary-foreground">
+      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <Link
-              href="/"
-              className="mb-5 inline-flex min-h-0 items-center gap-2.5 md:gap-3"
-              aria-label="Wanderly Trails — Home"
-            >
-              <img
-                src="/logo.png"
-                alt=""
-                width={512}
-                height={512}
-                decoding="async"
-                className="h-14 max-h-14 w-auto shrink-0 object-contain md:h-16 md:max-h-16"
-              />
-              <span className="text-xl font-serif font-bold">
-                Wanderly<span className="text-accent">Trails</span>
-              </span>
+            <Link href="/" className="mb-5 inline-flex items-center gap-2.5" aria-label="Wanderly Trails — Home">
+              <img src="/logo.png" alt="" className="h-12 w-auto object-contain" />
+              <span className="text-xl font-semibold text-secondary-foreground">Wanderly Trails</span>
             </Link>
-            <p className="text-sm text-secondary-foreground/70 leading-relaxed mb-6">
-              Making travel easy and memorable since 2015. We craft experiences that last a lifetime, from serene beaches to majestic mountains.
-            </p>
-            <div className="flex items-center gap-3">
+            <ul className="mt-6 space-y-3 text-sm text-secondary-foreground/70">
+              <li className="flex items-center gap-2">
+                <Phone className="h-4 w-4 shrink-0 text-secondary-foreground/50" />
+                <a href={`tel:+91${CONTACT_PHONE_DIGITS}`} className="hover:text-white">{CONTACT_PHONE_DISPLAY}</a>
+              </li>
+              <li className="flex items-center gap-2">
+                <Mail className="h-4 w-4 shrink-0 text-secondary-foreground/50" />
+                <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-white">{CONTACT_EMAIL}</a>
+              </li>
+              <li className="flex items-start gap-2">
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-secondary-foreground/50" />
+                <a href={CONTACT_MAPS_URL} target="_blank" rel="noreferrer" className="hover:text-white">
+                  {CONTACT_OFFICE_ADDRESS}
+                </a>
+              </li>
+            </ul>
+            <div className="mt-5 flex gap-2">
               {[
-                { Icon: Facebook, href: SOCIAL_LINKS.facebook, label: "Facebook" },
-                { Icon: Twitter, href: SOCIAL_LINKS.x, label: "X" },
                 { Icon: Instagram, href: SOCIAL_LINKS.instagram, label: "Instagram" },
-                { Icon: Youtube, href: SOCIAL_LINKS.youtube, label: "YouTube" },
+                { Icon: Facebook, href: SOCIAL_LINKS.facebook, label: "Facebook" },
+                { Icon: Twitter, href: SOCIAL_LINKS.x, label: "Twitter" },
+                { Icon: Youtube, href: SOCIAL_LINKS.youtube, label: "Youtube" },
               ].map(({ Icon, href, label }) => (
                 <a
                   key={label}
@@ -56,27 +72,20 @@ export default function Footer() {
                   target="_blank"
                   rel="noreferrer"
                   aria-label={label}
-                  className="w-9 h-9 rounded-full bg-white/10 hover:bg-primary transition-colors flex items-center justify-center"
+                  className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 backdrop-blur-sm transition-colors hover:bg-white/15"
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="h-4 w-4" />
                 </a>
               ))}
             </div>
           </div>
 
           <div>
-            <h4 className="font-serif font-bold text-lg mb-5">Quick Links</h4>
-            <ul className="space-y-3">
-              {[
-                { label: "About Us", href: "/about" },
-                { label: "Destinations", href: "/destinations" },
-                { label: "Packages", href: "/packages" },
-                { label: "Gallery", href: "/gallery" },
-                { label: "Blog", href: "/blog" },
-                { label: "FAQ", href: "/faq" },
-              ].map((link) => (
+            <h4 className="mb-5 font-serif text-lg font-bold">Quick Links</h4>
+            <ul className="space-y-2.5">
+              {quickLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-secondary-foreground/70 hover:text-accent transition-colors">
+                  <Link href={link.href} className="text-sm text-secondary-foreground/70 hover:text-white">
                     {link.label}
                   </Link>
                 </li>
@@ -85,11 +94,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-serif font-bold text-lg mb-5">Popular Destinations</h4>
-            <ul className="space-y-3">
-              {["Goa, India", "Bali, Indonesia", "Dubai, UAE", "Kashmir, India", "Switzerland", "Maldives"].map((dest) => (
+            <h4 className="mb-5 font-serif text-lg font-bold">Destinations</h4>
+            <ul className="space-y-2.5">
+              {footerDestinations.map((dest) => (
                 <li key={dest}>
-                  <Link href="/destinations" className="text-sm text-secondary-foreground/70 hover:text-accent transition-colors">
+                  <Link href="/destinations" className="text-sm text-secondary-foreground/70 hover:text-primary">
                     {dest}
                   </Link>
                 </li>
@@ -98,42 +107,36 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="font-serif font-bold text-lg mb-5">Contact Us</h4>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 text-accent mt-0.5 shrink-0" />
-                <a
-                  href={CONTACT_MAPS_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-sm text-secondary-foreground/70 hover:text-accent transition-colors"
-                >
-                  {CONTACT_OFFICE_ADDRESS}
-                </a>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-accent shrink-0" />
-                <a href={`tel:+91${CONTACT_PHONE_DIGITS}`} className="text-sm text-secondary-foreground/70 hover:text-accent transition-colors">{CONTACT_PHONE_DISPLAY}</a>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-accent shrink-0" />
-                <a href={`mailto:${CONTACT_EMAIL}`} className="text-sm text-secondary-foreground/70 hover:text-accent transition-colors">{CONTACT_EMAIL}</a>
-              </li>
-            </ul>
-
-
+            <h4 className="mb-5 font-serif text-lg font-bold">Our Newsletter</h4>
+            <p className="mb-4 text-sm text-secondary-foreground/70">
+              Get exclusive travel deals, itinerary updates, and insider tips straight to your inbox!
+            </p>
+            <form onSubmit={form.handleSubmit(onNewsletter)} className="flex flex-col gap-2">
+              <input
+                {...form.register("email")}
+                type="email"
+                placeholder="Your Email"
+                className="glass-input w-full border-white/15 bg-white/10 px-4 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-white/30"
+              />
+              <button
+                type="submit"
+                className="luxury-btn-glass w-full border-white/30 bg-white/90 py-2.5 text-foreground"
+              >
+                Subscribe
+              </button>
+            </form>
           </div>
         </div>
       </div>
 
-      <div className="relative z-10 border-t border-white/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row sm:px-6 lg:px-8">
           <p className="text-sm text-secondary-foreground/50">
-            &copy; {new Date().getFullYear()} Wanderly Trails. All rights reserved.
+            © {new Date().getFullYear()} Wanderly Trails. All rights reserved.
           </p>
-          <div className="flex items-center gap-6">
-            <Link href="/faq" className="text-sm text-secondary-foreground/50 hover:text-accent transition-colors">Privacy Policy</Link>
-            <Link href="/faq" className="text-sm text-secondary-foreground/50 hover:text-accent transition-colors">Terms of Service</Link>
+          <div className="flex gap-6">
+            <Link href="/faq" className="text-sm text-secondary-foreground/50 hover:text-white">Privacy Policy</Link>
+            <Link href="/faq" className="text-sm text-secondary-foreground/50 hover:text-white">Terms of Service</Link>
           </div>
         </div>
       </div>

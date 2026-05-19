@@ -1,10 +1,10 @@
 {
   "version": 1,
   "settings": {
-    "heroTag": "VITE-TEST-1779125059706",
-    "heroTitle": "Discover Your",
-    "heroHighlight": "Dream Destination",
-    "heroSubtitle": "Curated packages for every traveler — from Goa beaches to Bali villas.",
+    "heroTag": "Explore India",
+    "heroTitle": "Discover New",
+    "heroHighlight": "Adventures",
+    "heroSubtitle": "From Rajasthan to Kerala and the Himalayas — Wanderly Trails brings India closer to you.",
     "heroPrimaryCta": "Explore Packages",
     "heroSecondaryCta": "Customize Trip",
     "featuredDestinationCount": 4,
@@ -18,7 +18,7 @@
       "name": "Goa",
       "country": "India",
       "category": "Beaches",
-      "description": "Sun-soaked beaches, lively nightlife, and Portuguese heritage. Perfect for aa relaxed coastal getaway.",
+"description": "Sun-soaked beaches, lively nightlife, and Portuguese heritage. Perfect for a relaxed coastal getaway.",
       "imageUrl": "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=1200&q=80",
       "rating": 4.7,
       "startingPrice": 12999,

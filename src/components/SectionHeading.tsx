@@ -17,13 +17,13 @@ export default function SectionHeading({ badge, title, subtitle, center = true }
       className={center ? "text-center" : ""}
     >
       {badge && (
-        <span className="inline-block text-xs font-bold tracking-widest uppercase text-accent mb-3 bg-accent/10 px-4 py-1.5 rounded-full">
+        <span className="luxury-label mb-3 inline-block rounded-full border border-border/60 bg-background/60 px-4 py-1.5 backdrop-blur-sm">
           {badge}
         </span>
       )}
-      <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">{title}</h2>
+      <h2 className="mb-4 text-3xl font-semibold text-foreground md:text-4xl">{title}</h2>
       {subtitle && (
-        <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto">{subtitle}</p>
+        <p className="mx-auto max-w-2xl text-base text-muted-foreground md:text-lg">{subtitle}</p>
       )}
     </motion.div>
   );
