@@ -11,8 +11,16 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="bg-secondary text-secondary-foreground">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+    <footer className="relative overflow-hidden bg-secondary text-secondary-foreground">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-60"
+        style={{
+          background:
+            "radial-gradient(800px 400px at 20% 0%, rgba(37,211,102,0.18), transparent 60%), radial-gradient(700px 380px at 90% 20%, rgba(59,130,246,0.18), transparent 55%), radial-gradient(500px 320px at 30% 90%, rgba(236,72,153,0.12), transparent 60%)",
+        }}
+      />
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           <div>
             <Link
@@ -112,11 +120,13 @@ export default function Footer() {
                 <a href={`mailto:${CONTACT_EMAIL}`} className="text-sm text-secondary-foreground/70 hover:text-accent transition-colors">{CONTACT_EMAIL}</a>
               </li>
             </ul>
+
+
           </div>
         </div>
       </div>
 
-      <div className="border-t border-white/10">
+      <div className="relative z-10 border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-secondary-foreground/50">
             &copy; {new Date().getFullYear()} Wanderly Trails. All rights reserved.
