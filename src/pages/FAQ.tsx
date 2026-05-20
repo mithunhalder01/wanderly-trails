@@ -9,12 +9,12 @@ const faqs = [
   { q: "What is your refund policy?", a: "We offer a full refund if you cancel 30+ days before departure, 50% refund for 15-29 days, and no refund for cancellations within 14 days. Travel insurance is strongly recommended." },
   { q: "Can I cancel or modify my booking?", a: "Yes, you can modify or cancel your booking through our customer support team. Cancellation charges apply depending on how close to the travel date the cancellation is made." },
   { q: "Is the payment process safe?", a: "Absolutely. We use 256-bit SSL encryption for all transactions. Your financial data is never stored on our servers. We support UPI, net banking, and all major credit/debit cards." },
-  { q: "Do I need a passport for domestic travel?", a: "No passport is needed for domestic travel within India. A valid government-issued photo ID (Aadhaar, Voter ID, or Driving License) is sufficient. International travel requires a valid passport." },
+  { q: "Do I need a passport for domestic travel?", a: "No passport is needed for domestic travel within India. A valid government-issued photo ID (Aadhaar, Voter ID, or Driving License) is sufficient." },
   { q: "What is included in the package price?", a: "Package prices typically include hotel accommodation, daily breakfast, airport transfers, local transport, and guided sightseeing. Specific inclusions are listed on each package detail page." },
   { q: "Do you offer travel insurance?", a: "Yes, we partner with leading insurance providers to offer comprehensive travel insurance. We strongly recommend purchasing insurance for all bookings." },
   { q: "How do I get my travel documents?", a: "All travel documents, vouchers, and itineraries are sent to your registered email 48 hours before departure. You can also access them through your user dashboard." },
   { q: "Can I customize a package?", a: "Absolutely! Contact our travel experts for custom-built packages tailored to your preferences, budget, and schedule. We specialize in creating personalized travel experiences." },
-  { q: "What languages do your guides speak?", a: "Our guides speak Hindi, English, and the local language of the destination. For international tours, English-speaking guides are always available." },
+  { q: "What languages do your guides speak?", a: "Our guides speak Hindi, English, and the local language of the destination." },
   { q: "How do I contact support during my trip?", a: "We provide 24/7 emergency support via WhatsApp and phone. Your travel documents include emergency contact numbers for your specific destination." },
 ];
 

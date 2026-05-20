@@ -14,6 +14,7 @@ export const homeHero = {
 export const homeStats = {
   tours: { value: 100, suffix: "+", label: "All-India Tours & Experiences" },
   rating: { value: 4.9, suffix: "", label: "Positive Reviews", display: "(4.9)" },
+  customers: { value: 5000, suffix: "+", label: "Happy Customers" },
 };
 
 export const aboutHome = {
@@ -48,25 +49,78 @@ export const availableTours = [
     id: 301,
     title: "Memorable Himachal",
     price: 10499,
-    description:
-      "Experience the serenity of Kasol and Manikaran before concluding your journey.",
+    description: "Experience the serenity of Kasol and Manikaran before concluding your journey",
     image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800&q=80",
   },
   {
     id: 401,
     title: "Meghalaya Tour",
     price: 19999,
-    description:
-      "Famous for its high rainfall, subtropical forests and biodiversity, abutted by Assam.",
+    description: "Famous for its high rainfall, subtropical forests and biodiversity, it is abutted by Assam",
     image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=800&q=80",
   },
   {
     id: 302,
     title: "Spiti Circuit",
     price: 13000,
-    description:
-      "Spiti Valley, a hidden paradise tucked away in the mighty Himalayas of Himachal Pradesh.",
+    description: "Spiti Valley, a hidden paradise tucked away in the mighty Himalayas of Himachal Pradesh",
     image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80",
+  },
+  {
+    id: 303,
+    title: "Whispers of Himachal",
+    price: 17999,
+    description: "Manali's snow filled magic, Kasol's bohemian vibes to Dalhousie's blend of adventure and relaxation.",
+    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+  },
+  {
+    id: 501,
+    title: "Andaman and Nicobar Islands",
+    price: 19999,
+    description: "the Port Blair, Havelock & Neil Island You will be able to visit Cellular Jail, Radhanagar Beach,",
+    image: "https://images.unsplash.com/photo-1528127269322-539801943592?w=800&q=80",
+  },
+  {
+    id: 304,
+    title: "Himachal Circuit",
+    price: 20999,
+    description: "stunning 9-day journey through the best of Himachal Pradesh from the colonial charm of Shimla and the snowy serenity",
+    image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800&q=80",
+  },
+  {
+    id: 305,
+    title: "Jibhi & Tirthan Valley",
+    price: 6999,
+    description: "Himachal ranges, Jibhi & Tirthan Valley are the gems of the lesser-explored side of the Himalayas",
+    image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80",
+  },
+  {
+    id: 306,
+    title: "Pocket Honeymoon - Himachal",
+    price: 45999,
+    description: "enchanting valleys of Kasol, Kullu, and Manali with this 4 Nights / 5 Days honeymoon package,",
+    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80",
+  },
+  {
+    id: 307,
+    title: "Himachal Backpacking",
+    price: 12999,
+    description: "From snow-draped peaks in Solang to the spiritual calm of the Golden Temple,",
+    image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=800&q=80",
+  },
+  {
+    id: 601,
+    title: "Jaipur",
+    price: 20999,
+    description: "stunning 9-day journey through the best of Himachal Pradesh from the colonial charm of Shimla and the snowy serenity",
+    image: "https://images.unsplash.com/photo-1542410537-844e1a9b5d38?w=800&q=80",
+  },
+  {
+    id: 701,
+    title: "Kashmir",
+    price: 6999,
+    description: "Himachal ranges, Jibhi & Tirthan Valley are the gems of the lesser-explored side of the Himalayas",
+    image: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=800&q=80",
   },
 ];
 
@@ -88,19 +142,19 @@ export const indiaTrips = {
   ],
 };
 
-export const internationalTrips = {
-  title: "International Trips",
-  subtitle: "Discover the world, one destination at a time",
+export const weekendGetaways = {
+  title: "Weekend Getaways",
+  subtitle: "Quick escapes to recharge your soul",
   cta: "Explore",
   bannerImage:
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1400&q=80",
+    "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1400&q=80",
   destinations: [
-    { name: "Bali", price: 42999, image: "https://images.unsplash.com/photo-1501889088093-5c9f0b1c5b6b?w=600&q=80" },
-    { name: "Vietnam", price: 34999, image: "https://images.unsplash.com/photo-1528127269322-539801943592?w=600&q=80" },
-    { name: "Thailand", price: 49999, image: "https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a?w=600&q=80" },
-    { name: "Maldives", price: 60599, image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" },
-    { name: "Dubai", price: 55999, image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=600&q=80" },
-    { name: "Europe", price: 89990, image: "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=600&q=80" },
+    { name: "Rishikesh", price: 4999, image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600&q=80" },
+    { name: "Mussoorie", price: 6999, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80" },
+    { name: "Kasol", price: 5499, image: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=600&q=80" },
+    { name: "Nainital", price: 7499, image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" },
+    { name: "Udaipur", price: 8999, image: "https://images.unsplash.com/photo-1542410537-844e1a9b5d38?w=600&q=80" },
+    { name: "Pushkar", price: 4599, image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=600&q=80" },
   ],
 };
 

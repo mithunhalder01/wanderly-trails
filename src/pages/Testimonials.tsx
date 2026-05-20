@@ -13,7 +13,7 @@ export default function Testimonials() {
         alt="Traveler Testimonials"
         badge="Real Reviews"
         title="What Travelers Say"
-        subtitle="Verified guest feedback from domestic and international tours."
+        subtitle="Verified guest feedback from our tours across India."
       />
 
       <section className="py-16 bg-muted/40">

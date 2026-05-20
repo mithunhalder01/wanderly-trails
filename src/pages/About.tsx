@@ -7,8 +7,8 @@ import PageHero from "@/components/PageHero";
 const placeholderAvatar = "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original";
 
 const team = [
-  { name: "Arjun Mehta", role: "Founder & CEO", img: placeholderAvatar, bio: "15+ years in travel industry, passionate about creating unforgettable journeys." },
-  { name: "Priya Sharma", role: "Head of Destinations", img: placeholderAvatar, bio: "Expert in international travel with knowledge of 80+ countries." },
+  { name: "Harsh Tiwari", role: "Founder & Owner", img: placeholderAvatar, bio: "Passionate traveler and explorer, dedicated to crafting perfect itineraries and unforgettable travel journeys." },
+  { name: "Priya Sharma", role: "Head of Destinations", img: placeholderAvatar, bio: "Expert in Indian travel with extensive knowledge of all major states and hidden gems." },
   { name: "Rohit Verma", role: "Lead Tour Guide", img: placeholderAvatar, bio: "Award-winning guide with deep expertise in adventure and luxury travel." },
   { name: "Sneha Patel", role: "Customer Experience", img: placeholderAvatar, bio: "Dedicated to making every traveler's experience seamless and memorable." },
 ];
@@ -40,7 +40,7 @@ export default function About() {
             <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Our Journey</span>
             <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">How Wanderly Trails Began</h2>
             <p className="text-muted-foreground leading-relaxed mb-5">
-              Founded in 2015 by Arjun Mehta, Wanderly Trails started with a simple belief: travel should be accessible, safe, and truly memorable for everyone. What began as a small team of passionate explorers has grown into one of India's most trusted travel agencies.
+              Founded in 2015 by Harsh Tiwari, Wanderly Trails started with a simple belief: travel should be accessible, safe, and truly memorable for everyone. What began as a small team of passionate explorers has grown into one of India's most trusted travel agencies.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-5">
               We've taken thousands of travelers to their dream destinations — from the golden beaches of Goa to the snow-capped peaks of Kashmir, from the bustling souks of Dubai to the serene temples of Bali.

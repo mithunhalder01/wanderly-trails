@@ -12,6 +12,7 @@ const navLinks = [
   { label: "Home", href: "/" },
   { label: "About Us", href: "/about" },
   { label: "Destinations", href: "/destinations" },
+  { label: "Packages", href: "/packages" },
   { label: "Our Blog", href: "/blog" },
   { label: "Contact Us", href: "/contact" },
 ];
@@ -41,10 +42,10 @@ export default function Navbar() {
           <img
             src="/logo.png"
             alt=""
-            className={`h-11 w-auto object-contain sm:h-12 ${solid ? "" : "drop-shadow-lg"}`}
+            className={`h-14 w-auto object-contain sm:h-16 ${solid ? "" : "drop-shadow-lg"}`}
           />
           <span
-            className={`text-xl font-semibold sm:text-2xl ${solid ? "text-foreground" : "text-white drop-shadow-md"}`}
+            className={`text-2xl font-extrabold sm:text-3xl tracking-tight ${solid ? "text-foreground" : "text-white drop-shadow-md"}`}
           >
             Wanderly Trails
           </span>
@@ -72,12 +73,6 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <Link
-            href="/packages"
-            className={`text-sm font-medium ${solid ? "text-foreground/65 hover:text-foreground" : "text-white/90 hover:text-white"}`}
-          >
-            Packages
-          </Link>
           <a
             href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
             target="_blank"
@@ -125,13 +120,6 @@ export default function Navbar() {
                   <ChevronDown className="-rotate-90 h-4 w-4 opacity-40" />
                 </Link>
               ))}
-              <Link
-                href="/packages"
-                onClick={() => setOpen(false)}
-                className="block rounded-xl px-4 py-3 text-sm font-medium text-foreground/75 hover:bg-foreground/5"
-              >
-                Packages
-              </Link>
               <a
                 href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
                 target="_blank"

@@ -81,7 +81,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-5 font-serif text-lg font-bold">Quick Links</h4>
+            <h4 className="mb-5 font-serif text-xl font-bold text-transparent bg-clip-text bg-[linear-gradient(to_right,#BF953F,#FCF6BA,#B38728,#FBF5B7,#AA771C)] drop-shadow-sm">Quick Links</h4>
             <ul className="space-y-2.5">
               {quickLinks.map((link) => (
                 <li key={link.href}>
@@ -94,11 +94,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-5 font-serif text-lg font-bold">Destinations</h4>
+            <h4 className="mb-5 font-serif text-xl font-bold text-transparent bg-clip-text bg-[linear-gradient(to_right,#BF953F,#FCF6BA,#B38728,#FBF5B7,#AA771C)] drop-shadow-sm">Destinations</h4>
             <ul className="space-y-2.5">
               {footerDestinations.map((dest) => (
                 <li key={dest}>
-                  <Link href="/destinations" className="text-sm text-secondary-foreground/70 hover:text-primary">
+                  <Link href="/destinations" className="text-sm text-secondary-foreground/70 hover:text-white">
                     {dest}
                   </Link>
                 </li>
@@ -107,7 +107,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="mb-5 font-serif text-lg font-bold">Our Newsletter</h4>
+            <h4 className="mb-5 font-serif text-xl font-bold text-transparent bg-clip-text bg-[linear-gradient(to_right,#BF953F,#FCF6BA,#B38728,#FBF5B7,#AA771C)] drop-shadow-sm">Our Newsletter</h4>
             <p className="mb-4 text-sm text-secondary-foreground/70">
               Get exclusive travel deals, itinerary updates, and insider tips straight to your inbox!
             </p>

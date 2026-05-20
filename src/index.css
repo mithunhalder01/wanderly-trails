@@ -269,4 +269,31 @@
   .wa-btn {
     @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#25D366] px-5 py-2.5 text-sm font-semibold text-white shadow-md transition-all hover:bg-[#20bd5c];
   }
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+  }
+  .journey-container {
+    perspective: 1200px;
+    --card-gap: 155px;
+    --card-width: 170px;
+    --card-height: 250px;
+  }
+  @media (min-width: 640px) {
+    .journey-container {
+      --card-gap: 220px;
+      --card-width: 220px;
+      --card-height: 310px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .journey-container {
+      --card-gap: 280px;
+      --card-width: 280px;
+      --card-height: 380px;
+    }
+  }
 }
