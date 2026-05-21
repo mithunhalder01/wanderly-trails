@@ -33,20 +33,17 @@ export default function HomeHero() {
 
   return (
     <section ref={container} className="relative min-h-[90vh] md:min-h-screen overflow-hidden bg-black text-white flex items-center pt-20">
-      {/* Background Video */}
+      {/* Background Image */}
       <div className="absolute inset-0">
-        <video
-          src="/hero-vid.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
+        <img
+          src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2200&q=80"
+          alt="Mountain landscape"
           className="hero-bg-vid h-full w-full object-cover scale-105"
         />
         {/* Gradients for readability and blending */}
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/10 to-transparent" />
+        <div className="absolute inset-0 bg-black/35" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/35 via-background/5 to-transparent" />
       </div>
 
       <div className="relative z-10 w-full mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-12 md:py-20">
