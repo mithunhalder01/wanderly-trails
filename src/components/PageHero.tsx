@@ -25,7 +25,7 @@ export default function PageHero({
   return (
     <section className={`relative ${heightClass} flex flex-col overflow-hidden`}>
       <img src={image} alt={alt} className="absolute inset-0 h-full w-full object-cover" />
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 bg-black/50" />
 
       {backHref && breadcrumbs && (
         <div className="relative z-20 pt-6">
@@ -35,13 +35,13 @@ export default function PageHero({
 
       <div className="relative z-10 flex-1 flex flex-col justify-center mx-auto max-w-7xl w-full px-4 text-white sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <span className="mb-3 inline-block rounded-full border border-white/30 bg-black/35 px-4 py-1.5 text-white font-semibold uppercase tracking-[0.2em] text-[11px] backdrop-blur-md">
+          <span className="luxury-label mb-3 inline-block rounded-full border border-white/25 bg-white/10 px-4 py-1.5 backdrop-blur-md text-white/80 font-bold uppercase tracking-widest text-xs">
             {badge}
           </span>
-          <h1 className="text-4xl font-serif font-bold text-white md:text-5xl lg:text-7xl drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+          <h1 className="text-4xl font-serif font-bold md:text-5xl lg:text-7xl text-transparent bg-clip-text bg-[linear-gradient(to_right,#BF953F,#FCF6BA,#B38728,#FBF5B7,#AA771C)] drop-shadow-md">
             {title}
           </h1>
-          {subtitle && <p className="mt-4 max-w-2xl text-sm text-white md:mt-6 md:text-xl font-medium leading-relaxed drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)]">{subtitle}</p>}
+          {subtitle && <p className="mt-6 max-w-2xl text-base text-white/90 md:text-xl font-medium leading-relaxed drop-shadow-sm">{subtitle}</p>}
         </motion.div>
       </div>
     </section>

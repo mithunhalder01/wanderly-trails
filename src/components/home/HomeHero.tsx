@@ -51,7 +51,7 @@ export default function HomeHero() {
           {/* Left Content */}
           <div className="hero-left lg:col-span-7">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white/90 backdrop-blur-md mb-6 md:mb-8 shadow-xl">
-              <Sparkles className="h-4 w-4 text-primary" />
+              <Sparkles className="h-4 w-4 text-amber-400" />
               <span className="text-xs md:text-sm font-bold tracking-[0.2em] uppercase">{homeHero.brandLine}</span>
             </div>
             
