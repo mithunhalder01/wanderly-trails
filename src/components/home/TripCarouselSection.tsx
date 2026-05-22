@@ -77,6 +77,7 @@ export default function TripCarouselSection({
   const scrollRef = useRef<HTMLDivElement>(null);
   const container = useRef<HTMLElement>(null);
   const [, setLocation] = useLocation();
+  const isDraggingRef = useRef(false);
 
   // Stack state for mobile carousel
   const [stack, setStack] = useState<number[]>([]);
@@ -100,12 +101,9 @@ export default function TripCarouselSection({
     });
   };
 
-  const handleCardTap = (slug?: string) => {
-    if (slug) {
-      setLocation(`/destinations/${slug}`);
-    } else {
-      setLocation(exploreHref);
-    }
+  const handleCardTap = () => {
+    if (isDraggingRef.current) return;
+    setLocation(exploreHref);
   };
 
   const scroll = (dir: "left" | "right") => {
@@ -282,15 +280,22 @@ export default function TripCarouselSection({
                   drag={isTop ? "x" : false}
                   dragConstraints={{ left: 0, right: 0 }}
                   dragElastic={0.6}
+                  onDragStart={() => {
+                    isDraggingRef.current = true;
+                  }}
                   onDragEnd={(event, info) => {
                     if (info.offset.x < -80) {
                       handleSwipe("left");
                     } else if (info.offset.x > 80) {
                       handleSwipe("right");
                     }
+                    // Prevent immediate tap trigger after drag
+                    setTimeout(() => {
+                      isDraggingRef.current = false;
+                    }, 50);
                   }}
-                  onTap={() => handleCardTap(dest.slug)}
-                  className="absolute inset-0 rounded-3xl overflow-hidden shadow-xl border border-border/40 select-none bg-card cursor-grab active:cursor-grabbing"
+                  onTap={handleCardTap}
+                  className="absolute inset-0 rounded-3xl overflow-hidden shadow-xl border border-border/40 select-none bg-card cursor-grab active:cursor-grabbing touch-pan-y"
                 >
                   <div className="relative w-full h-full pointer-events-none">
                     {/* Dark gradient overlay */}
