@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, ChevronDown, House, MapPinned, BriefcaseBusiness, Ticket, Search, Mic } from "lucide-react";
+import { Menu, X, ChevronDown, House, MapPinned, BriefcaseBusiness, Ticket, Search, Mic, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
+import { useContent } from "@/context/content";
 
 const WHATSAPP_MSG = encodeURIComponent(
   "Hi! I want to book a travel package with Wanderly Trails. Please help me."
@@ -29,7 +30,9 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [activeSuggestion, setActiveSuggestion] = useState(0);
   const [location, setLocation] = useLocation();
+  const { destinations, packages, blogs } = useContent();
   const isHome = location === "/";
 
   useEffect(() => {
@@ -39,11 +42,31 @@ export default function Navbar() {
   }, []);
 
   const solid = scrolled || !isHome;
-  const suggestions = ["Goa", "Kerala", "Rajasthan", "Himachal", "Meghalaya"];
+  const suggestions = useMemo(() => {
+    const safeDestinations = Array.isArray(destinations) ? destinations : [];
+    const safePackages = Array.isArray(packages) ? packages : [];
+    const safeBlogs = Array.isArray(blogs) ? blogs : [];
+    const pool = [
+      ...safeDestinations.map((d) => ({ title: d.name, subtitle: `${d.country} • ${d.category}` })),
+      ...safePackages.map((p) => ({ title: p.title, subtitle: `${p.duration} days • ₹${p.price.toLocaleString("en-IN")}` })),
+      ...safeBlogs.map((b) => ({ title: b.title, subtitle: `${b.category} • ${b.readTime} min read` })),
+    ];
+    const unique = Array.from(new Map(pool.map((item) => [item.title.toLowerCase(), item])).values());
+    const q = searchText.trim().toLowerCase();
+    if (!q) return unique.slice(0, 8);
+    return unique
+      .filter((item) => item.title.toLowerCase().includes(q) || item.subtitle.toLowerCase().includes(q))
+      .slice(0, 8);
+  }, [destinations, packages, blogs, searchText]);
+
+  useEffect(() => {
+    setActiveSuggestion(0);
+  }, [searchText, searchOpen]);
 
   const onSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const q = searchText.trim();
+    const fallback = suggestions[activeSuggestion]?.title ?? "";
+    const q = (searchText.trim() || fallback).trim();
     setSearchOpen(false);
     setLocation(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
   };
@@ -113,24 +136,26 @@ export default function Navbar() {
           </a>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setSearchOpen(true)}
-          className={`hidden rounded-lg p-2 lg:hidden lg:rounded-lg ${solid ? "text-foreground" : "text-white"}`}
-          aria-label="Open search"
-        >
-          <Search className="h-6 w-6" />
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className={`rounded-lg p-2 ${solid ? "text-foreground" : "text-white"}`}
+            aria-label="Open search"
+          >
+            <Search className="h-6 w-6" />
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setOpen(!open)}
-          data-testid="nav-mobile-toggle"
-          className={`rounded-lg p-2 lg:hidden ${solid ? "text-foreground" : "text-white"}`}
-          aria-label={open ? "Close menu" : "Open menu"}
-        >
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-        </button>
+          <button
+            type="button"
+            onClick={() => setOpen(!open)}
+            data-testid="nav-mobile-toggle"
+            className={`rounded-lg p-2 ${solid ? "text-foreground" : "text-white"}`}
+            aria-label={open ? "Close menu" : "Open menu"}
+          >
+            {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
       </div>
 
       <AnimatePresence>
@@ -177,40 +202,67 @@ export default function Navbar() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[80] hidden lg:flex items-start justify-center bg-black/60 backdrop-blur-sm pt-56"
+            className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm"
             onClick={() => setSearchOpen(false)}
           >
-            <div className="w-full max-w-2xl px-6" onClick={(e) => e.stopPropagation()}>
-              <form onSubmit={onSearchSubmit} className="rounded-full bg-white px-7 py-5 shadow-2xl">
-                <div className="flex items-center gap-4">
-                  <Search className="h-7 w-7 text-zinc-500" />
+            <div className="mx-auto w-full max-w-3xl px-4 pt-4 sm:px-6 sm:pt-10" onClick={(e) => e.stopPropagation()}>
+              <form onSubmit={onSearchSubmit} className="rounded-full border border-black/10 bg-[#E9E6EE] px-5 py-3 shadow-2xl">
+                <div className="flex items-center gap-3">
+                  <button type="button" onClick={() => setSearchOpen(false)} aria-label="Close search">
+                    <ArrowLeft className="h-6 w-6 text-zinc-700" />
+                  </button>
                   <input
                     autoFocus
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
-                    placeholder="Search destinations..."
-                    className="w-full bg-transparent text-3xl text-zinc-900 outline-none placeholder:text-zinc-400"
+                    onKeyDown={(e) => {
+                      if (e.key === "ArrowDown") {
+                        e.preventDefault();
+                        if (!suggestions.length) return;
+                        setActiveSuggestion((prev) => (prev + 1) % suggestions.length);
+                      }
+                      if (e.key === "ArrowUp") {
+                        e.preventDefault();
+                        if (!suggestions.length) return;
+                        setActiveSuggestion((prev) => (prev - 1 + suggestions.length) % suggestions.length);
+                      }
+                    }}
+                    placeholder="Input text"
+                    className="w-full bg-transparent text-xl text-zinc-900 outline-none placeholder:text-zinc-600 sm:text-2xl"
                   />
-                  <Mic className="h-7 w-7 text-zinc-500" />
+                  <button type="button" onClick={() => setSearchText("")} aria-label="Clear text">
+                    <X className="h-6 w-6 text-zinc-600" />
+                  </button>
+                  <Mic className="h-6 w-6 text-zinc-600" />
                 </div>
               </form>
-              <div className="mt-5 rounded-[2rem] bg-white p-6 shadow-2xl">
-                <div className="space-y-4">
-                  {suggestions.map((item) => (
-                    <button
-                      key={item}
-                      type="button"
-                      onClick={() => {
-                        setSearchText(item);
-                        setSearchOpen(false);
-                        setLocation(`/search?q=${encodeURIComponent(item)}`);
-                      }}
-                      className="flex w-full items-center gap-4 text-left text-2xl text-zinc-700 hover:text-zinc-900"
-                    >
-                      <Search className="h-6 w-6 text-zinc-400" />
-                      <span>{item}</span>
-                    </button>
-                  ))}
+              <div className="mt-1 rounded-3xl border border-black/10 bg-[#E9E6EE] p-5 shadow-2xl">
+                <div className="space-y-5">
+                  {suggestions.length ? (
+                    suggestions.map((item, idx) => (
+                      <button
+                        key={`${item.title}-${idx}`}
+                        type="button"
+                        onMouseEnter={() => setActiveSuggestion(idx)}
+                        onClick={() => {
+                          setSearchText(item.title);
+                          setSearchOpen(false);
+                          setLocation(`/search?q=${encodeURIComponent(item.title)}`);
+                        }}
+                        className={`flex w-full items-start gap-3 rounded-xl px-2 py-1 text-left ${
+                          idx === activeSuggestion ? "bg-black/5" : ""
+                        }`}
+                      >
+                        <Search className="mt-1 h-4 w-4 shrink-0 text-zinc-400" />
+                        <span>
+                          <span className="block text-2xl leading-7 text-zinc-900">{item.title}</span>
+                          <span className="block text-lg text-zinc-600">{item.subtitle}</span>
+                        </span>
+                      </button>
+                    ))
+                  ) : (
+                    <p className="px-2 py-3 text-lg text-zinc-600">No matches found</p>
+                  )}
                 </div>
               </div>
             </div>

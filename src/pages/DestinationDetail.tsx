@@ -124,7 +124,7 @@ export default function DestinationDetail() {
         {related.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-16">
             <SectionHeading badge="Available" title={`Packages for ${destination.name}`} subtitle="Choose from our curated packages" center={false} />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+            <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 mt-8">
               {related.map((p, i) => <PackageCard key={p.id} pkg={p} index={i} />)}
             </div>
           </motion.div>

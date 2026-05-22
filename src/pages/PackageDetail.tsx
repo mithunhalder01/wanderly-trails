@@ -151,7 +151,7 @@ export default function PackageDetail() {
             {activeTab === "Related" && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 {related.length > 0 ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-2 gap-3 sm:gap-5">
                     {related.map((p, i) => <PackageCard key={p.id} pkg={p} index={i} />)}
                   </div>
                 ) : <p className="text-muted-foreground">No related packages found.</p>}

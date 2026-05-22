@@ -66,12 +66,14 @@ export default function HomeTours() {
           </div>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {availableTours.slice(0, 4).map((tour) => (
-            <article
-              key={tour.id}
-              className="tour-card group relative flex flex-col h-full rounded-2xl bg-card border border-border/50 overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:border-primary/30 transition-all duration-500"
-            >
+        {/* Desktop: grid. Mobile: slider carousel */}
+        <div className="hidden lg:block">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {availableTours.slice(0, 4).map((tour) => (
+              <article
+                key={tour.id}
+                className="tour-card group relative flex flex-col h-full rounded-2xl bg-card border border-border/50 overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:border-primary/30 transition-all duration-500"
+              >
               <div className="relative h-56 overflow-hidden">
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-10" />
                 <img
@@ -119,14 +121,94 @@ export default function HomeTours() {
                     href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hi! I'm interested in booking the "${tour.title}" package. Can you share more details?`)}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="w-full inline-flex justify-center items-center py-2.5 px-2 rounded-xl bg-primary/10 backdrop-blur-md border border-primary/20 text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300 text-[13px] font-bold shadow-sm"
+                        className="w-full inline-flex justify-center items-center py-2.5 px-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 text-[13px] font-bold shadow-sm"
                   >
                     Book Now
                   </a>
                 </div>
               </div>
             </article>
-          ))}
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile: slider */}
+        <div className="lg:hidden mt-2">
+          <div className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-2">
+            {availableTours.slice(0, 4).map((tour) => (
+              <div
+                key={tour.id}
+                className="snap-center shrink-0 w-[86vw]"
+              >
+                <article
+                  className="tour-card group relative flex flex-col h-full rounded-2xl bg-card border border-border/50 overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:border-primary/30 transition-all duration-500"
+                >
+                  <div className="relative h-56 overflow-hidden">
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-10" />
+                    <img
+                      src={tour.image}
+                      alt={tour.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                    <div className="absolute top-3 right-3 z-20">
+                      <div className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] uppercase tracking-widest font-bold shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
+                        Featured
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent top-1/2 z-10" />
+                  </div>
+
+                  <div className="flex flex-col flex-grow p-5 relative z-20 -mt-6">
+                    <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-semibold text-primary mb-2">
+                      <MapPin className="h-3 w-3" />
+                      <span>India</span>
+                    </div>
+
+                    <h3 className="font-serif text-xl font-bold text-foreground mb-1 group-hover:text-primary transition-colors">
+                      {tour.title}
+                    </h3>
+
+                    <div className="flex items-baseline gap-1 mb-3">
+                      <span className="text-xs text-muted-foreground">Starting From:</span>
+                      <span className="text-base font-bold text-foreground">₹{tour.price.toLocaleString("en-IN")}/-</span>
+                    </div>
+
+                    <p className="text-sm text-muted-foreground leading-relaxed flex-grow mb-5 line-clamp-3">
+                      {tour.description}
+                    </p>
+
+                    <div className="mt-auto grid grid-cols-2 gap-3 pt-2">
+                      <Link
+                        href={`/packages/${tour.id}`}
+                        className="w-full inline-flex justify-center items-center py-2.5 px-2 rounded-xl bg-foreground/5 backdrop-blur-md border border-border/50 text-foreground hover:bg-foreground/10 hover:border-border transition-all duration-300 text-[13px] font-bold shadow-sm"
+                      >
+                        Explore
+                      </Link>
+                    <a
+                        href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hi! I'm interested in booking the "${tour.title}" package. Can you share more details?`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="w-full inline-flex justify-center items-center py-2.5 px-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 text-[13px] font-bold shadow-sm"
+                      >
+                        Book Now
+                      </a>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-2 lg:hidden">
+          <Link
+            href="/packages"
+            className="inline-flex items-center gap-2 px-4 py-2 text-primary font-semibold hover:gap-3 transition-all text-lg"
+          >
+            View All Tours
+            <ArrowRight className="w-5 h-5" />
+          </Link>
         </div>
       </div>
     </section>

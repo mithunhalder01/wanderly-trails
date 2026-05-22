@@ -110,7 +110,7 @@ export default function Packages() {
 
           <div className="flex-1">
             {filteredPackages.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 gap-2.5 sm:gap-5 xl:grid-cols-3">
                 {filteredPackages.map((p, i) => <PackageCard key={p.id} pkg={p} index={i} />)}
               </div>
             ) : (

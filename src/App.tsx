@@ -1,30 +1,30 @@
 import { Switch, Route, Redirect, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/not-found";
 import Navbar, { MobileBottomNav } from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingWidgets from "@/components/FloatingWidgets";
-import Home from "@/pages/Home";
-import About from "@/pages/About";
-import Destinations from "@/pages/Destinations";
-import DestinationDetail from "@/pages/DestinationDetail";
-import Packages from "@/pages/Packages";
-import PackageDetail from "@/pages/PackageDetail";
-import Gallery from "@/pages/Gallery";
-import Blog from "@/pages/Blog";
-import BlogDetail from "@/pages/BlogDetail";
-import Testimonials from "@/pages/Testimonials";
-import Booking from "@/pages/Booking";
-import FAQ from "@/pages/FAQ";
-import Contact from "@/pages/Contact";
-import SearchPage from "@/pages/Search";
 import SeoManager from "@/components/SeoManager";
-import AdminLogin from "@/pages/admin/AdminLogin";
-import AdminDashboard from "@/pages/admin/AdminDashboard";
 import { ContentProvider } from "@/context/content";
+const NotFound = lazy(() => import("@/pages/not-found"));
+const Home = lazy(() => import("@/pages/Home"));
+const About = lazy(() => import("@/pages/About"));
+const Destinations = lazy(() => import("@/pages/Destinations"));
+const DestinationDetail = lazy(() => import("@/pages/DestinationDetail"));
+const Packages = lazy(() => import("@/pages/Packages"));
+const PackageDetail = lazy(() => import("@/pages/PackageDetail"));
+const Gallery = lazy(() => import("@/pages/Gallery"));
+const Blog = lazy(() => import("@/pages/Blog"));
+const BlogDetail = lazy(() => import("@/pages/BlogDetail"));
+const Testimonials = lazy(() => import("@/pages/Testimonials"));
+const Booking = lazy(() => import("@/pages/Booking"));
+const FAQ = lazy(() => import("@/pages/FAQ"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const SearchPage = lazy(() => import("@/pages/Search"));
+const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
+const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 
 const SESSION_KEY = "wanderly_admin";
 
@@ -77,8 +77,9 @@ function ScrollToTopOnRouteChange() {
 
 function Router() { 
   return (
-    <Switch>
-      <Route path="/" component={() => <PublicLayout><Home /></PublicLayout>} />
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <Switch>
+        <Route path="/" component={() => <PublicLayout><Home /></PublicLayout>} />
       <Route path="/about" component={() => <PublicLayout><About /></PublicLayout>} />
       <Route path="/destinations/:id" component={() => <PublicLayout><DestinationDetail /></PublicLayout>} />
       <Route path="/destinations" component={() => <PublicLayout><Destinations /></PublicLayout>} />
@@ -94,8 +95,9 @@ function Router() {
       <Route path="/search" component={() => <PublicLayout><SearchPage /></PublicLayout>} />
       <Route path="/admin/login" component={AdminLoginRoute} />
       <Route path="/admin" component={AdminRoute} />
-      <Route component={() => <PublicLayout><NotFound /></PublicLayout>} />
-    </Switch>
+        <Route component={() => <PublicLayout><NotFound /></PublicLayout>} />
+      </Switch>
+    </Suspense>
   );
 }
 
