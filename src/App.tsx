@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
-import Navbar from "@/components/Navbar";
+import Navbar, { MobileBottomNav } from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingWidgets from "@/components/FloatingWidgets";
 import Home from "@/pages/Home";
@@ -43,9 +43,10 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
-      <main>{children}</main>
+      <main className="pb-20 lg:pb-0">{children}</main>
       <Footer />
       <FloatingWidgets />
+      <MobileBottomNav />
     </>
   );
 }

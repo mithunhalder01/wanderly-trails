@@ -112,15 +112,15 @@ export default function HomeAbout() {
         </div>
 
         {/* Stats bar */}
-        <div className="about-stats mt-20 grid grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
+        <div className="about-stats mt-20 grid grid-cols-3 gap-2 sm:gap-8">
           {aboutHome.stats.map((stat) => (
             <div
               key={stat.label}
-              className="flex flex-col items-center justify-center p-6 rounded-2xl bg-card border border-border/50 text-center hover:border-primary/30 hover:shadow-lg transition-all duration-500 group relative overflow-hidden"
+              className="flex flex-col items-center justify-center p-3 sm:p-6 rounded-2xl bg-card border border-border/50 text-center hover:border-primary/30 hover:shadow-lg transition-all duration-500 group relative overflow-hidden"
             >
               <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <p className="font-serif text-4xl md:text-5xl font-bold text-foreground relative z-10">{stat.value}</p>
-              <p className="mt-2 text-xs font-medium uppercase tracking-wider text-muted-foreground relative z-10">{stat.label}</p>
+              <p className="font-serif text-2xl sm:text-4xl md:text-5xl font-bold text-foreground relative z-10">{stat.value}</p>
+              <p className="mt-1 sm:mt-2 text-[10px] sm:text-xs font-medium uppercase tracking-wide sm:tracking-wider text-muted-foreground relative z-10">{stat.label}</p>
             </div>
           ))}
         </div>

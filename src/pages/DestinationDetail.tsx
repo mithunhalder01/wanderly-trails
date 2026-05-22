@@ -12,6 +12,9 @@ export default function DestinationDetail() {
   const id = params?.id ? parseInt(params.id) : 0;
   const destination = getDestinationById(id);
   const related = getPackagesByDestination(id);
+  const heroImage = destination?.name.toLowerCase().includes("kerala")
+    ? "/destination-vid/kerala.jpeg"
+    : destination?.imageUrl;
 
   if (!destination) {
     return (
@@ -25,7 +28,7 @@ export default function DestinationDetail() {
   return (
     <div className="pt-20">
       <div className="relative h-[450px] overflow-hidden">
-        <img src={destination.imageUrl} alt={destination.name} className="w-full h-full object-cover" />
+        <img src={heroImage} alt={destination.name} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/40" />
         
         <div className="absolute top-0 left-0 right-0 z-20 pt-6">

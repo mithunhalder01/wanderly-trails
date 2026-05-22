@@ -87,14 +87,14 @@ export default function HomeHero() {
           </div>
 
           {/* Right Stats & Socials */}
-          <div className="hero-right lg:col-span-5 flex flex-col items-start gap-6 lg:items-end mt-8 lg:mt-0">
+          <div className="hero-right hidden lg:flex lg:col-span-5 flex-col items-start gap-6 lg:items-end mt-8 lg:mt-0 w-full">
             {/* Stats Dashboard Grid */}
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 lg:max-w-md text-left">
               {/* Card 1: Happy Customers (People Join Us) */}
-              <div className="sm:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-6 relative overflow-hidden group hover:border-white/20 hover:bg-white/10 transition-all duration-500 shadow-2xl flex flex-col justify-between min-h-[160px]">
+              <div className="sm:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-4 sm:p-6 relative overflow-hidden group hover:border-white/20 hover:bg-white/10 transition-all duration-500 shadow-2xl flex flex-col justify-between min-h-[160px]">
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-400 drop-shadow-sm">
                       People join us
                     </span>
@@ -104,16 +104,16 @@ export default function HomeHero() {
                     </span>
                   </div>
                   
-                  <div className="mt-4 flex items-baseline gap-2">
-                    <span className="text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg">
+                  <div className="mt-4 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                    <span className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg leading-none">
                       <AnimatedCounter target={homeStats.customers.value} suffix={homeStats.customers.suffix} />
                     </span>
-                    <span className="text-sm font-semibold text-white/80">{homeStats.customers.label}</span>
+                    <span className="text-xs sm:text-sm font-semibold text-white/80">{homeStats.customers.label}</span>
                   </div>
                 </div>
 
-                <div className="relative z-10 mt-6 flex items-center justify-between border-t border-white/5 pt-4">
-                  <div className="flex -space-x-2.5 overflow-hidden">
+                <div className="relative z-10 mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-4">
+                  <div className="flex -space-x-2.5 overflow-hidden max-w-full">
                     {[
                       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=faces",
                       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=faces",
@@ -132,7 +132,7 @@ export default function HomeHero() {
                       +
                     </div>
                   </div>
-                  <span className="text-[11px] text-white/50 font-medium tracking-wider uppercase">Join the adventure</span>
+                  <span className="text-[10px] sm:text-[11px] text-white/50 font-medium tracking-wider uppercase whitespace-nowrap">Join the adventure</span>
                 </div>
               </div>
 
@@ -146,7 +146,7 @@ export default function HomeHero() {
                   </div>
                 </div>
                 <div className="relative z-10 mt-3">
-                  <span className="text-3xl font-extrabold text-white tracking-tight drop-shadow-lg">
+                  <span className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight drop-shadow-lg leading-none">
                     <AnimatedCounter target={homeStats.tours.value} suffix={homeStats.tours.suffix} />
                   </span>
                   <p className="mt-1 text-xs text-white/70 leading-snug font-medium">{homeStats.tours.label}</p>
@@ -175,7 +175,7 @@ export default function HomeHero() {
             </div>
 
             {/* Social Links */}
-            <div className="flex items-center gap-4 bg-black/40 backdrop-blur-md px-6 py-3 rounded-full border border-white/10 shadow-lg">
+            <div className="flex items-center gap-3 sm:gap-4 bg-black/40 backdrop-blur-md px-4 sm:px-6 py-3 rounded-full border border-white/10 shadow-lg w-full sm:w-auto justify-center sm:justify-start">
               <span className="text-xs font-bold text-white/60 mr-2 uppercase tracking-widest">Follow us</span>
               {[
                 { href: SOCIAL_LINKS.instagram, Icon: Instagram, label: "Instagram" },

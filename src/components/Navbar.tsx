@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, House, MapPinned, BriefcaseBusiness, Ticket } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
 
@@ -15,6 +15,13 @@ const navLinks = [
   { label: "Packages", href: "/packages" },
   { label: "Our Blog", href: "/blog" },
   { label: "Contact Us", href: "/contact" },
+];
+
+const bottomNavLinks = [
+  { label: "Home", href: "/", Icon: House },
+  { label: "Destinations", href: "/destinations", Icon: MapPinned },
+  { label: "Packages", href: "/packages", Icon: BriefcaseBusiness },
+  { label: "Book Now", href: "/booking", Icon: Ticket },
 ];
 
 export default function Navbar() {
@@ -42,7 +49,7 @@ export default function Navbar() {
           <img
             src="/logo.png"
             alt=""
-            className={`h-14 w-auto object-contain sm:h-16 ${solid ? "" : "drop-shadow-lg"}`}
+            className={`h-16 w-auto object-contain sm:h-[4.5rem] ${solid ? "" : "drop-shadow-lg"}`}
           />
           <span
             className={`text-2xl font-extrabold sm:text-3xl tracking-tight ${solid ? "text-foreground" : "text-white drop-shadow-md"}`}
@@ -133,6 +140,41 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+
     </header>
+  );
+}
+
+export function MobileBottomNav() {
+  const [location] = useLocation();
+  const activeIndex = Math.max(
+    0,
+    bottomNavLinks.findIndex((item) => location === item.href)
+  );
+
+  return (
+    <nav className="fixed inset-x-3 bottom-3 z-50 rounded-full border border-white/15 bg-black/70 px-2 py-2 backdrop-blur-xl shadow-2xl lg:hidden">
+      <div className="relative mx-auto grid max-w-md grid-cols-4 gap-1">
+        <span
+          className="pointer-events-none absolute bottom-1 top-1 w-[calc(25%-0.25rem)] rounded-full bg-white/15 transition-transform duration-300 ease-out"
+          style={{ transform: `translateX(calc(${activeIndex * 100}% + ${activeIndex * 0.25}rem))` }}
+        />
+        {bottomNavLinks.map(({ label, href, Icon }) => {
+          const active = location === href;
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={`relative z-10 flex flex-col items-center justify-center rounded-xl py-2 text-[11px] font-semibold transition-colors ${
+                active ? "text-white" : "text-white/70 hover:text-white"
+              }`}
+            >
+              <Icon className="mb-1 h-4 w-4" />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
   );
 }
