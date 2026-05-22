@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { ArrowRight, ChevronLeft, ChevronRight, Map, Compass } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -66,6 +66,158 @@ const MountainGraphic = () => (
   </svg>
 );
 
+interface StackedCardProps {
+  dest: TripDestination;
+  index: number;
+  totalCount: number;
+  dragX: any;
+  isTop: boolean;
+  onSwipe: (direction: "left" | "right") => void;
+  onTap: () => void;
+  isDraggingRef: React.MutableRefObject<boolean>;
+}
+
+function StackedCard({
+  dest,
+  index,
+  totalCount,
+  dragX,
+  isTop,
+  onSwipe,
+  onTap,
+  isDraggingRef,
+}: StackedCardProps) {
+  if (index > 3) return null;
+
+  // Active top card rotates as dragged
+  const rotateTop = useTransform(dragX, [-200, 200], [-15, 15]);
+
+  // Index 1 (first card behind):
+  const scaleIndex1 = useTransform(dragX, [-200, 0, 200], [1.0, 0.96, 1.0]);
+  const xIndex1 = useTransform(dragX, [-200, 0, 200], [0, 12, 0]);
+  const yIndex1 = useTransform(dragX, [-200, 0, 200], [0, 8, 0]);
+  const rotateIndex1 = useTransform(dragX, [-200, 0, 200], [0, 2.5, 0]);
+
+  // Index 2 (second card behind):
+  const scaleIndex2 = useTransform(dragX, [-200, 0, 200], [0.96, 0.92, 0.96]);
+  const xIndex2 = useTransform(dragX, [-200, 0, 200], [12, 24, 12]);
+  const yIndex2 = useTransform(dragX, [-200, 0, 200], [8, 16, 8]);
+  const rotateIndex2 = useTransform(dragX, [-200, 0, 200], [2.5, 5, 2.5]);
+
+  // Index 3 (third card behind):
+  const scaleIndex3 = useTransform(dragX, [-200, 0, 200], [0.92, 0.88, 0.92]);
+  const xIndex3 = useTransform(dragX, [-200, 0, 200], [24, 36, 24]);
+  const yIndex3 = useTransform(dragX, [-200, 0, 200], [16, 24, 16]);
+  const rotateIndex3 = useTransform(dragX, [-200, 0, 200], [5, 7.5, 5]);
+  const opacityIndex3 = useTransform(dragX, [-200, 0, 200], [1.0, 0.0, 1.0]);
+
+  // Pick styles based on index
+  let x: any = index * 12;
+  let y: any = index * 8;
+  let scale: any = 1 - index * 0.04;
+  let rotate: any = index * 2.5;
+  let opacity: any = index === 3 ? 0 : 1;
+
+  if (isTop) {
+    x = dragX;
+    rotate = rotateTop;
+  } else if (index === 1) {
+    x = xIndex1;
+    y = yIndex1;
+    scale = scaleIndex1;
+    rotate = rotateIndex1;
+  } else if (index === 2) {
+    x = xIndex2;
+    y = yIndex2;
+    scale = scaleIndex2;
+    rotate = rotateIndex2;
+  } else if (index === 3) {
+    x = xIndex3;
+    y = yIndex3;
+    scale = scaleIndex3;
+    rotate = rotateIndex3;
+    opacity = opacityIndex3;
+  }
+
+  return (
+    <motion.div
+      style={{
+        position: "absolute",
+        width: "100%",
+        height: "100%",
+        zIndex: totalCount - index,
+        x,
+        y,
+        scale,
+        rotate,
+        opacity,
+      }}
+      drag={isTop ? "x" : false}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.6}
+      onDragStart={() => {
+        isDraggingRef.current = true;
+      }}
+      onDragEnd={(event, info) => {
+        const threshold = 100;
+        const velocityThreshold = 500;
+        const offset = info.offset.x;
+        const velocity = info.velocity.x;
+
+        if (offset < -threshold || velocity < -velocityThreshold) {
+          // Swipe Left
+          animate(dragX, -400, { type: "spring", stiffness: 200, damping: 20 }).then(() => {
+            onSwipe("left");
+            dragX.set(0);
+          });
+        } else if (offset > threshold || velocity > velocityThreshold) {
+          // Swipe Right
+          animate(dragX, 400, { type: "spring", stiffness: 200, damping: 20 }).then(() => {
+            onSwipe("right");
+            dragX.set(0);
+          });
+        } else {
+          // Snap Back
+          animate(dragX, 0, { type: "spring", stiffness: 300, damping: 24 });
+        }
+        setTimeout(() => {
+          isDraggingRef.current = false;
+        }, 50);
+      }}
+      onTap={onTap}
+      className="absolute inset-0 rounded-3xl overflow-hidden shadow-xl border border-border/40 select-none bg-card cursor-grab active:cursor-grabbing touch-pan-y"
+    >
+      <div className="relative w-full h-full pointer-events-none">
+        {/* Dark gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent z-10" />
+
+        {/* Card image */}
+        <img
+          src={dest.image}
+          alt={dest.name}
+          className="h-full w-full object-cover select-none pointer-events-none"
+          draggable="false"
+        />
+
+        {/* Bottom Info overlay */}
+        <div className="absolute bottom-0 left-0 right-0 p-5 z-20">
+          <h3 className="font-sans text-xl font-bold text-white mb-1.5 drop-shadow-md">
+            {dest.name}
+          </h3>
+          <div className="flex flex-col gap-0.5 opacity-95">
+            <span className="text-[10px] uppercase tracking-widest text-white/70 font-bold">
+              Starting Price
+            </span>
+            <span className="text-sm font-bold text-amber-400">
+              Rs. {dest.price.toLocaleString("en-IN")}/-
+            </span>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function TripCarouselSection({
   title,
   subtitle,
@@ -78,6 +230,7 @@ export default function TripCarouselSection({
   const container = useRef<HTMLElement>(null);
   const [, setLocation] = useLocation();
   const isDraggingRef = useRef(false);
+  const dragX = useMotionValue(0);
 
   // Stack state for mobile carousel
   const [stack, setStack] = useState<number[]>([]);
@@ -250,81 +403,21 @@ export default function TripCarouselSection({
         {stack.length > 0 && (
           <div className="relative w-full max-w-[270px] aspect-[3/4.2] mx-auto mb-6">
             {stack.map((destIndex, index) => {
-              // index: 0 = top, 1 = behind, etc.
               const dest = destinations[destIndex];
-              // Only render the top 4 cards for optimal performance
-              if (index > 3) return null;
-
               const isTop = index === 0;
 
               return (
-                <motion.div
+                <StackedCard
                   key={dest.name}
-                  style={{
-                    position: "absolute",
-                    width: "100%",
-                    height: "100%",
-                    zIndex: destinations.length - index,
-                  }}
-                  animate={{
-                    x: index * 12,
-                    y: index * 8,
-                    scale: 1 - index * 0.04,
-                    rotate: index * 2.5,
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 300,
-                    damping: 24,
-                  }}
-                  drag={isTop ? "x" : false}
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.6}
-                  onDragStart={() => {
-                    isDraggingRef.current = true;
-                  }}
-                  onDragEnd={(event, info) => {
-                    if (info.offset.x < -80) {
-                      handleSwipe("left");
-                    } else if (info.offset.x > 80) {
-                      handleSwipe("right");
-                    }
-                    // Prevent immediate tap trigger after drag
-                    setTimeout(() => {
-                      isDraggingRef.current = false;
-                    }, 50);
-                  }}
+                  dest={dest}
+                  index={index}
+                  totalCount={destinations.length}
+                  dragX={dragX}
+                  isTop={isTop}
+                  onSwipe={handleSwipe}
                   onTap={handleCardTap}
-                  className="absolute inset-0 rounded-3xl overflow-hidden shadow-xl border border-border/40 select-none bg-card cursor-grab active:cursor-grabbing touch-pan-y"
-                >
-                  <div className="relative w-full h-full pointer-events-none">
-                    {/* Dark gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent z-10" />
-
-                    {/* Card image */}
-                    <img
-                      src={dest.image}
-                      alt={dest.name}
-                      className="h-full w-full object-cover select-none pointer-events-none"
-                      draggable="false"
-                    />
-
-                    {/* Bottom Info overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 p-5 z-20">
-                      <h3 className="font-sans text-xl font-bold text-white mb-1.5 drop-shadow-md">
-                        {dest.name}
-                      </h3>
-                      <div className="flex flex-col gap-0.5 opacity-95">
-                        <span className="text-[10px] uppercase tracking-widest text-white/70 font-bold">
-                          Starting Price
-                        </span>
-                        <span className="text-sm font-bold text-amber-400">
-                          Rs. {dest.price.toLocaleString("en-IN")}/-
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
+                  isDraggingRef={isDraggingRef}
+                />
               );
             })}
           </div>
