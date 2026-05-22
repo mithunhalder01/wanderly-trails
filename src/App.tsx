@@ -20,6 +20,7 @@ import Testimonials from "@/pages/Testimonials";
 import Booking from "@/pages/Booking";
 import FAQ from "@/pages/FAQ";
 import Contact from "@/pages/Contact";
+import SearchPage from "@/pages/Search";
 import SeoManager from "@/components/SeoManager";
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -90,6 +91,7 @@ function Router() {
       <Route path="/booking" component={() => <PublicLayout><Booking /></PublicLayout>} />
       <Route path="/faq" component={() => <PublicLayout><FAQ /></PublicLayout>} />
       <Route path="/contact" component={() => <PublicLayout><Contact /></PublicLayout>} />
+      <Route path="/search" component={() => <PublicLayout><SearchPage /></PublicLayout>} />
       <Route path="/admin/login" component={AdminLoginRoute} />
       <Route path="/admin" component={AdminRoute} />
       <Route component={() => <PublicLayout><NotFound /></PublicLayout>} />

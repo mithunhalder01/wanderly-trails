@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, ChevronDown, House, MapPinned, BriefcaseBusiness, Ticket } from "lucide-react";
+import { Menu, X, ChevronDown, House, MapPinned, BriefcaseBusiness, Ticket, Search, Mic } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
 
@@ -27,7 +27,9 @@ const bottomNavLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [location] = useLocation();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchText, setSearchText] = useState("");
+  const [location, setLocation] = useLocation();
   const isHome = location === "/";
 
   useEffect(() => {
@@ -37,13 +39,22 @@ export default function Navbar() {
   }, []);
 
   const solid = scrolled || !isHome;
+  const suggestions = ["Goa", "Kerala", "Rajasthan", "Himachal", "Meghalaya"];
+
+  const onSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchText.trim();
+    setSearchOpen(false);
+    setLocation(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
+  };
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        solid ? "glass-nav" : "bg-transparent"
-      }`}
-    >
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          solid ? "glass-nav" : "bg-transparent"
+        }`}
+      >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link href="/" aria-label="Wanderly Trails — Home" className="flex shrink-0 items-center gap-2.5">
           <img
@@ -80,6 +91,14 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
+          <button
+            type="button"
+            onClick={() => setSearchOpen(true)}
+            className={`rounded-lg p-2 ${solid ? "text-foreground" : "text-white"}`}
+            aria-label="Open search"
+          >
+            <Search className="h-5 w-5" />
+          </button>
           <a
             href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
             target="_blank"
@@ -93,6 +112,15 @@ export default function Navbar() {
             Book Now
           </a>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setSearchOpen(true)}
+          className={`hidden rounded-lg p-2 lg:hidden lg:rounded-lg ${solid ? "text-foreground" : "text-white"}`}
+          aria-label="Open search"
+        >
+          <Search className="h-6 w-6" />
+        </button>
 
         <button
           type="button"
@@ -141,7 +169,55 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-    </header>
+      </header>
+
+      <AnimatePresence>
+        {searchOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] hidden lg:flex items-start justify-center bg-black/60 backdrop-blur-sm pt-56"
+            onClick={() => setSearchOpen(false)}
+          >
+            <div className="w-full max-w-2xl px-6" onClick={(e) => e.stopPropagation()}>
+              <form onSubmit={onSearchSubmit} className="rounded-full bg-white px-7 py-5 shadow-2xl">
+                <div className="flex items-center gap-4">
+                  <Search className="h-7 w-7 text-zinc-500" />
+                  <input
+                    autoFocus
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    placeholder="Search destinations..."
+                    className="w-full bg-transparent text-3xl text-zinc-900 outline-none placeholder:text-zinc-400"
+                  />
+                  <Mic className="h-7 w-7 text-zinc-500" />
+                </div>
+              </form>
+              <div className="mt-5 rounded-[2rem] bg-white p-6 shadow-2xl">
+                <div className="space-y-4">
+                  {suggestions.map((item) => (
+                    <button
+                      key={item}
+                      type="button"
+                      onClick={() => {
+                        setSearchText(item);
+                        setSearchOpen(false);
+                        setLocation(`/search?q=${encodeURIComponent(item)}`);
+                      }}
+                      className="flex w-full items-center gap-4 text-left text-2xl text-zinc-700 hover:text-zinc-900"
+                    >
+                      <Search className="h-6 w-6 text-zinc-400" />
+                      <span>{item}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -153,7 +229,7 @@ export function MobileBottomNav() {
   );
 
   return (
-    <nav className="fixed inset-x-3 bottom-3 z-50 rounded-full border border-white/15 bg-black/70 px-2 py-2 backdrop-blur-xl shadow-2xl lg:hidden">
+    <nav className="fixed bottom-3 left-1/2 z-50 w-[min(24rem,calc(100vw-1.5rem))] -translate-x-1/2 rounded-full border border-white/15 bg-black/70 px-2 py-2 backdrop-blur-xl shadow-2xl lg:hidden">
       <div className="relative mx-auto grid max-w-md grid-cols-4 gap-1">
         <span
           className="pointer-events-none absolute bottom-1 top-1 w-[calc(25%-0.25rem)] rounded-full bg-white/15 transition-transform duration-300 ease-out"
