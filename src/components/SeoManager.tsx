@@ -10,7 +10,7 @@ import {
 import { useContent } from "@/context/content";
 
 const SITE_NAME = "Wanderly Trails";
-const SITE_URL = "https://wanderlytrails.com";
+const SITE_URL = "https://www.wanderlytrails.com";
 const DEFAULT_IMAGE = `${SITE_URL}/opengraph.jpg`;
 const DEFAULT_DESCRIPTION =
   "Wanderly Trails is a trusted India tour and travel agency for domestic and international holiday packages, honeymoon tours, family trips, and custom itineraries.";

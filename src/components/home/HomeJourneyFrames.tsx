@@ -78,12 +78,14 @@ export default function HomeJourneyFrames() {
   };
 
   return (
-    <section className="relative py-16 md:py-24 bg-background overflow-hidden">
+    <section className="relative overflow-hidden bg-background py-16 md:py-24">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/25 to-transparent" />
+      <div className="absolute -top-24 right-0 h-72 w-72 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center mb-10">
-        <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground uppercase mb-2">
+        <h2 className="mb-2 font-serif text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl">
           Journey In Frames
         </h2>
-        <p className="text-sm font-medium text-muted-foreground tracking-widest uppercase italic">
+        <p className="text-sm font-medium tracking-[0.18em] text-muted-foreground uppercase">
           Pictures Perfect Moments
         </p>
       </div>
@@ -100,7 +102,7 @@ export default function HomeJourneyFrames() {
         <button
           type="button"
           onClick={handlePrev}
-          className="absolute left-4 sm:left-12 lg:left-24 z-40 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-cyan-500 text-white shadow-lg shadow-cyan-500/20 transition-all hover:bg-cyan-600 hover:scale-110 active:scale-95"
+          className="absolute left-4 sm:left-12 lg:left-24 z-40 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full border border-white/25 bg-white/80 text-foreground shadow-lg backdrop-blur-md transition-all hover:bg-white hover:scale-110 active:scale-95"
           aria-label="Previous Frame"
         >
           <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -109,7 +111,7 @@ export default function HomeJourneyFrames() {
         <button
           type="button"
           onClick={handleNext}
-          className="absolute right-4 sm:right-12 lg:right-24 z-40 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-cyan-500 text-white shadow-lg shadow-cyan-500/20 transition-all hover:bg-cyan-600 hover:scale-110 active:scale-95"
+          className="absolute right-4 sm:right-12 lg:right-24 z-40 flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full border border-white/25 bg-white/80 text-foreground shadow-lg backdrop-blur-md transition-all hover:bg-white hover:scale-110 active:scale-95"
           aria-label="Next Frame"
         >
           <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
@@ -139,7 +141,7 @@ export default function HomeJourneyFrames() {
               <div
                 key={frame.id}
                 onClick={() => setActiveIndex(index)}
-                className="absolute rounded-3xl overflow-hidden shadow-[0_15px_35px_rgba(0,0,0,0.25)] border border-white/10 cursor-pointer select-none origin-center transition-all duration-700 ease-out"
+                className="absolute origin-center cursor-pointer select-none overflow-hidden rounded-3xl border border-white/15 shadow-[0_15px_35px_rgba(0,0,0,0.25)] transition-all duration-700 ease-out"
                 style={{
                   width: "var(--card-width)",
                   height: "var(--card-height)",
@@ -162,8 +164,8 @@ export default function HomeJourneyFrames() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/10 z-10 pointer-events-none" />
 
                   {/* Location Pill */}
-                  <div className="absolute bottom-4 left-4 z-20 bg-black/60 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 shadow-lg transition-transform duration-300 group-hover:translate-x-1">
-                    <MapPin className="h-3.5 w-3.5 text-cyan-400 fill-cyan-400/10" />
+                  <div className="absolute bottom-4 left-4 z-20 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-black/45 px-3 py-1.5 shadow-lg backdrop-blur-md transition-transform duration-300 group-hover:translate-x-1">
+                    <MapPin className="h-3.5 w-3.5 text-amber-300 fill-amber-300/10" />
                     <span className="text-white text-xs font-semibold tracking-wide">
                       {frame.location}
                     </span>

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://wanderlytrails.com/sitemap.xml
+Sitemap: https://www.wanderlytrails.com/sitemap.xml

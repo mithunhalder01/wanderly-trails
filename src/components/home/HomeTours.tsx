@@ -121,7 +121,7 @@ export default function HomeTours() {
                     href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hi! I'm interested in booking the "${tour.title}" package. Can you share more details?`)}`}
                     target="_blank"
                     rel="noreferrer"
-                        className="w-full inline-flex justify-center items-center py-2.5 px-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 text-[13px] font-bold shadow-sm"
+                        className="w-full inline-flex justify-center items-center py-2.5 px-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-all duration-300 text-[13px] font-bold shadow-sm"
                   >
                     Book Now
                   </a>
@@ -189,7 +189,7 @@ export default function HomeTours() {
                         href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hi! I'm interested in booking the "${tour.title}" package. Can you share more details?`)}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="w-full inline-flex justify-center items-center py-2.5 px-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 text-[13px] font-bold shadow-sm"
+                        className="w-full inline-flex justify-center items-center py-2.5 px-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-all duration-300 text-[13px] font-bold shadow-sm"
                       >
                         Book Now
                       </a>
