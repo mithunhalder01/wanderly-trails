@@ -1,5 +1,7 @@
 import { Link } from "wouter";
 import { Star, MapPin, Calendar, ArrowRight } from "lucide-react";
+import { useContent } from "@/context/content";
+
 
 interface Destination {
   id: number;
@@ -19,6 +21,17 @@ interface Props {
 }
 
 export default function DestinationCard({ destination }: Props) {
+  const { getPackagesByDestination } = useContent();
+  const relatedPackages = getPackagesByDestination(destination.id);
+
+  const durationBadges = relatedPackages
+    .map((p) => ({ nights: p.nights, days: p.duration }))
+    .filter((x) => x.days && x.nights)
+    .map((x) => `${x.nights}N/${x.days}D`);
+
+  // Keep unique + limit to 3 badges (as per UI space)
+  const uniqueBadges = Array.from(new Set(durationBadges)).slice(0, 3);
+
   return (
     <div
       data-testid={`card-destination-${destination.id}`}
@@ -63,11 +76,25 @@ export default function DestinationCard({ destination }: Props) {
           </span>
         </div>
 
+        {uniqueBadges.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {uniqueBadges.map((b) => (
+              <span
+                key={b}
+                className="text-[9px] bg-white/10 border border-white/15 text-white/90 px-2 py-0.5 rounded-full font-bold"
+              >
+                {b}
+              </span>
+            ))}
+          </div>
+        )}
+
+
         <h3 className="font-serif text-lg font-bold text-white mb-2 leading-tight group-hover:text-amber-300 transition-colors">
           {destination.name}
         </h3>
 
-        <p className="text-[11px] text-white/75 line-clamp-2 mb-4 leading-relaxed">
+        <p className="text-[11px] text-white/75 leading-relaxed mb-4">
           {destination.description}
         </p>
 
