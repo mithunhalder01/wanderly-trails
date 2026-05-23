@@ -22,61 +22,66 @@ export default function DestinationCard({ destination }: Props) {
   return (
     <div
       data-testid={`card-destination-${destination.id}`}
-      className="destination-card luxury-card group relative flex flex-col h-full rounded-2xl bg-card border border-border/50 overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:border-primary/30 transition-all duration-500"
+      className="destination-card luxury-card group relative flex flex-col h-[380px] md:h-[420px] rounded-3xl border border-white/10 overflow-hidden hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] transition-all duration-500 bg-zinc-950"
     >
-      <div className="relative h-56 overflow-hidden">
-        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-10" />
-        <img
-          src={destination.imageUrl}
-          alt={destination.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent top-1/2 z-10" />
-        
-        <div className="absolute top-3 left-3 z-20">
-          <span className="px-3 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] uppercase tracking-widest font-bold shadow-[0_4px_12px_rgba(0,0,0,0.1)]">
-            {destination.category}
-          </span>
-        </div>
-        
-        <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between z-20">
-          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-black/30 backdrop-blur-sm border border-white/10">
-            <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-            <span className="text-white text-xs font-bold">{destination.rating.toFixed(1)}</span>
-          </div>
-        </div>
+      {/* Full Card Image */}
+      <img
+        src={destination.imageUrl}
+        alt={destination.name}
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+      />
+      {/* Dark high-contrast overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10" />
+
+      {/* Category Badge - top left */}
+      <div className="absolute top-4 left-4 z-20">
+        <span className="px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/20 text-white text-[10px] uppercase tracking-widest font-extrabold shadow-lg">
+          {destination.category}
+        </span>
       </div>
-      
-      <div className="flex flex-col flex-grow p-5 relative z-20 -mt-6">
+
+      {/* Rating Badge - top right */}
+      <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 shadow-lg">
+        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+        <span className="text-white text-xs font-extrabold leading-none">{destination.rating.toFixed(1)}</span>
+      </div>
+
+      <div 
+        style={{
+          maskImage: "linear-gradient(to top, black 45%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to top, black 45%, transparent 100%)"
+        }}
+        className="absolute bottom-0 left-0 right-0 p-5 pt-16 bg-black/85 backdrop-blur-[10px] z-20 flex flex-col transition-all duration-300 group-hover:bg-black/90"
+      >
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider font-semibold text-primary">
+          <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-extrabold text-amber-400">
             <MapPin className="h-3 w-3" />
             <span>{destination.country}</span>
           </div>
-          <span className="text-xs text-muted-foreground font-semibold">
-            From <span className="text-foreground text-sm font-bold">₹{destination.startingPrice.toLocaleString()}</span>
+          <span className="text-[10px] text-white/70 font-semibold">
+            From <span className="text-white text-xs font-extrabold">₹{destination.startingPrice.toLocaleString()}</span>
           </span>
         </div>
 
-        <h3 className="font-serif text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
+        <h3 className="font-serif text-lg font-bold text-white mb-2 leading-tight group-hover:text-amber-300 transition-colors">
           {destination.name}
         </h3>
 
-        <p className="text-sm text-muted-foreground line-clamp-2 flex-grow mb-5">
+        <p className="text-[11px] text-white/75 line-clamp-2 mb-4 leading-relaxed">
           {destination.description}
         </p>
 
-        <div className="mt-auto flex items-center justify-between pt-2">
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
-            <Calendar className="w-3.5 h-3.5" />
+        <div className="flex items-center justify-between border-t border-white/10 pt-3">
+          <div className="flex items-center gap-1 text-[9px] text-white/60 font-semibold uppercase tracking-wider">
+            <Calendar className="w-3.5 h-3.5 text-amber-400 mr-1.5" />
             <span>Best: {destination.bestSeason}</span>
           </div>
           <Link
             href={`/destinations/${destination.id}`}
             data-testid={`btn-explore-destination-${destination.id}`}
-            className="inline-flex items-center justify-center gap-1.5 py-2 px-4 rounded-xl bg-foreground/5 backdrop-blur-md border border-border/50 text-foreground hover:bg-foreground/10 hover:border-border transition-all duration-300 text-xs font-bold shadow-sm"
+            className="inline-flex items-center justify-center gap-1 py-1.5 px-3 rounded-lg bg-white/10 hover:bg-white text-white hover:text-black border border-white/20 transition-all duration-300 text-[10px] font-bold shadow-sm"
           >
-            Explore <ArrowRight className="h-3.5 w-3.5" />
+            Explore <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
       </div>
