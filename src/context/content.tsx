@@ -76,19 +76,14 @@ const defaultSettings: SiteSettings = {
   showTrustBar: true,
 };
 
-const cloneData = <T,>(value: T): T => {
-  if (typeof structuredClone === "function") {
-    return structuredClone(value);
-  }
-  return JSON.parse(JSON.stringify(value)) as T;
-};
-
+// Avoid expensive deep-clone on every cold start.
+// Defaults are treated as immutable; we only replace snapshot state when remote data arrives.
 const buildDefaultSnapshot = (): SiteContentSnapshot => ({
-  destinations: cloneData(defaultDestinations),
-  packages: cloneData(defaultPackages),
-  blogPosts: cloneData(defaultBlogPosts),
-  testimonials: cloneData(defaultTestimonials),
-  settings: cloneData(defaultSettings),
+  destinations: defaultDestinations,
+  packages: defaultPackages,
+  blogPosts: defaultBlogPosts,
+  testimonials: defaultTestimonials,
+  settings: defaultSettings,
 });
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
@@ -102,8 +97,9 @@ const normalizeCount = (value: unknown, fallback: number) => {
 
 const sanitizeSettings = (rawSettings: unknown): SiteSettings => {
   if (!rawSettings || typeof rawSettings !== "object") {
-    return cloneData(defaultSettings);
+    return defaultSettings;
   }
+
 
   const candidate = rawSettings as Partial<SiteSettings>;
   return {
@@ -160,7 +156,7 @@ const loadInitialSnapshot = (): SiteContentSnapshot => {
 
 async function fetchSiteContentSnapshot(): Promise<SiteContentSnapshot | null> {
   try {
-    const res = await fetch("/api/content", { cache: "no-store" });
+    const res = await fetch("/api/content", { cache: "force-cache" });
     const json: unknown = await res.json();
 
     if (
