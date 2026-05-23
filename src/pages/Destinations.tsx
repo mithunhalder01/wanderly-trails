@@ -26,7 +26,7 @@ export default function Destinations() {
   }, { scope: container, dependencies: [filtered] });
 
   return (
-    <div className="pt-20 bg-background min-h-screen">
+    <div className="pt-20 bg-background min-h-screen overflow-x-hidden">
       <PageHero
         image="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80"
         alt="Destinations"
@@ -37,7 +37,7 @@ export default function Destinations() {
         breadcrumbs={[{ label: "Home", href: "/" }]}
       />
 
-      <section ref={container} className="py-16 pb-44 md:py-24 md:pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <section ref={container} className="py-16 pb-44 md:py-24 md:pb-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] pointer-events-none" />
 

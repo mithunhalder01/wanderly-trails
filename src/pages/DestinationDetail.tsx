@@ -1,6 +1,6 @@
 import { useRoute, Link } from "wouter";
 import { motion } from "framer-motion";
-import { MapPin, Calendar, Star, Thermometer } from "lucide-react";
+import { MapPin, Calendar, Star, Thermometer, Download } from "lucide-react";
 import PackageCard from "@/components/PackageCard";
 import SectionHeading from "@/components/SectionHeading";
 import PageHeader from "@/components/PageHeader";
@@ -16,6 +16,199 @@ export default function DestinationDetail() {
     ? "/destination-vid/kerala.jpeg"
     : destination?.imageUrl;
 
+  const handleDownloadPDF = () => {
+    if (!destination) return;
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${destination.name} - Travel Brochure | Wanderly Trails</title>
+          <style>
+            body {
+              font-family: system-ui, -apple-system, sans-serif;
+              padding: 40px;
+              color: #1f2937;
+              line-height: 1.6;
+              max-width: 800px;
+              margin: 0 auto;
+              background-color: #ffffff;
+            }
+            .header {
+              text-align: center;
+              border-bottom: 2px solid #BF953F;
+              padding-bottom: 20px;
+              margin-bottom: 30px;
+            }
+            .logo {
+              font-size: 26px;
+              font-weight: 800;
+              letter-spacing: 2px;
+              color: #AA771C;
+            }
+            .title {
+              font-size: 36px;
+              font-weight: 700;
+              margin-top: 10px;
+              margin-bottom: 5px;
+              color: #111827;
+            }
+            .meta {
+              font-size: 14px;
+              color: #4b5563;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              font-weight: 600;
+            }
+            .grid {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 20px;
+              margin-bottom: 30px;
+              background: #fdfbf7;
+              padding: 20px;
+              border-radius: 12px;
+              border: 1px solid #f0e6d2;
+            }
+            .grid-item {
+              display: flex;
+              flex-direction: column;
+            }
+            .grid-item span {
+              font-size: 11px;
+              color: #6b7280;
+              text-transform: uppercase;
+              font-weight: 700;
+              letter-spacing: 0.5px;
+            }
+            .grid-item strong {
+              font-size: 15px;
+              color: #1f2937;
+              margin-top: 2px;
+            }
+            .section {
+              margin-bottom: 35px;
+            }
+            .section-title {
+              font-size: 20px;
+              font-weight: 700;
+              border-left: 4px solid #BF953F;
+              padding-left: 12px;
+              margin-bottom: 15px;
+              color: #AA771C;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .about-text {
+              color: #4b5563;
+              font-size: 15px;
+              line-height: 1.7;
+            }
+            .package-card {
+              border: 1px solid #e5e7eb;
+              border-radius: 12px;
+              padding: 20px;
+              margin-bottom: 20px;
+              background: #fafafa;
+            }
+            .package-title {
+              font-size: 18px;
+              font-weight: 700;
+              color: #111827;
+              margin-bottom: 5px;
+            }
+            .package-meta {
+              font-size: 13px;
+              color: #4b5563;
+              font-weight: 600;
+              margin-bottom: 10px;
+            }
+            .package-desc {
+              margin: 0 0 12px 0;
+              font-size: 14px;
+              color: #4b5563;
+            }
+            .package-price {
+              font-weight: 700;
+              font-size: 16px;
+              color: #AA771C;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 50px;
+              font-size: 12px;
+              color: #9ca3af;
+              border-top: 1px solid #e5e7eb;
+              padding-top: 20px;
+            }
+            @media print {
+              .no-print { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div class="logo">WANDERLY TRAILS</div>
+            <div class="title">${destination.name} Brochure</div>
+            <div class="meta">${destination.country} • ${destination.category}</div>
+          </div>
+
+          <div class="grid">
+            <div class="grid-item">
+              <span>Best Season to Visit</span>
+              <strong>${destination.bestSeason}</strong>
+            </div>
+            <div class="grid-item">
+              <span>Weather</span>
+              <strong>${destination.weather}</strong>
+            </div>
+            <div class="grid-item">
+              <span>Starting Price</span>
+              <strong>₹${destination.startingPrice.toLocaleString()} per person</strong>
+            </div>
+            <div class="grid-item">
+              <span>Rating</span>
+              <strong>★ ${destination.rating.toFixed(1)} / 5.0</strong>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">About the Destination</div>
+            <p class="about-text">${destination.description}</p>
+          </div>
+
+          ${related.length > 0 ? `
+            <div class="section">
+              <div class="section-title">Available Tour Packages</div>
+              ${related.map((p) => `
+                <div class="package-card">
+                  <div class="package-title">${p.title}</div>
+                  <div class="package-meta">${p.duration} Days / ${p.nights} Nights • ${p.hotelStars}★ Hotel</div>
+                  <p class="package-desc">${p.description}</p>
+                  <div class="package-price">Package Price: ₹${p.price.toLocaleString()}/- per person</div>
+                </div>
+              `).join("")}
+            </div>
+          ` : ""}
+
+          <div class="footer">
+            <p>Generated by Wanderly Trails. Book online at wanderly-trails.com or contact us on WhatsApp.</p>
+            <p>&copy; ${new Date().getFullYear()} Wanderly Trails. All rights reserved.</p>
+          </div>
+
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(function() { window.close(); }, 500);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
   if (!destination) {
     return (
       <div className="pt-20 min-h-screen flex flex-col items-center justify-center gap-4">
@@ -27,9 +220,9 @@ export default function DestinationDetail() {
 
   return (
     <div className="pt-20">
-      <div className="relative h-[450px] overflow-hidden">
+      <div className="relative h-[380px] md:h-[450px] overflow-hidden">
         <img src={heroImage} alt={destination.name} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent z-10" />
         
         <div className="absolute top-0 left-0 right-0 z-20 pt-6">
           <PageHeader 
@@ -39,30 +232,30 @@ export default function DestinationDetail() {
           />
         </div>
 
-        <div className="absolute inset-0 flex flex-col justify-end p-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 items-end">
+        <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6 md:p-8 z-20">
+          <div className="max-w-7xl mx-auto w-full">
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
-                <h1 className="text-4xl md:text-5xl font-serif font-bold text-white">{destination.name}</h1>
+                <h1 className="text-3xl md:text-5xl font-serif font-bold text-white drop-shadow-md">{destination.name}</h1>
 
-                <div className="mt-3 flex items-center gap-2">
+                <div className="mt-2 flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 text-accent" />
-                  <span className="text-white/80 text-sm md:text-base">{destination.country}</span>
+                  <span className="text-white/90 text-xs md:text-base font-medium">{destination.country}</span>
                 </div>
               </div>
 
-              <div className="flex flex-col md:items-end gap-3">
-                <div className="flex items-center gap-2 bg-white/15 backdrop-blur-sm px-4 py-2 rounded-2xl w-fit">
-                  <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+              <div className="flex flex-row md:flex-col items-center md:items-end justify-between md:justify-end gap-3 flex-wrap border-t border-white/15 pt-3 md:border-none md:pt-0">
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 w-fit">
+                  <Star className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
                   <div className="flex flex-col leading-tight">
-                    <span className="text-white text-[11px] font-semibold uppercase tracking-wider">Rating</span>
-                    <span className="text-white font-bold text-base">{destination.rating.toFixed(1)}</span>
+                    <span className="text-white/80 text-[9px] font-bold uppercase tracking-wider">Rating</span>
+                    <span className="text-white font-extrabold text-sm">{destination.rating.toFixed(1)}</span>
                   </div>
                 </div>
 
-                <div className="flex items-end gap-3">
-                  <span className="text-white/70 text-[11px] font-semibold uppercase tracking-wider">From</span>
-                  <span className="text-white font-bold text-2xl">₹{destination.startingPrice.toLocaleString()}</span>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-white/70 text-[9px] font-bold uppercase tracking-wider">From</span>
+                  <span className="text-white font-extrabold text-xl md:text-3xl drop-shadow-sm">₹{destination.startingPrice.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -115,7 +308,13 @@ export default function DestinationDetail() {
                 <span className="font-bold text-primary">₹{destination.startingPrice.toLocaleString()}</span>
               </div>
             </div>
-            <Link href="/booking" className="block mt-6 bg-accent text-white text-center font-semibold py-3 rounded-xl hover:bg-accent/90 transition-colors">
+            <button
+              onClick={handleDownloadPDF}
+              className="flex items-center justify-center gap-2 w-full mt-6 bg-primary/10 hover:bg-primary/20 text-primary text-center font-semibold py-3 rounded-xl transition-all border border-primary/20 shadow-sm"
+            >
+              <Download className="w-4 h-4" /> Download PDF Brochure
+            </button>
+            <Link href="/booking" className="block mt-3 bg-accent text-white text-center font-semibold py-3 rounded-xl hover:bg-accent/90 transition-colors">
               Book Now
             </Link>
           </div>

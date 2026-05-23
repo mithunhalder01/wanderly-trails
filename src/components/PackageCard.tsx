@@ -25,7 +25,6 @@ interface Props {
 }
 
 export default function PackageCard({ pkg, index = 0 }: Props) {
-  const reviewCount = 20 + ((pkg.id * 7) % 120);
   const discountPercent = Math.max(15, Math.min(55, Math.round((pkg.nights / pkg.duration) * 100)));
   const originalPrice = Math.round(pkg.price / (1 - discountPercent / 100));
   const imageGallery = useMemo(() => {
@@ -86,14 +85,13 @@ export default function PackageCard({ pkg, index = 0 }: Props) {
           <span className="text-[11px] font-semibold sm:text-xs">{pkg.rating.toFixed(1)}</span>
         </div>
       </div>
-      <div className="flex h-[172px] flex-col p-2.5 sm:h-[240px] sm:p-3.5">
-        <h3 className="mb-0.5 line-clamp-2 text-sm font-bold leading-snug text-foreground sm:mb-1 sm:text-base">{pkg.title}</h3>
-        <p className="mb-2 line-clamp-1 text-xs text-muted-foreground sm:mb-3 sm:text-sm">{pkg.destinationName}</p>
-
-        <div className="mb-2 flex items-center gap-1.5 sm:mb-3 sm:gap-2.5">
-          <span className="rounded-md bg-emerald-700 px-2 py-0.5 text-[11px] font-bold text-white sm:px-2.5 sm:py-1 sm:text-xs">{pkg.rating.toFixed(1)}</span>
-          <span className="line-clamp-1 text-xs font-semibold text-foreground sm:text-sm">Wonderful <span className="font-normal text-muted-foreground">({reviewCount})</span></span>
-        </div>
+      <div className="flex h-[210px] flex-col p-2.5 sm:h-[240px] sm:p-3.5">
+        <span className="mb-1 text-[10px] font-extrabold uppercase tracking-widest text-primary sm:mb-1.5 sm:text-xs">
+          {pkg.destinationName}
+        </span>
+        <h3 className="mb-2 line-clamp-2 text-sm font-bold leading-snug text-foreground sm:mb-3 sm:text-base">
+          {pkg.title}
+        </h3>
 
         <div className="mb-2 flex items-center gap-2 text-[10px] sm:mb-3 sm:gap-3 sm:text-[11px]">
           <div className="flex items-center gap-1 text-xs text-muted-foreground">

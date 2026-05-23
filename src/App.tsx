@@ -44,7 +44,7 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
-      <main className="pb-20 lg:pb-0">{children}</main>
+      <main className="pb-20 lg:pb-0 overflow-x-hidden">{children}</main>
       <Footer />
       <FloatingWidgets />
       <MobileBottomNav />
