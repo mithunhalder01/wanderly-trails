@@ -63,7 +63,7 @@ export default function HomeHero() {
               </span>
             </h1>
             
-            <p className="mt-6 md:mt-8 max-w-xl text-lg leading-relaxed text-white/90 md:text-xl font-medium drop-shadow-md">
+            <p className="mt-4 sm:mt-6 md:mt-8 max-w-xl text-sm sm:text-base md:text-xl leading-snug sm:leading-relaxed text-white/90 font-medium drop-shadow-md">
               {homeHero.description}
             </p>
             
