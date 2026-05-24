@@ -199,7 +199,7 @@
   "packages": [
     {
       "id": 101,
-      "destinationId": 1,
+      "destinationId": 14,
       "destinationName": "Goa",
       "title": "Goa Chill & Coastal Lights (3D/2N)",
       "description": "Beach hopping, sunset cruise, and a laid-back itinerary with curated stops.",
@@ -219,7 +219,7 @@
     },
     {
       "id": 102,
-      "destinationId": 1,
+      "destinationId": 14,
       "destinationName": "Goa",
       "title": "Adventure North Goa (5D/4N)",
       "description": "Water sports, forts, and vibrant markets—built for active travelers.",
@@ -235,6 +235,46 @@
       "includedItems": "Breakfasts, scooter/vehicle support, guided fort walk",
       "excludedItems": "Flights, optional activities",
       "itinerary": "Day 1: Arrival & evening markets. Day 2: Forts + beaches. Day 3: Water sport session. Day 4: Culture tour. Day 5: Departure.",
+      "featured": false
+    },
+    {
+      "id": 1001,
+      "destinationId": 1,
+      "destinationName": "Himachal",
+      "title": "Himachal Quick Tour (4D/3N)",
+      "description": "A crisp mountain escape with scenic drives, valley views, and a curated local experience.",
+      "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
+      "price": 18999,
+      "duration": 4,
+      "nights": 3,
+      "category": "Himachal",
+      "rating": 4.7,
+      "hotelStars": 3,
+      "mealsIncluded": true,
+      "transportIncluded": true,
+      "includedItems": "Welcome dinner, 3 breakfasts, local sightseeing, point-to-point transfers",
+      "excludedItems": "Flights, personal expenses, tips",
+      "itinerary": "Day 1: Arrival & check-in. Day 2: Scenic valley tour + viewpoints. Day 3: Local market + culture stop. Day 4: Departure.",
+      "featured": true
+    },
+    {
+      "id": 1002,
+      "destinationId": 1,
+      "destinationName": "Himachal",
+      "title": "Himachal Complete Escape (6D/5N)",
+      "description": "More time to explore—mountain drives, comfortable stays, and deeper sightseeing across the region.",
+      "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
+      "price": 28999,
+      "duration": 6,
+      "nights": 5,
+      "category": "Himachal",
+      "rating": 4.8,
+      "hotelStars": 4,
+      "mealsIncluded": true,
+      "transportIncluded": true,
+      "includedItems": "5 breakfasts, 2 dinners, local guide, transfers & sightseeing",
+      "excludedItems": "Flights, personal expenses, activities",
+      "itinerary": "Day 1: Arrival & city orientation. Day 2: Scenic route + viewpoints. Day 3: Heritage stop & local experiences. Day 4: Day trip to nearby attractions. Day 5: Leisure + market time. Day 6: Departure.",
       "featured": false
     },
     {
@@ -259,7 +299,7 @@
     },
     {
       "id": 301,
-      "destinationId": 3,
+      "destinationId": 11,
       "destinationName": "Rajasthan",
       "title": "Desert & Forts Explorer (7D/6N)",
       "description": "Camel rides, heritage dinners, and royal palaces across Rajasthan.",
@@ -279,7 +319,7 @@
     },
     {
       "id": 401,
-      "destinationId": 4,
+      "destinationId": 13,
       "destinationName": "Kerala Backwaters",
       "title": "Backwater Family Cruise (4D/3N)",
       "description": "Houseboat stay, village lunch, and slow travel moments for families.",
@@ -299,7 +339,7 @@
     },
     {
       "id": 402,
-      "destinationId": 4,
+      "destinationId": 13,
       "destinationName": "Kerala Backwaters",
       "title": "Solo Serenity in Kerala (5D/4N)",
       "description": "Mindful stays, scenic boat rides, and café-friendly local routes.",
