@@ -120,69 +120,6 @@ const parseNumber = (value: string, fallback: number) => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-function toBackendPayload(snapshot: {
-  destinations: Destination[];
-  packages: Package[];
-  blogPosts: BlogPost[];
-  testimonials: Testimonial[];
-  settings: SiteSettings;
-}) {
-  // must match api/admin/update-content.ts expected content.json shape
-  return {
-    settings: snapshot.settings,
-    destinations: snapshot.destinations,
-    packages: snapshot.packages,
-    blogPosts: snapshot.blogPosts,
-    testimonials: snapshot.testimonials,
-  };
-}
-
-function useBackendSync() {
-  const { toast } = useToast();
-
-  const syncToBackend = async (snapshot: {
-    destinations: Destination[];
-    packages: Package[];
-    blogPosts: BlogPost[];
-    testimonials: Testimonial[];
-    settings: SiteSettings;
-  }) => {
-    try {
-      const res = await fetch("/api/admin/update-content", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(toBackendPayload(snapshot)),
-      });
-
-      if (!res.ok) {
-        toast({
-          title: "Backend write failed. Data not saved.",
-          description: "Supabase/DB update fail hua. Content DB me nahi gaya.",
-          variant: "destructive",
-        });
-
-        return;
-      }
-
-      toast({
-        title: "Supabase/DB (backend) updated successfully",
-        description: "Content DB me change update ho gaya.",
-      });
-
-    } catch {
-      toast({
-        title: "Backend write failed. Data not saved.",
-        description: "Supabase/DB update fail hua. Content DB me nahi gaya.",
-        variant: "destructive",
-      });
-
-    }
-
-  };
-
-  return { syncToBackend };
-}
-
 export default function AdminDashboard() {
   const {
     settings,
@@ -205,7 +142,6 @@ export default function AdminDashboard() {
   } = useContent();
 
   const { toast } = useToast();
-  const { syncToBackend } = useBackendSync();
 
   const [activeTab, setActiveTab] = useState("overview");
   const [query, setQuery] = useState("");
@@ -348,17 +284,6 @@ export default function AdminDashboard() {
     });
 
     resetDestinationForm();
-
-    // write-through to backend (so Vercel/live site updates)
-    setTimeout(() => {
-      void syncToBackend({
-        destinations: destinations,
-        packages: packages,
-        blogPosts: blogPosts,
-        testimonials: testimonials,
-        settings: settings,
-      });
-    }, 0);
   };
 
   const savePackage = () => {
@@ -396,16 +321,6 @@ export default function AdminDashboard() {
     });
 
     resetPackageForm();
-
-    setTimeout(() => {
-      void syncToBackend({
-        destinations: destinations,
-        packages: packages,
-        blogPosts: blogPosts,
-        testimonials: testimonials,
-        settings: settings,
-      });
-    }, 0);
   };
 
   const saveBlog = () => {
@@ -439,16 +354,6 @@ export default function AdminDashboard() {
     });
 
     resetBlogForm();
-
-    setTimeout(() => {
-      void syncToBackend({
-        destinations: destinations,
-        packages: packages,
-        blogPosts: blogPosts,
-        testimonials: testimonials,
-        settings: settings,
-      });
-    }, 0);
   };
 
   const saveTestimonial = () => {
@@ -478,16 +383,6 @@ export default function AdminDashboard() {
     });
 
     resetTestimonialForm();
-
-    setTimeout(() => {
-      void syncToBackend({
-        destinations: destinations,
-        packages: packages,
-        blogPosts: blogPosts,
-        testimonials: testimonials,
-        settings: settings,
-      });
-    }, 0);
   };
 
   const saveSettings = () => {
@@ -496,16 +391,6 @@ export default function AdminDashboard() {
       title: "Settings updated",
       description: "Homepage customization values apply ho gaye.",
     });
-
-    setTimeout(() => {
-      void syncToBackend({
-        destinations,
-        packages,
-        blogPosts,
-        testimonials,
-        settings: settingsForm,
-      });
-    }, 0);
   };
 
   const handleResetAll = () => {
@@ -527,17 +412,6 @@ export default function AdminDashboard() {
       title: "Content reset",
       description: "Default data restore kar diya gaya hai.",
     });
-
-    // let localStorage/state update first
-    setTimeout(() => {
-      void syncToBackend({
-        destinations: destinations,
-        packages: packages,
-        blogPosts: blogPosts,
-        testimonials: testimonials,
-        settings: settings,
-      });
-    }, 0);
   };
 
   const handleExport = () => {
@@ -592,16 +466,6 @@ export default function AdminDashboard() {
       title: "Import successful",
       description: "Admin content updated from JSON payload.",
     });
-
-    setTimeout(() => {
-      void syncToBackend({
-        destinations: destinations,
-        packages: packages,
-        blogPosts: blogPosts,
-        testimonials: testimonials,
-        settings: settings,
-      });
-    }, 0);
   };
 
   const stats = [
@@ -681,15 +545,7 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <Badge variant="outline">Backend CMS</Badge>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-
-                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                    <span>Backend sync ready</span>
-
-                  </div>
-
-                  {/* Notifications icon + count */}
+                  <Badge variant="outline">Local Mode</Badge>
                   <div className="ml-auto flex items-center gap-2">
                     <div className="relative">
                       <button

@@ -90,23 +90,30 @@ function Router() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-background" />}>
       <Switch>
-        <Route path="/" component={() => <PublicLayout><Home /></PublicLayout>} />
-      <Route path="/about" component={() => <PublicLayout><About /></PublicLayout>} />
-      <Route path="/destinations/:id" component={() => <PublicLayout><DestinationDetail /></PublicLayout>} />
-      <Route path="/destinations" component={() => <PublicLayout><Destinations /></PublicLayout>} />
-      <Route path="/packages/:id" component={() => <PublicLayout><PackageDetail /></PublicLayout>} />
-      <Route path="/packages" component={() => <PublicLayout><Packages /></PublicLayout>} />
-      <Route path="/gallery" component={() => <PublicLayout><Gallery /></PublicLayout>} />
-      <Route path="/blog/:id" component={() => <PublicLayout><BlogDetail /></PublicLayout>} />
-      <Route path="/blog" component={() => <PublicLayout><Blog /></PublicLayout>} />
-      <Route path="/testimonials" component={() => <PublicLayout><Testimonials /></PublicLayout>} />
-      <Route path="/booking" component={() => <PublicLayout><Booking /></PublicLayout>} />
-      <Route path="/faq" component={() => <PublicLayout><FAQ /></PublicLayout>} />
-      <Route path="/contact" component={() => <PublicLayout><Contact /></PublicLayout>} />
-      <Route path="/search" component={() => <PublicLayout><SearchPage /></PublicLayout>} />
-      <Route path="/admin/login" component={AdminLoginRoute} />
-      <Route path="/admin" component={AdminRoute} />
-        <Route component={() => <PublicLayout><NotFound /></PublicLayout>} />
+        <Route path="/admin/login" component={AdminLoginRoute} />
+        <Route path="/admin" component={AdminRoute} />
+
+        {/* Public Routes with Shared Layout (no admin needed) */}
+        <PublicLayout>
+          <Switch>
+            <Route path="/" component={Home} />
+            <Route path="/about" component={About} />
+            <Route path="/destinations/:id" component={DestinationDetail} />
+            <Route path="/destinations" component={Destinations} />
+            <Route path="/packages/:id" component={PackageDetail} />
+            <Route path="/packages" component={Packages} />
+            <Route path="/gallery" component={Gallery} />
+            <Route path="/blog/:id" component={BlogDetail} />
+            <Route path="/blog" component={Blog} />
+            <Route path="/testimonials" component={Testimonials} />
+            <Route path="/booking" component={Booking} />
+            <Route path="/faq" component={FAQ} />
+            <Route path="/contact" component={Contact} />
+            <Route path="/search" component={SearchPage} />
+            <Route component={NotFound} />
+          </Switch>
+        </PublicLayout>
+
       </Switch>
     </Suspense>
   );

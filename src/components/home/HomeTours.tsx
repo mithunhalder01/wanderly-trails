@@ -3,7 +3,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import DestinationCard from "@/components/DestinationCard";
 import { useContent } from "@/context/content";
 
@@ -13,6 +13,48 @@ gsap.registerPlugin(ScrollTrigger);
 export default function HomeTours() {
   const container = useRef<HTMLElement>(null);
 
+  const { destinations } = useContent();
+  
+  const featuredDestinations = useMemo(() => {
+    if (!destinations || !Array.isArray(destinations)) return [];
+    return destinations.filter(d => d.featured).slice(0, 4);
+  }, [destinations]);
+
+  const mobileLoopRef = useRef<HTMLDivElement | null>(null);
+
+  // Mobile: seamless looping for the horizontal scroll container
+  useEffect(() => {
+    const el = mobileLoopRef.current;
+    if (!el || window.innerWidth >= 768 || featuredDestinations.length === 0) return;
+
+    const firstItem = el.querySelector<HTMLElement>('[class*="w-[72vw]"]');
+    const itemWidth = firstItem?.getBoundingClientRect().width ?? 0;
+    const gap = 16; // gap-4 in tailwind is 16px
+    const step = itemWidth + gap;
+    const singleSetWidth = step * featuredDestinations.length;
+    const startPos = singleSetWidth;
+
+    el.scrollLeft = startPos;
+
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const maxScroll = singleSetWidth * 2;
+        if (el.scrollLeft >= maxScroll) {
+          el.scrollLeft = el.scrollLeft - singleSetWidth;
+        } else if (el.scrollLeft <= 0) {
+          el.scrollLeft = el.scrollLeft + singleSetWidth;
+        }
+      });
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [featuredDestinations]); // Dependency on featuredDestinations to re-run if data changes.
+
   useGSAP(() => {
     const tl = gsap.timeline({
       scrollTrigger: {
@@ -20,44 +62,6 @@ export default function HomeTours() {
         start: "top 75%",
       },
     });
-
-    // Mobile: seamless looping for the horizontal scroll container
-    // We render 3 copies (1-2-3). When user reaches end of middle copy, jump back to start of it.
-    if (window.innerWidth < 768) {
-      const el = mobileLoopRef.current;
-      if (el) {
-        const firstItem = el.querySelector<HTMLElement>('[class*="w-[72vw]"]');
-        const itemWidth = firstItem?.getBoundingClientRect().width ?? 0;
-        const step = itemWidth + 16; // approx (gap-4 => ~16px)
-        const singleSetWidth = step * featuredDestinations.length;
-        const startPos = singleSetWidth; // middle copy start
-
-        // initialize to middle without visible jump
-        el.scrollLeft = startPos;
-
-        let raf = 0;
-        const onScroll = () => {
-          cancelAnimationFrame(raf);
-          raf = requestAnimationFrame(() => {
-            const max = singleSetWidth * 2;
-            if (el.scrollLeft >= max) {
-              // jump forward end->middle
-              el.scrollLeft = el.scrollLeft - singleSetWidth;
-            } else if (el.scrollLeft <= 0) {
-              // jump back start->middle
-              el.scrollLeft = el.scrollLeft + singleSetWidth;
-            }
-          });
-        };
-        el.addEventListener('scroll', onScroll, { passive: true });
-        return () => {
-          el.removeEventListener('scroll', onScroll);
-          cancelAnimationFrame(raf);
-        };
-      }
-    }
-
-
     tl.fromTo(".tours-header > *",
       { y: 30, opacity: 0 },
       { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power3.out" }
@@ -67,14 +71,6 @@ export default function HomeTours() {
       "-=0.4"
     );
   }, { scope: container });
-
-  const { destinations } = useContent();
-  const featuredDestinations = destinations.slice(0, 4);
-
-  // Mobile infinite/loop scroll (triple-copy + seamless jump in rAF)
-  const mobileLoopRef = useRef<HTMLDivElement | null>(null);
-
-
 
   return (
     <section ref={container} className="relative py-16 md:py-24 overflow-hidden bg-background">

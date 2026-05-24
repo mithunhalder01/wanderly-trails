@@ -67,8 +67,7 @@ export default function AdminLogin() {
                   </p>
 
                   <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                    <Badge variant="outline">Backend CMS</Badge>
-                    <span>Backend sync ready</span>
+                    <Badge variant="outline">Local Editor</Badge>
 
                   </div>
                 </div>
@@ -146,4 +145,3 @@ export default function AdminLogin() {
     </div>
   );
 }
-

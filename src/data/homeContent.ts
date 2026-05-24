@@ -78,7 +78,7 @@ export const availableTours = [
     title: "Andaman and Nicobar Islands",
     price: 19999,
     description: "the Port Blair, Havelock & Neil Island You will be able to visit Cellular Jail, Radhanagar Beach,",
-    image: "https://images.unsplash.com/photo-1528127269322-539801943592?w=800&q=80",
+    image: "https://images.unsplash.com/photo-1589133641163-c4419b58354b?w=800&q=80",
   },
   {
     id: 304,
@@ -92,7 +92,7 @@ export const availableTours = [
     title: "Jibhi & Tirthan Valley",
     price: 6999,
     description: "Himachal ranges, Jibhi & Tirthan Valley are the gems of the lesser-explored side of the Himalayas",
-    image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80",
+    image: "https://images.unsplash.com/photo-1544085311-11a028465b03?w=800&q=80",
   },
   {
     id: 306,
@@ -106,7 +106,7 @@ export const availableTours = [
     title: "Himachal Backpacking",
     price: 12999,
     description: "From snow-draped peaks in Solang to the spiritual calm of the Golden Temple,",
-    image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=800&q=80",
+    image: "https://images.unsplash.com/photo-1544085311-11a028465b03?w=800&q=80",
   },
   {
     id: 601,
@@ -131,14 +131,14 @@ export const indiaTrips = {
   bannerImage:
     "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=1400&q=80",
   destinations: [
-    { name: "Leh Ladakh", price: 15800, image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80", slug: "ladakh" },
+    { name: "Leh Ladakh", price: 15800, image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=600&q=80", slug: "ladakh" },
     { name: "Spiti", price: 17999, image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600&q=80", slug: "spiti" },
     { name: "Kashmir", price: 24499, image: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=600&q=80", slug: "kashmir" },
     { name: "Meghalaya", price: 21499, image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=600&q=80", slug: "meghalaya" },
     { name: "Himachal", price: 7499, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80", slug: "himachal" },
     { name: "Goa", price: 10499, image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600&q=80", slug: "goa" },
-    { name: "Kerala", price: 14000, image: "https://images.unsplash.com/photo-1528127269322-539801943592?w=600&q=80", slug: "kerala" },
-    { name: "Rajasthan", price: 15999, image: "https://images.unsplash.com/photo-1542410537-844e1a9b5d38?w=600&q=80", slug: "rajasthan" },
+    { name: "Kerala", price: 14000, image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&q=80", slug: "kerala" },
+    { name: "Rajasthan", price: 15999, image: "https://images.unsplash.com/photo-1524492412937-430c6b6f9a55?w=600&q=80", slug: "rajasthan" },
   ],
 };
 
@@ -149,12 +149,12 @@ export const weekendGetaways = {
   bannerImage:
     "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1400&q=80",
   destinations: [
-    { name: "Rishikesh", price: 4999, image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600&q=80" },
-    { name: "Mussoorie", price: 6999, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80" },
-    { name: "Kasol", price: 5499, image: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=600&q=80" },
-    { name: "Nainital", price: 7499, image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" },
-    { name: "Udaipur", price: 8999, image: "https://images.unsplash.com/photo-1542410537-844e1a9b5d38?w=600&q=80" },
-    { name: "Pushkar", price: 4599, image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=600&q=80" },
+    { name: "Rishikesh", price: 4999, image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=500&q=70" },
+    { name: "Mussoorie", price: 6999, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=500&q=70" },
+    { name: "Kasol", price: 5499, image: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=500&q=70" },
+    { name: "Nainital", price: 7499, image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=70" },
+    { name: "Udaipur", price: 8999, image: "https://images.unsplash.com/photo-1542410537-844e1a9b5d38?w=500&q=70" },
+    { name: "Pushkar", price: 4599, image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=500&q=70" },
   ],
 };
 
@@ -236,10 +236,12 @@ export const homeFaqs = [
 ];
 
 export const footerDestinations = [
-  "Uttarakhand",
-  "Leh-Ladakh",
-  "Rajasthan",
   "Himachal",
+  "Kashmir",
+  "Leh-Ladakh",
+  "Spiti Valley",
+  "Meghalaya",
   "Kerala",
   "Goa",
+  "Dubai",
 ];

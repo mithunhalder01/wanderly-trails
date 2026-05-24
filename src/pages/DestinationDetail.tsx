@@ -1,5 +1,6 @@
 import { useRoute, Link } from "wouter";
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 import { MapPin, Calendar, Star, Thermometer, Download } from "lucide-react";
 import PackageCard from "@/components/PackageCard";
 import SectionHeading from "@/components/SectionHeading";
@@ -12,7 +13,8 @@ export default function DestinationDetail() {
   const id = params?.id ? parseInt(params.id) : 0;
   const destination = getDestinationById(id);
   const related = getPackagesByDestination(id);
-  const heroImage = (() => {
+
+  const heroImage = useMemo(() => {
     const name = (destination?.name ?? "").toLowerCase();
 
     const heroByName: Array<[RegExp, string]> = [
@@ -20,11 +22,11 @@ export default function DestinationDetail() {
       [/(^|\b)manali(\b|$)/i, "https://cdn.trekthehimalayas.com/images/HomePageImages/Desktop/ef74d78c-3f2c-49a0-9611-80be45c3e54b_Solang-Valley%20(1).jpg"],
       [/(^|\b)himachal(\b|$)/i, "https://cdn.trekthehimalayas.com/images/HomePageImages/Desktop/ef74d78c-3f2c-49a0-9611-80be45c3e54b_Solang-Valley%20(1).jpg"],
       [/(^|\b)meghalaya(\b|$)/i, "https://www.thestupidbear.com/wp-content/uploads/2019/03/PLaces-to-visit-in-Meghalaya.jpg"],
-      [/(^|\b)rajasthan(\b|$)/i, "https://etimg.etb2bimg.com/photo/96361312.cms"],
-      [/(^|\b)kerala(\b|$)/i, "https://d2vbr83hnyiux1.cloudfront.net/image/975050285728/image_kt3ikvvfmt4tva1n37nff4hn4v/-FWEBP-Ro:5,w:1920,h:1440,n:default"],
-      [/(^|\b)udaipur(\b|$)/i, "https://beantowntraveller.com/wp-content/uploads/2020/02/UNADJUSTEDNONRAW_thumb_b808-1024x680.jpg"],
-      [/(^|\b)ladakh(\b|$)/i, "https://static.toiimg.com/thumb/109986380/ladakh.jpg?width=636&height=358&resize=4"],
-      [/(^|\b)andaman(\b|$)/i, "https://good-nature-blog-uploads.s3.amazonaws.com/uploads/2019/02/800px-Andaman_Islands_india.jpg"],
+      [/(^|\b)rajasthan(\b|$)/i, "https://images.unsplash.com/photo-1524492412937-430c6b6f9a55?w=1920&q=80"],
+      [/(^|\b)kerala(\b|$)/i, "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1920&q=80"],
+      [/(^|\b)udaipur(\b|$)/i, "https://images.unsplash.com/photo-1615551043360-33de8b5f410c?w=1920&q=80"],
+      [/(^|\b)ladakh(\b|$)/i, "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=1920&q=80"],
+      [/(^|\b)andaman(\b|$)/i, "https://images.unsplash.com/photo-1589133641163-c4419b58354b?w=1920&q=80"],
     ];
 
     for (const [re, url] of heroByName) {
@@ -32,7 +34,7 @@ export default function DestinationDetail() {
     }
 
     return destination?.imageUrl;
-  })();
+  }, [destination]);
 
   const handleDownloadPDF = () => {
     if (!destination) return;
