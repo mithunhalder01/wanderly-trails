@@ -232,8 +232,6 @@ export const destinations: Destination[] = [
     "id": 15,
     "name": "Dubai",
     "country": "UAE",
-
-
     "category": "City Break",
     "description": "Modern skyline, desert adventures, and world-class shopping. Dubai is perfect for short, high-impact vacations.",
     "imageUrl": "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=1200&q=80",
@@ -249,7 +247,7 @@ export const destinations: Destination[] = [
 export const packages: Package[] = [
   {
     "id": 101,
-    "destinationId": 1,
+    "destinationId": 14,
     "destinationName": "Goa",
     "title": "Goa Chill & Coastal Lights (3D/2N)",
     "description": "Beach hopping, sunset cruise, and a laid-back itinerary with curated stops.",
@@ -269,7 +267,7 @@ export const packages: Package[] = [
   },
   {
     "id": 102,
-    "destinationId": 1,
+    "destinationId": 14,
     "destinationName": "Goa",
     "title": "Adventure North Goa (5D/4N)",
     "description": "Water sports, forts, and vibrant markets—built for active travelers.",
@@ -409,7 +407,7 @@ export const packages: Package[] = [
   },
   {
     "id": 401,
-    "destinationId": 4,
+    "destinationId": 13,
     "destinationName": "Kerala Backwaters",
     "title": "Backwater Family Cruise (4D/3N)",
     "description": "Houseboat stay, village lunch, and slow travel moments for families.",
@@ -429,7 +427,7 @@ export const packages: Package[] = [
   },
   {
     "id": 402,
-    "destinationId": 4,
+    "destinationId": 13,
     "destinationName": "Kerala Backwaters",
     "title": "Solo Serenity in Kerala (5D/4N)",
     "description": "Mindful stays, scenic boat rides, and café-friendly local routes.",
