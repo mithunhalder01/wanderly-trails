@@ -32,7 +32,7 @@ export default function Navbar() {
   const [searchText, setSearchText] = useState("");
   const [activeSuggestion, setActiveSuggestion] = useState(0);
   const [location, setLocation] = useLocation();
-  const { destinations, packages, blogs } = useContent();
+  const { destinations, packages, blogPosts } = useContent();
   const isHome = location === "/";
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function Navbar() {
   const suggestions = useMemo(() => {
     const safeDestinations = Array.isArray(destinations) ? destinations : [];
     const safePackages = Array.isArray(packages) ? packages : [];
-    const safeBlogs = Array.isArray(blogs) ? blogs : [];
+    const safeBlogs = Array.isArray(blogPosts) ? blogPosts : [];
     const pool = [
       ...safeDestinations.map((d) => ({ title: d.name, subtitle: `${d.country} • ${d.category}` })),
       ...safePackages.map((p) => ({ title: p.title, subtitle: `${p.duration} days • ₹${p.price.toLocaleString("en-IN")}` })),
@@ -57,7 +57,7 @@ export default function Navbar() {
     return unique
       .filter((item) => item.title.toLowerCase().includes(q) || item.subtitle.toLowerCase().includes(q))
       .slice(0, 8);
-  }, [destinations, packages, blogs, searchText]);
+  }, [destinations, packages, blogPosts, searchText]);
 
   useEffect(() => {
     setActiveSuggestion(0);
@@ -227,13 +227,13 @@ export default function Navbar() {
                         setActiveSuggestion((prev) => (prev - 1 + suggestions.length) % suggestions.length);
                       }
                     }}
-                    placeholder="Input text"
+                    placeholder="Search destinations, packages, blogs..."
                     className="w-full bg-transparent text-xl text-zinc-900 outline-none placeholder:text-zinc-600 sm:text-2xl"
                   />
                   <button type="button" onClick={() => setSearchText("")} aria-label="Clear text">
                     <X className="h-6 w-6 text-zinc-600" />
                   </button>
-                  <Mic className="h-6 w-6 text-zinc-600" />
+
                 </div>
               </form>
               <div className="mt-1 rounded-3xl border border-black/10 bg-[#E9E6EE] p-5 shadow-2xl">

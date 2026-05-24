@@ -58,7 +58,7 @@ export default function HomeAbout() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-12">
           {/* Left image */}
-          <div className="about-left lg:col-span-5 relative">
+          <div className="about-left col-span-12 lg:col-span-5 relative hidden lg:block">
             <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent rounded-2xl blur-2xl transform -rotate-6" />
             <div className="overflow-hidden rounded-2xl shadow-xl relative z-10 border border-border/50">
               <img

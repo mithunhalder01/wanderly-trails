@@ -289,6 +289,34 @@ export default function DestinationDetail() {
             <h2 className="text-2xl font-serif font-bold mb-4">About {destination.name}</h2>
             <p className="text-muted-foreground leading-relaxed text-lg">{destination.description}</p>
 
+            {/* Extra long-form details (content already in destination fields) */}
+            <div className="mt-8 space-y-6">
+              <div>
+                <h3 className="font-serif font-bold text-lg mb-2">Why Visit {destination.name}</h3>
+                <p className="text-muted-foreground leading-relaxed text-lg">
+                  {destination.description}
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-serif font-bold text-lg mb-2">What to Expect</h3>
+                <ul className="space-y-2 text-muted-foreground text-lg">
+                  <li className="flex gap-3">
+                    <span className="text-accent font-bold">•</span>
+                    Best season: {destination.bestSeason}
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-accent font-bold">•</span>
+                    Typical weather: {destination.weather}
+                  </li>
+                  <li className="flex gap-3">
+                    <span className="text-accent font-bold">•</span>
+                    Travel style/category: {destination.category}
+                  </li>
+                </ul>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-8">
               <div className="bg-muted rounded-2xl p-4">
                 <Calendar className="w-5 h-5 text-primary mb-2" />

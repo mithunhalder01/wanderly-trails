@@ -4,12 +4,13 @@ import { vibeHome } from "@/data/homeContent";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function HomeVibe() {
   const container = useRef<HTMLElement>(null);
+  const [shouldLoadVideos, setShouldLoadVideos] = useState(false);
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -28,6 +29,23 @@ export default function HomeVibe() {
       "-=0.2"
     );
   }, { scope: container });
+
+  useEffect(() => {
+    if (!container.current || shouldLoadVideos) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldLoadVideos(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px 0px" },
+    );
+
+    observer.observe(container.current);
+    return () => observer.disconnect();
+  }, [shouldLoadVideos]);
 
   return (
     <section ref={container} className="relative py-16 md:py-24 bg-background overflow-hidden">
@@ -70,11 +88,12 @@ export default function HomeVibe() {
               <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500 z-10 pointer-events-none" />
 
               <video
-                src={card.video}
-                autoPlay
+                src={shouldLoadVideos ? card.video : undefined}
+                autoPlay={shouldLoadVideos}
                 muted
                 loop
                 playsInline
+                preload="none"
                 poster={card.poster}
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
               />

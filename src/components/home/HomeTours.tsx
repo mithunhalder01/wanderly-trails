@@ -3,7 +3,7 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import DestinationCard from "@/components/DestinationCard";
 import { useContent } from "@/context/content";
 
@@ -18,8 +18,45 @@ export default function HomeTours() {
       scrollTrigger: {
         trigger: container.current,
         start: "top 75%",
-      }
+      },
     });
+
+    // Mobile: seamless looping for the horizontal scroll container
+    // We render 3 copies (1-2-3). When user reaches end of middle copy, jump back to start of it.
+    if (window.innerWidth < 768) {
+      const el = mobileLoopRef.current;
+      if (el) {
+        const firstItem = el.querySelector<HTMLElement>('[class*="w-[72vw]"]');
+        const itemWidth = firstItem?.getBoundingClientRect().width ?? 0;
+        const step = itemWidth + 16; // approx (gap-4 => ~16px)
+        const singleSetWidth = step * featuredDestinations.length;
+        const startPos = singleSetWidth; // middle copy start
+
+        // initialize to middle without visible jump
+        el.scrollLeft = startPos;
+
+        let raf = 0;
+        const onScroll = () => {
+          cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(() => {
+            const max = singleSetWidth * 2;
+            if (el.scrollLeft >= max) {
+              // jump forward end->middle
+              el.scrollLeft = el.scrollLeft - singleSetWidth;
+            } else if (el.scrollLeft <= 0) {
+              // jump back start->middle
+              el.scrollLeft = el.scrollLeft + singleSetWidth;
+            }
+          });
+        };
+        el.addEventListener('scroll', onScroll, { passive: true });
+        return () => {
+          el.removeEventListener('scroll', onScroll);
+          cancelAnimationFrame(raf);
+        };
+      }
+    }
+
 
     tl.fromTo(".tours-header > *",
       { y: 30, opacity: 0 },
@@ -33,6 +70,11 @@ export default function HomeTours() {
 
   const { destinations } = useContent();
   const featuredDestinations = destinations.slice(0, 4);
+
+  // Mobile infinite/loop scroll (triple-copy + seamless jump in rAF)
+  const mobileLoopRef = useRef<HTMLDivElement | null>(null);
+
+
 
   return (
     <section ref={container} className="relative py-16 md:py-24 overflow-hidden bg-background">
@@ -82,16 +124,23 @@ export default function HomeTours() {
 
         {/* Mobile: slider */}
         <div className="lg:hidden mt-2">
-          <div className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-2">
-            {featuredDestinations.map((d) => (
-              <div key={d.id} className="snap-center shrink-0 w-[86vw]">
-                <div className="h-[460px]">
-                  <DestinationCard destination={d} />
+          <div
+            ref={mobileLoopRef}
+            className="relative flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-6 -mx-6"
+          >
+            {/* render 3 copies: 1 2 3, and we keep scroll in middle copy */}
+            {[0, 1, 2].flatMap((copy) =>
+              featuredDestinations.map((d, idx) => (
+                <div key={`${copy}-${d.id}-${idx}`} className="snap-center shrink-0 w-[72vw]">
+                  <div className="h-[460px]">
+                    <DestinationCard destination={d} />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
+
 
         <div className="mt-2 lg:hidden">
           <Link

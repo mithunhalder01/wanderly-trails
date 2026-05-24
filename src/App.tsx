@@ -3,11 +3,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import Navbar, { MobileBottomNav } from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FloatingWidgets from "@/components/FloatingWidgets";
 import SeoManager from "@/components/SeoManager";
 import { ContentProvider } from "@/context/content";
+const Navbar = lazy(() => import("@/components/Navbar"));
+const MobileBottomNav = lazy(() =>
+  import("@/components/Navbar").then((module) => ({ default: module.MobileBottomNav })),
+);
+const Footer = lazy(() => import("@/components/Footer"));
+const FloatingWidgets = lazy(() => import("@/components/FloatingWidgets"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
 const About = lazy(() => import("@/pages/About"));
@@ -43,11 +46,19 @@ function isAdminAuthenticated() {
 function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Navbar />
+      <Suspense fallback={<div className="h-20 w-full" aria-hidden="true" />}>
+        <Navbar />
+      </Suspense>
       <main className="pb-20 lg:pb-0 overflow-x-hidden">{children}</main>
-      <Footer />
-      <FloatingWidgets />
-      <MobileBottomNav />
+      <Suspense fallback={null}>
+        <Footer />
+      </Suspense>
+      <Suspense fallback={null}>
+        <FloatingWidgets />
+      </Suspense>
+      <Suspense fallback={null}>
+        <MobileBottomNav />
+      </Suspense>
     </>
   );
 }
