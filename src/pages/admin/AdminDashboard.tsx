@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Download,
   FileText,
@@ -14,6 +14,7 @@ import {
   Settings,
   MessageSquare,
   Trash2,
+  X,
   Upload,
 } from "lucide-react";
 import { getAdminByEmail, type AdminUser } from "@/data/admins";
@@ -92,7 +93,7 @@ const testimonialTemplate: TestimonialDraft = {
   location: "",
   rating: 5,
   review: "",
-  avatarUrl: "",
+  avatarUrl: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
   destination: "",
 };
 
@@ -194,45 +195,39 @@ export default function AdminDashboard() {
   }, [destinations]);
 
   const filteredDestinations = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) {
-      return destinations;
-    }
-    return destinations.filter((item) =>
-      `${item.name} ${item.country} ${item.category}`.toLowerCase().includes(normalized)
-    );
+    const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    if (terms.length === 0) return destinations;
+    return destinations.filter((item) => {
+      const searchStr = `${item.name} ${item.country} ${item.category} ${item.description}`.toLowerCase();
+      return terms.every(term => searchStr.includes(term));
+    });
   }, [destinations, query]);
 
   const filteredPackages = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) {
-      return packages;
-    }
-    return packages.filter((item) =>
-      `${item.title} ${item.destinationName} ${item.category}`
-        .toLowerCase()
-        .includes(normalized)
-    );
+    const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    if (terms.length === 0) return packages;
+    return packages.filter((item) => {
+      const searchStr = `${item.title} ${item.destinationName} ${item.category} ${item.description}`.toLowerCase();
+      return terms.every(term => searchStr.includes(term));
+    });
   }, [packages, query]);
 
   const filteredBlogs = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) {
-      return blogPosts;
-    }
-    return blogPosts.filter((item) =>
-      `${item.title} ${item.author} ${item.category}`.toLowerCase().includes(normalized)
-    );
+    const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    if (terms.length === 0) return blogPosts;
+    return blogPosts.filter((item) => {
+      const searchStr = `${item.title} ${item.author} ${item.category} ${item.excerpt}`.toLowerCase();
+      return terms.every(term => searchStr.includes(term));
+    });
   }, [blogPosts, query]);
 
   const filteredTestimonials = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) {
-      return testimonials;
-    }
-    return testimonials.filter((item) =>
-      `${item.name} ${item.location} ${item.destination}`.toLowerCase().includes(normalized)
-    );
+    const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    if (terms.length === 0) return testimonials;
+    return testimonials.filter((item) => {
+      const searchStr = `${item.name} ${item.location} ${item.destination} ${item.review}`.toLowerCase();
+      return terms.every(term => searchStr.includes(term));
+    });
   }, [testimonials, query]);
 
   const resetDestinationForm = () => {
@@ -604,16 +599,26 @@ export default function AdminDashboard() {
           ))}
         </div>
 
-        <Card>
+        <Card className="border-primary/20 shadow-sm overflow-hidden">
           <CardContent className="pt-6">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <div className="relative group">
+              <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by destination/package/blog/testimonial"
-                className="pl-9"
+                placeholder="Search anything (e.g. 'Goa beach' or 'Adventure')..."
+                className="pl-10 pr-10 h-12 text-base border-border/60 focus:border-primary/40 focus:ring-primary/10 transition-all rounded-xl bg-background/50"
               />
+              {query && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-muted rounded-lg"
+                  onClick={() => setQuery("")}
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -843,9 +848,14 @@ export default function AdminDashboard() {
                   <CardTitle className="text-lg">All Destinations ({filteredDestinations.length})</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 max-h-[75vh] overflow-y-auto pr-1">
+                  <AnimatePresence mode="popLayout">
                   {filteredDestinations.map((item) => (
-                    <div
+                    <motion.div
                       key={item.id}
+                      layout
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
                       className="rounded-xl border border-border p-4 flex items-start justify-between gap-3"
                     >
                       <div>
@@ -884,8 +894,9 @@ export default function AdminDashboard() {
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
+                  </AnimatePresence>
 
                   {filteredDestinations.length === 0 && (
                     <div className="rounded-xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">

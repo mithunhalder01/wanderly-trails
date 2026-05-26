@@ -90,7 +90,7 @@ export const destinations: Destination[] = [
     "country": "India",
     "category": "Nature",
     "description": "Paradise on Earth—lakes, valleys, and serene landscapes across the Kashmir region.",
-    "imageUrl": "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=1200&q=80",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Pahalgam_Valley.jpg/1280px-Pahalgam_Valley.jpg",
     "rating": 4.7,
     "startingPrice": 6999,
     "bestSeason": "March to June & Sep to Nov",
@@ -194,7 +194,7 @@ export const destinations: Destination[] = [
     "country": "India",
     "category": "Adventure",
     "description": "Desert forts, camel rides, and heritage stays across royal routes in Rajasthan.",
-    "imageUrl": "https://images.unsplash.com/photo-1524492412937-430c6b6f9a55?w=1200&q=80",
+    "imageUrl": "https://images.unsplash.com/photo-1593181629936-11c609b8db9b?w=1200&q=80",
     "rating": 4.6,
     "startingPrice": 15999,
     "bestSeason": "Oct to Mar",
@@ -1162,7 +1162,7 @@ export const testimonials: Testimonial[] = [
     "location": "Mumbai, India",
     "rating": 5,
     "review": "Everything was smooth from booking to itinerary. The destinations felt curated, not rushed.",
-    "avatarUrl": "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=256&q=80",
+    "avatarUrl": "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
     "destination": "Goa"
   },
   {
@@ -1171,7 +1171,7 @@ export const testimonials: Testimonial[] = [
     "location": "Delhi, India",
     "rating": 5,
     "review": "Our Bali luxury retreat was exactly what we wanted—private transfers and perfect pacing.",
-    "avatarUrl": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=256&q=80",
+    "avatarUrl": "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
     "destination": "Bali"
   },
   {
@@ -1180,7 +1180,7 @@ export const testimonials: Testimonial[] = [
     "location": "Bengaluru, India",
     "rating": 4,
     "review": "Kerala trip was fantastic. Loved the houseboat experience and family-friendly schedule.",
-    "avatarUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=256&q=80",
+    "avatarUrl": "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
     "destination": "Kerala Backwaters"
   }
 ];

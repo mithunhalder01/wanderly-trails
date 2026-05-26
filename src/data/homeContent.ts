@@ -49,14 +49,14 @@ export const availableTours = [
     id: 301,
     title: "Memorable Himachal",
     price: 10499,
-    description: "Experience the serenity of Kasol and Manikaran before concluding your journey",
+    description: "Experience the serenity of Kasol and Manikaran before concluding your journey.",
     image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800&q=80",
   },
   {
     id: 401,
     title: "Meghalaya Tour",
     price: 19999,
-    description: "Famous for its high rainfall, subtropical forests and biodiversity, it is abutted by Assam",
+    description: "Famous for its high rainfall, subtropical forests and biodiversity, it is abutted by Assam.",
     image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=800&q=80",
   },
   {
@@ -84,7 +84,7 @@ export const availableTours = [
     id: 304,
     title: "Himachal Circuit",
     price: 20999,
-    description: "stunning 9-day journey through the best of Himachal Pradesh from the colonial charm of Shimla and the snowy serenity",
+    description: "Stunning 9-day journey through the best of Himachal Pradesh from the colonial charm of Shimla and the snowy serenity.",
     image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800&q=80",
   },
   {
@@ -105,22 +105,22 @@ export const availableTours = [
     id: 307,
     title: "Himachal Backpacking",
     price: 12999,
-    description: "From snow-draped peaks in Solang to the spiritual calm of the Golden Temple,",
+    description: "From snow-draped peaks in Solang to the spiritual calm of the Golden Temple.",
     image: "https://images.unsplash.com/photo-1544085311-11a028465b03?w=800&q=80",
   },
   {
     id: 601,
     title: "Jaipur",
     price: 20999,
-    description: "stunning 9-day journey through the best of Himachal Pradesh from the colonial charm of Shimla and the snowy serenity",
-    image: "https://images.unsplash.com/photo-1542410537-844e1a9b5d38?w=800&q=80",
+    description: "Discover the Pink City's royal heritage, majestic forts, and vibrant culture.",
+    image: "https://images.unsplash.com/photo-1593181629936-11c609b8db9b?w=800&q=80",
   },
   {
     id: 701,
     title: "Kashmir",
     price: 6999,
-    description: "Himachal ranges, Jibhi & Tirthan Valley are the gems of the lesser-explored side of the Himalayas",
-    image: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=800&q=80",
+    description: "Experience the paradise on earth with serene lakes, snow-capped mountains and beautiful valleys.",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Pahalgam_Valley.jpg/1280px-Pahalgam_Valley.jpg",
   },
 ];
 
@@ -133,12 +133,12 @@ export const indiaTrips = {
   destinations: [
     { name: "Leh Ladakh", price: 15800, image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=600&q=80", slug: "ladakh" },
     { name: "Spiti", price: 17999, image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600&q=80", slug: "spiti" },
-    { name: "Kashmir", price: 24499, image: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=600&q=80", slug: "kashmir" },
-    { name: "Meghalaya", price: 21499, image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=600&q=80", slug: "meghalaya" },
+    { name: "Kashmir", price: 24499, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRwoQk3BEQVjj6OgUhoHVHsKccpxlWJl_muog&s", slug: "kashmir" },
+    { name: "Meghalaya", price: 21499, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmzVv6djE9rS3YDU2u_QhQAibhnGtnS5-pRA&s", slug: "meghalaya" },
     { name: "Himachal", price: 7499, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80", slug: "himachal" },
     { name: "Goa", price: 10499, image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600&q=80", slug: "goa" },
     { name: "Kerala", price: 14000, image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&q=80", slug: "kerala" },
-    { name: "Rajasthan", price: 15999, image: "https://images.unsplash.com/photo-1524492412937-430c6b6f9a55?w=600&q=80", slug: "rajasthan" },
+    { name: "Rajasthan", price: 15999, image: "https://images.unsplash.com/photo-1593181629936-11c609b8db9b?w=600&q=80", slug: "rajasthan" },
   ],
 };
 
@@ -149,12 +149,12 @@ export const weekendGetaways = {
   bannerImage:
     "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1400&q=80",
   destinations: [
-    { name: "Rishikesh", price: 4999, image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=500&q=70" },
-    { name: "Mussoorie", price: 6999, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=500&q=70" },
-    { name: "Kasol", price: 5499, image: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=500&q=70" },
-    { name: "Nainital", price: 7499, image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=500&q=70" },
-    { name: "Udaipur", price: 8999, image: "https://images.unsplash.com/photo-1542410537-844e1a9b5d38?w=500&q=70" },
-    { name: "Pushkar", price: 4599, image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=500&q=70" },
+    { name: "Rishikesh", price: 4999, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQcaQZ9Z9u7D1rqd-wPDGcUdHvfaDPaFk7ig&s" },
+    { name: "Mussoorie", price: 6999, image: "https://5.imimg.com/data5/SELLER/Default/2022/8/ZR/KT/WS/123797861/delhi-masoori-tour-package-500x500.jpg" },
+    { name: "Kasol", price: 5499, image: "https://moxtain.s3.ap-south-1.amazonaws.com/blogs/Kasol/pravati-valley-kasol.jpg" },
+    { name: "Nainital", price: 7499, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQomElzbmgLueMBUG-M4xZEdT3Fgsr2YKF87g&s" },
+    { name: "Udaipur", price: 8999, image: "https://images.contentstack.io/v3/assets/blt06f605a34f1194ff/blt4cf134d7dc5ff2c0/68906f5f7adc79b45ae98a6f/iStock-2197451116-2-HEADER_MOBILE.jpg?format=webp&auto=avif&quality=60&crop=1%3A1&width=1440" },
+    { name: "Pushkar", price: 4599, image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=500&q=70" },
   ],
 };
 
@@ -205,10 +205,10 @@ export const vibeHome = {
     "Join our curated travel experiences designed for explorers, dreamers, and adventure lovers.",
   cta: "Vibe With Us",
   cards: [
-    { title: "Himachal Escapes", subtitle: "Mountains & valleys", video: "https://videos.pexels.com/video-files/3205917/3205917-hd_1920_1080_25fps.mp4", poster: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" },
-    { title: "Spiti Circuit", subtitle: "Himalayan adventure", video: "https://videos.pexels.com/video-files/856973/856973-hd_1920_1080_25fps.mp4", poster: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600&q=80" },
-    { title: "Goa Getaway", subtitle: "Beaches & culture", video: "https://videos.pexels.com/video-files/2090375/2090375-hd_1920_1080_30fps.mp4", poster: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" },
-    { title: "Kashmir Trails", subtitle: "Paradise on earth", video: "https://videos.pexels.com/video-files/3205584/3205584-hd_1920_1080_25fps.mp4", poster: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=600&q=80" },
+    { title: "Mussoorie Magic", subtitle: "Queen of Hills", video: "/vid1.mp4", poster: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" },
+    { title: "Manali Snowscapes", subtitle: "Adventure & Snow", video: "/vid2.mp4", poster: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600&q=80" },
+    { title: "Himachal's Main Spots", subtitle: "Mountains & Valleys", video: "/vid3.mp4", poster: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" },
+    { title: "Top 4 Snow Places in Himachal", subtitle: "Winter Wonderland", video: "/vid4.mp4", poster: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=600&q=80" },
   ],
 };
 

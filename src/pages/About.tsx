@@ -4,13 +4,11 @@ import SectionHeading from "@/components/SectionHeading";
 import PageHeader from "@/components/PageHeader";
 import PageHero from "@/components/PageHero";
 
-const placeholderAvatar = "https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=original";
-
 const team = [
-  { name: "Harsh Tiwari", role: "Founder & Owner", img: placeholderAvatar, bio: "Passionate traveler and explorer, dedicated to crafting perfect itineraries and unforgettable travel journeys." },
-  { name: "Priya Sharma", role: "Head of Destinations", img: placeholderAvatar, bio: "Expert in Indian travel with extensive knowledge of all major states and hidden gems." },
-  { name: "Rohit Verma", role: "Lead Tour Guide", img: placeholderAvatar, bio: "Award-winning guide with deep expertise in adventure and luxury travel." },
-  { name: "Sneha Patel", role: "Customer Experience", img: placeholderAvatar, bio: "Dedicated to making every traveler's experience seamless and memorable." },
+  { name: "Harsh Tiwari", role: "Founder & Owner", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&q=80", bio: "Passionate traveler and explorer, dedicated to crafting perfect itineraries and unforgettable travel journeys." },
+  { name: "Priya Sharma", role: "Head of Destinations", img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&q=80", bio: "Expert in Indian travel with extensive knowledge of all major states and hidden gems." },
+  { name: "Rohit Verma", role: "Lead Tour Guide", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&q=80", bio: "Award-winning guide with deep expertise in adventure and luxury travel." },
+  { name: "Sneha Patel", role: "Customer Experience", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&q=80", bio: "Dedicated to making every traveler's experience seamless and memorable." },
 ];
 
 const achievements = [

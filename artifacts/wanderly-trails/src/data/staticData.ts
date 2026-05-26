@@ -127,7 +127,7 @@ export const destinations: Destination[] = [
     country: "India",
     category: "Desert",
     description: "Rajasthan, the Land of Kings, is India's most colourful state. Royal forts, lavish palaces, camel rides in the Thar Desert, and vibrant bazaars make it a cultural treasure. Visit Jaipur, Jodhpur, and Udaipur for an unforgettable experience.",
-    imageUrl: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800&q=80",
+    imageUrl: "https://images.unsplash.com/photo-1593181629936-11c609b8db9b?w=800&q=80",
     rating: 4.7,
     startingPrice: 11999,
     bestSeason: "Oct – Mar",
@@ -401,7 +401,7 @@ export const testimonials: Testimonial[] = [
     location: "Mumbai, India",
     rating: 5,
     review: "Our Bali honeymoon was absolutely magical! Wanderly Trails took care of every single detail — the private villa was stunning, the itinerary was perfectly balanced, and whenever we had a question our guide was just a call away. We couldn't have asked for a more perfect start to our married life.",
-    avatarUrl: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=150&q=80",
+    avatarUrl: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
     destination: "Bali Honeymoon Special",
   },
   {
@@ -410,7 +410,7 @@ export const testimonials: Testimonial[] = [
     location: "Bangalore, India",
     rating: 5,
     review: "The Swiss Alps Adventure was beyond anything I'd imagined. The Jungfraujoch experience was jaw-dropping. What impressed me most was how smoothly everything was organised — trains on time, hotels perfectly located, and guides who genuinely knew their destinations. Will absolutely book again.",
-    avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80",
+    avatarUrl: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
     destination: "Swiss Alps Adventure",
   },
   {
@@ -419,7 +419,7 @@ export const testimonials: Testimonial[] = [
     location: "Delhi, India",
     rating: 5,
     review: "We took our family of 5 (including two kids under 10) to Kerala and it was perfect. The houseboat experience on the backwaters was the highlight — the kids were fascinated. Wanderly Trails understood exactly what a family holiday needs. Every meal was delicious, every hotel family-friendly.",
-    avatarUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&q=80",
+    avatarUrl: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
     destination: "Kerala Backwaters Bliss",
   },
   {
@@ -428,7 +428,7 @@ export const testimonials: Testimonial[] = [
     location: "Pune, India",
     rating: 4,
     review: "Did the Dubai City of Dreams package for a solo trip and it was great value. The desert safari was the highlight — dune bashing was thrilling and the BBQ under the stars was unforgettable. One suggestion: could include more free evenings for independent exploration. Otherwise, excellent.",
-    avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&q=80",
+    avatarUrl: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
     destination: "Dubai City of Dreams",
   },
   {
@@ -437,7 +437,7 @@ export const testimonials: Testimonial[] = [
     location: "Chennai, India",
     rating: 5,
     review: "Kashmir in spring was like entering a dream. The tulip gardens were in full bloom, the shikara ride on Dal Lake at dawn was beyond words, and Gulmarg's snow was a first for both of us. Our guide was incredibly knowledgeable and warm. Thank you Wanderly Trails for this memory of a lifetime.",
-    avatarUrl: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150&q=80",
+    avatarUrl: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
     destination: "Kashmir Valley Romance",
   },
   {
@@ -446,7 +446,7 @@ export const testimonials: Testimonial[] = [
     location: "Hyderabad, India",
     rating: 5,
     review: "Went with a group of 8 friends for the Goa package. The organisers nailed everything — from the beach hotel right on Calangute to the North & South Goa sightseeing. The water sports arrangements were seamless. Great pricing, zero hassle. This is the only way to do Goa!",
-    avatarUrl: "https://images.unsplash.com/photo-1463453091185-61582044d556?w=150&q=80",
+    avatarUrl: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
     destination: "Goa Beach Paradise",
   },
 ];

@@ -134,6 +134,26 @@ export default function Footer() {
           <p className="text-sm text-secondary-foreground/50">
             © {new Date().getFullYear()} Wanderly Trails. All rights reserved.
           </p>
+          <p className="text-sm text-secondary-foreground/50">
+            Developed by{" "}
+            <a 
+              href="https://mithunhalder01.github.io/portfolio/" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="font-medium text-secondary-foreground/70 hover:text-white transition-colors underline-offset-4 hover:underline"
+            >
+              Mithun
+            </a>
+            {" & "}
+            <a 
+              href="https://anshpandey7836-dev.github.io/Hello-.Ansh/#" 
+              target="_blank" 
+              rel="noreferrer" 
+              className="font-medium text-secondary-foreground/70 hover:text-white transition-colors underline-offset-4 hover:underline"
+            >
+              Ansh
+            </a>
+          </p>
           <div className="flex gap-6">
             <Link href="/faq" className="text-sm text-secondary-foreground/50 hover:text-white">Privacy Policy</Link>
             <Link href="/faq" className="text-sm text-secondary-foreground/50 hover:text-white">Terms of Service</Link>
