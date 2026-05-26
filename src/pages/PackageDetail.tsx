@@ -37,7 +37,7 @@ export default function PackageDetail() {
 
   return (
     <div className="pt-20">
-      <div className="relative h-[500px] overflow-hidden">
+      <div className="relative h-[350px] sm:h-[450px] md:h-[500px] overflow-hidden">
         <img src={pkg.imageUrl} alt={pkg.title} className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/40" />
 
@@ -54,16 +54,16 @@ export default function PackageDetail() {
             <div className="flex items-end justify-between flex-wrap gap-4">
               <div>
                 <span className="inline-block bg-accent text-white text-xs font-bold uppercase px-3 py-1 rounded-full mb-3">{pkg.category}</span>
-                <h1 className="text-4xl md:text-5xl font-serif font-bold text-white">{pkg.title}</h1>
-                <div className="flex items-center gap-4 mt-2 text-white/80 text-sm">
+                <h1 className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-white leading-tight">{pkg.title}</h1>
+                <div className="flex items-center gap-3 sm:gap-4 mt-2 text-white/80 text-[11px] sm:text-sm flex-wrap">
                   <div className="flex items-center gap-1"><MapPin className="w-4 h-4 text-accent" />{pkg.destinationName}</div>
                   <div className="flex items-center gap-1"><Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />{pkg.rating.toFixed(1)}</div>
                   <div className="flex items-center gap-1"><Clock className="w-4 h-4" />{pkg.duration}D / {pkg.nights}N</div>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-white/60 text-sm">Starting from</p>
-                <p className="text-4xl font-serif font-bold text-white">₹{pkg.price.toLocaleString()}</p>
+              <div className="flex flex-col items-start sm:items-end">
+                <p className="text-white/60 text-[10px] sm:text-sm uppercase font-bold tracking-widest">Starting from</p>
+                <p className="text-2xl sm:text-4xl font-serif font-bold text-white">₹{pkg.price.toLocaleString()}</p>
               </div>
             </div>
           </div>

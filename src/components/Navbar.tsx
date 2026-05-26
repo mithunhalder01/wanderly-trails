@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { Menu, X, ChevronDown, House, MapPinned, BriefcaseBusiness, Ticket, Search, Mic, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
@@ -32,14 +32,15 @@ export default function Navbar() {
   const [searchText, setSearchText] = useState("");
   const [activeSuggestion, setActiveSuggestion] = useState(0);
   const [location, setLocation] = useLocation();
+  const searchString = useSearch();
   const { destinations, packages, blogPosts } = useContent();
   const isHome = location === "/";
 
-  // Ensure all overlays and menus close immediately on route change
+  // Force close search and mobile menu on any navigation (path or query change)
   useEffect(() => {
     setSearchOpen(false);
     setOpen(false);
-  }, [location]);
+  }, [location, searchString]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -83,13 +84,12 @@ export default function Navbar() {
     const fallback = suggestions[activeSuggestion]?.title ?? "";
     const finalQuery = (query || fallback).trim();
 
-    // close state synchronously to avoid overlay stuck after route change
+    // 1. Clear state synchronously
     setSearchOpen(false);
     setSearchText("");
-
-    // ensure focus doesn't steal Enter key events
     (document.activeElement as HTMLElement)?.blur();
 
+    // 2. Navigate
     setLocation(finalQuery ? `/search?q=${encodeURIComponent(finalQuery)}` : "/search");
   };
 

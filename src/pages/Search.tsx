@@ -59,7 +59,7 @@ export default function SearchPage() {
     if (activeTab === "packages") filteredDestinations = [];
 
     return { destinations: filteredDestinations, packages: filteredPackages };
-  }, [query, destinations, packages, activeTab]);
+  }, [initialQuery, destinations, packages, activeTab]); // Depend directly on URL initialQuery
 
   const totalItemsCount = results.destinations.length + results.packages.length;
   const hasQuery = !!initialQuery.trim(); // Check if there's an active search query
@@ -81,18 +81,14 @@ export default function SearchPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Kahan jaana hai? (e.g. Goa, Kashmir, Bali)"
-              className="w-full h-14 sm:h-16 pl-14 pr-14 text-lg rounded-[2.5rem] border-primary/10 shadow-lg focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all bg-card text-foreground font-medium"
-              placeholder="Destination..."
               className="w-full h-12 sm:h-16 pl-12 pr-12 text-base sm:text-lg rounded-[2.5rem] border-primary/10 shadow-lg focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all bg-card text-foreground font-medium"
             />
             {query && (
               <button
                 type="button"
                 onClick={clearSearch}
-                className="absolute right-5 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
                 className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-muted-foreground" />
                 <X className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
               </button>
             )}
@@ -123,7 +119,6 @@ export default function SearchPage() {
                 <Badge variant="outline" className="mb-4 px-3 py-1 text-primary border-primary/20 bg-primary/5 font-bold uppercase tracking-wider text-[10px]">
                   {totalItemsCount} results found
                 </Badge>
-                <h1 className="text-4xl md:text-5xl font-serif font-bold text-foreground tracking-tighter">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-foreground tracking-tighter">
                   Results for "<span className="text-primary">{initialQuery}</span>"
                 </h1>

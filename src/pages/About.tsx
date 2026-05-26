@@ -48,8 +48,8 @@ export default function About() {
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative">
             <img src="https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800&q=80" alt="Team" className="rounded-3xl shadow-xl w-full object-cover h-96" />
-            <div className="absolute -bottom-6 -left-6 bg-primary text-white rounded-2xl p-6 shadow-xl">
-              <p className="text-4xl font-serif font-bold">10+</p>
+            <div className="absolute -bottom-4 -left-4 sm:-bottom-6 sm:-left-6 bg-primary text-white rounded-2xl p-4 sm:p-6 shadow-xl">
+              <p className="text-3xl sm:text-4xl font-serif font-bold">10+</p>
               <p className="text-white/80 text-sm">Years of Excellence</p>
             </div>
           </motion.div>
