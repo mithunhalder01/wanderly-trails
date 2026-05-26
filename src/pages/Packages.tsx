@@ -63,8 +63,8 @@ export default function Packages() {
         </div>
 
         <div className="flex flex-col md:flex-row gap-8">
-          <div className={`${showFilters ? "block" : "hidden"} md:block w-full md:w-64 shrink-0`}>
-            <div className="bg-card border border-border rounded-2xl p-6 sticky top-24">
+          <div className={`${showFilters ? "block" : "hidden"} md:block w-full md:w-64 shrink-0 sticky top-28 self-start z-10`}>
+            <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-5">
                 <h3 className="font-serif font-bold text-lg">Filters</h3>
                 <button onClick={() => { setCategory("All"); setDuration("All"); setBudget("All"); }} className="text-xs text-primary hover:text-primary/80 font-semibold">Reset</button>

@@ -69,10 +69,10 @@ export default function Gallery() {
               layout
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.05 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
               onClick={() => setSelected(photo)}
               data-testid={`gallery-photo-${i}`}
-              className={`${photo.span} relative group cursor-pointer overflow-hidden rounded-2xl h-48 md:h-56`} // Ensure h-48/h-56 is applied
+              className={`${photo.span} relative group cursor-pointer overflow-hidden rounded-2xl h-48 md:h-56 will-change-transform`}
             >
               {photo.type === "image" ? (
                 <img src={photo.src} alt={photo.alt} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />

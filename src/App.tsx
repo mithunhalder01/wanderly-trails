@@ -49,7 +49,7 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
       <Suspense fallback={<div className="h-20 w-full" aria-hidden="true" />}>
         <Navbar />
       </Suspense>
-      <main className="pb-20 lg:pb-0 overflow-x-hidden">{children}</main>
+      <main className="pb-20 lg:pb-0">{children}</main>
       <Suspense fallback={null}>
         <Footer />
       </Suspense>

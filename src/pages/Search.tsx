@@ -35,10 +35,12 @@ export default function SearchPage() {
   const handleSearchSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (query.trim()) {
+      // Keyboard focus hatane ke liye blur use karenge taaki mobile keyboard close ho jaye
+      inputRef.current?.blur();
+      
       setIsSearching(true);
-      const newParams = new URLSearchParams(window.location.search);
-      newParams.set("q", query.trim());
-      window.history.replaceState(null, "", "?" + newParams.toString());
+      // URL update karenge using setLocation taaki router state sync ho jaye
+      setLocation(`/search?q=${encodeURIComponent(query.trim())}`);
     }
   };
 
@@ -85,17 +87,17 @@ export default function SearchPage() {
             >
               <form onSubmit={handleSearchSubmit} className="w-full max-w-2xl relative group">
                 <SearchIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                <input
+                <input // Mobile size reduced
                   ref={inputRef}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Kahan jaana hai? (e.g. Goa, Kashmir, Bali)"
-                  className="w-full h-20 pl-14 pr-24 text-xl rounded-[2.5rem] border-primary/10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all bg-card text-foreground font-medium"
+                  className="w-full h-14 sm:h-20 pl-14 pr-24 text-base sm:text-xl rounded-[2.5rem] border-primary/10 shadow-[0_20px_50px_rgba(0,0,0,0.1)] focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all bg-card text-foreground font-medium"
                   autoFocus
                 />
-                <Button 
+                <Button // Mobile size reduced
                   type="submit"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 h-14 px-8 rounded-[1.8rem] font-bold text-base shadow-lg"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 h-10 sm:h-14 px-6 sm:px-8 rounded-[1.8rem] font-bold text-sm sm:text-base shadow-lg"
                 >
                   Search
                 </Button>
@@ -124,24 +126,24 @@ export default function SearchPage() {
               {/* Results Header */}
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/60 pb-8">
                 <div>
-                  <Badge variant="outline" className="mb-4 px-4 py-1.5 text-primary border-primary/20 bg-primary/5 font-bold uppercase tracking-wider text-[10px] animate-in fade-in slide-in-from-left-4 duration-500">
+                  <Badge variant="outline" className="mb-4 px-3 py-1 text-primary border-primary/20 bg-primary/5 font-bold uppercase tracking-wider text-[9px] sm:text-[10px] animate-in fade-in slide-in-from-left-4 duration-500">
                     {totalItemsCount} results found
                   </Badge>
-                  <h1 className="text-5xl md:text-6xl font-serif font-bold text-foreground tracking-tighter animate-in fade-in slide-in-from-bottom-4 duration-700">
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl font-serif font-bold text-foreground tracking-tighter animate-in fade-in slide-in-from-bottom-4 duration-700">
                     Search Result
                   </h1>
-                  <p className="text-muted-foreground mt-3 text-xl animate-in fade-in duration-1000">
+                  <p className="text-muted-foreground mt-3 text-base sm:text-xl animate-in fade-in duration-1000">
                     Showing matches for "<span className="text-foreground font-bold">{query}</span>"
                   </p>
                 </div>
                 
                 <div className="flex items-center gap-3">
-                  <div className="flex p-1 bg-muted/50 rounded-2xl border border-border">
+                  <div className="flex p-0.5 sm:p-1 bg-muted/50 rounded-2xl border border-border">
                     {(["all", "destinations", "packages"] as const).map((tab) => (
                       <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`px-6 py-2.5 text-sm font-bold rounded-xl transition-all ${
+                        className={`px-4 py-2 text-xs sm:px-6 sm:py-2.5 sm:text-sm font-bold rounded-xl transition-all ${
                           activeTab === tab 
                             ? "bg-card text-primary shadow-sm border border-border" 
                             : "text-muted-foreground hover:text-foreground"
@@ -153,18 +155,18 @@ export default function SearchPage() {
                   </div>
                   <Button 
                     variant="outline" 
-                    size="default" 
+                    size="sm" // Changed to sm for mobile
                     onClick={clearSearch}
-                    className="rounded-xl h-12 gap-2 hover:bg-primary/5 hover:text-primary transition-all border-border shadow-sm font-bold"
+                    className="rounded-xl h-10 sm:h-12 gap-2 hover:bg-primary/5 hover:text-primary transition-all border-border shadow-sm font-bold text-sm"
                   >
                     <X className="w-4 h-4" /> New Search
                   </Button>
                 </div>
               </div>
 
-              <motion.div 
+              <motion.div // Gap reduced for mobile
                 layout
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8"
               >
                 <AnimatePresence mode="popLayout">
                   {results.destinations.map((dest) => (

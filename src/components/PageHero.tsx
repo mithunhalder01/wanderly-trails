@@ -35,7 +35,7 @@ export default function PageHero({
 
       <div className="relative z-10 flex-1 flex flex-col justify-center mx-auto max-w-7xl w-full px-4 text-white sm:px-6 lg:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-          <span className="luxury-label mb-3 inline-block rounded-full border border-white/25 bg-white/10 px-4 py-1.5 backdrop-blur-md text-white/80 font-bold uppercase tracking-widest text-xs">
+          <span className="luxury-label mb-3 inline-block rounded-full border border-white/30 bg-black/20 px-4 py-1.5 backdrop-blur-md text-accent font-extrabold uppercase tracking-widest text-[11px] shadow-lg">
             {badge}
           </span>
           <h1 className="text-4xl font-serif font-bold md:text-5xl lg:text-7xl text-transparent bg-clip-text bg-[linear-gradient(to_right,#BF953F,#FCF6BA,#B38728,#FBF5B7,#AA771C)] drop-shadow-md">

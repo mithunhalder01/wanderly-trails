@@ -65,9 +65,15 @@ export default function Navbar() {
 
   const onSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Keyboard close karne ke liye focus hatayenge
+    (document.activeElement as HTMLElement)?.blur();
+
     const fallback = suggestions[activeSuggestion]?.title ?? "";
     const q = (searchText.trim() || fallback).trim();
+    
     setSearchOpen(false);
+    setSearchText(""); // State clear kar denge future searches ke liye
+    
     setLocation(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
   };
 
