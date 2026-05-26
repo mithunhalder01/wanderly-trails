@@ -56,7 +56,8 @@ export const availableTours = [
     id: 401,
     title: "Meghalaya Tour",
     price: 19999,
-    description: "Famous for its high rainfall, subtropical forests and biodiversity, it is abutted by Assam.",
+    description:
+      "Famous for its high rainfall, subtropical forests and biodiversity, it is abutted by Assam.",
     image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=800&q=80",
   },
   {
@@ -133,7 +134,7 @@ export const indiaTrips = {
   destinations: [
     { name: "Leh Ladakh", price: 15800, image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=600&q=80", slug: "ladakh" },
     { name: "Spiti", price: 17999, image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600&q=80", slug: "spiti" },
-    { name: "Kashmir", price: 24499, image: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=600&q=80", slug: "kashmir" },
+    { name: "Kashmir", price: 24499, image: "./public/kashmir.png", slug: "kashmir" },
     { name: "Meghalaya", price: 21499, image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=600&q=80", slug: "meghalaya" },
     { name: "Himachal", price: 7499, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80", slug: "himachal" },
     { name: "Goa", price: 10499, image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600&q=80", slug: "goa" },
@@ -149,7 +150,7 @@ export const weekendGetaways = {
   bannerImage:
     "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1400&q=80",
   destinations: [
-    { name: "Rishikesh", price: 4999, image: "https://images.unsplash.com/photo-1566371486490-560ded239df6?w=600&q=80" },
+    { name: "Rishikesh", price: 4999, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCiDXfTZFWyYLm57FSOXMgkRvcolwUyS8sPw&s" },
     { name: "Mussoorie", price: 6999, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80" },
     { name: "Kasol", price: 5499, image: "https://images.unsplash.com/photo-1544085311-11a028465b03?w=600&q=80" },
     { name: "Nainital", price: 7499, image: "https://images.unsplash.com/photo-1615551043360-33de8b5f410c?w=600&q=80" },

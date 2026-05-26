@@ -64,10 +64,10 @@ export default function VibeSection() {
           >
             <video
               src={card.video}
-              autoPlay
               muted
               loop
               playsInline
+              preload="none"
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               poster={card.image}
             />

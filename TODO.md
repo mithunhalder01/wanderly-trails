@@ -14,19 +14,14 @@
 - [ ] Edit `src/components/home/HomeVibe.tsx`
   - [ ] Remove `autoPlay`, add `preload="none"` and render poster cover
 - [ ] Edit `src/components/VibeSection.tsx`
-  - [ ] Remove `autoPlay`, add `preload="none"`
-
-## Step 3: Defer always-mounted heavy widgets
+  - [ep 3: Defer always-mounted heavy widgets
 - [ ] Edit `src/App.tsx`
-  - [ ] Lazy-load `FloatingWidgets` (and optionally Footer) so first paint is faster
+  - [x] Lazy-load `FloatingWidgets` (and optionally Footer) so first paint is faster
 
 ## Step 4: Optimize Navbar search suggestions
 - [ ] Edit `src/components/Navbar.tsx`
-  - [ ] Precompute suggestions pool only when content changes; filter only by input
-
+  - [x] Precompute suggestions pool on
 ## Step 5: Build & verify
-- [ ] `pnpm install`
 - [ ] `pnpm typecheck`
 - [ ] `pnpm build`
 - [ ] Re-test on Vercel (LCP/CLS/INP)
-

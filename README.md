@@ -57,9 +57,9 @@ The container runs as a non-root `node` user and only forwards the app port you 
 If this folder is not yet linked to your GitHub repository, add `origin` and push (replace the URL if you use a different repo name):
 
 ```bash
-git remote add origin https://github.com/mithunhalder01/wenderly-tails.git
+git remote add origin https://github.com/mithunhalder01/wanderly-trails.git
 # or, if origin already exists:
-# git remote set-url origin https://github.com/mithunhalder01/wenderly-tails.git
+# git remote set-url origin https://github.com/mithunhalder01/wanderly-trails.git
 
 git branch -M main
 git push -u origin main
@@ -67,6 +67,13 @@ git push -u origin main
 ':
 
 **Collaborators:** In GitHub, open the repository → **Settings** → **Collaborators** → add people by username or email (GitHub sends an invite).
+
+## Vercel Deployment
+
+1. GitHub par code push karein.
+2. [Vercel Dashboard](https://vercel.com/) par jayein aur "Add New Project" select karein.
+3. Is repository ko import karein.
+4. **Build Settings:** Vite auto-detect ho jayega (Build command: `npm run build`, Output directory: `dist`).
 
 ## Project layout
 

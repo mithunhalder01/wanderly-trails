@@ -401,7 +401,7 @@ export const testimonials: Testimonial[] = [
     location: "Mumbai, India",
     rating: 5,
     review: "Our Bali honeymoon was absolutely magical! Wanderly Trails took care of every single detail — the private villa was stunning, the itinerary was perfectly balanced, and whenever we had a question our guide was just a call away. We couldn't have asked for a more perfect start to our married life.",
-    avatarUrl: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
+     avatarUrl: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
     destination: "Bali Honeymoon Special",
   },
   {

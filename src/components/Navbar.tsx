@@ -35,6 +35,12 @@ export default function Navbar() {
   const { destinations, packages, blogPosts } = useContent();
   const isHome = location === "/";
 
+  // Ensure all overlays and menus close immediately on route change
+  useEffect(() => {
+    setSearchOpen(false);
+    setOpen(false);
+  }, [location]);
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
     window.addEventListener("scroll", onScroll);
@@ -42,7 +48,9 @@ export default function Navbar() {
   }, []);
 
   const solid = scrolled || !isHome;
-  const suggestions = useMemo(() => {
+
+  // Precompute suggestion pool only when data changes to avoid expensive re-mapping on every keystroke
+  const suggestionPool = useMemo(() => {
     const safeDestinations = Array.isArray(destinations) ? destinations : [];
     const safePackages = Array.isArray(packages) ? packages : [];
     const safeBlogs = Array.isArray(blogPosts) ? blogPosts : [];
@@ -51,13 +59,17 @@ export default function Navbar() {
       ...safePackages.map((p) => ({ title: p.title, subtitle: `${p.duration} days • ₹${p.price.toLocaleString("en-IN")}` })),
       ...safeBlogs.map((b) => ({ title: b.title, subtitle: `${b.category} • ${b.readTime} min read` })),
     ];
-    const unique = Array.from(new Map(pool.map((item) => [item.title.toLowerCase(), item])).values());
+    return Array.from(new Map(pool.map((item) => [item.title.toLowerCase(), item])).values());
+  }, [destinations, packages, blogPosts]);
+
+  // Filter suggestions based on input from the precomputed pool
+  const suggestions = useMemo(() => {
     const q = searchText.trim().toLowerCase();
-    if (!q) return unique.slice(0, 8);
-    return unique
+    if (!q) return suggestionPool.slice(0, 8);
+    return suggestionPool
       .filter((item) => item.title.toLowerCase().includes(q) || item.subtitle.toLowerCase().includes(q))
       .slice(0, 8);
-  }, [destinations, packages, blogPosts, searchText]);
+  }, [suggestionPool, searchText]);
 
   useEffect(() => {
     setActiveSuggestion(0);
@@ -65,16 +77,20 @@ export default function Navbar() {
 
   const onSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Keyboard close karne ke liye focus hatayenge
+    e.stopPropagation();
+
+    const query = searchText.trim();
+    const fallback = suggestions[activeSuggestion]?.title ?? "";
+    const finalQuery = (query || fallback).trim();
+
+    // close state synchronously to avoid overlay stuck after route change
+    setSearchOpen(false);
+    setSearchText("");
+
+    // ensure focus doesn't steal Enter key events
     (document.activeElement as HTMLElement)?.blur();
 
-    const fallback = suggestions[activeSuggestion]?.title ?? "";
-    const q = (searchText.trim() || fallback).trim();
-    
-    setSearchOpen(false);
-    setSearchText(""); // State clear kar denge future searches ke liye
-    
-    setLocation(q ? `/search?q=${encodeURIComponent(q)}` : "/search");
+    setLocation(finalQuery ? `/search?q=${encodeURIComponent(finalQuery)}` : "/search");
   };
 
   return (
@@ -210,6 +226,12 @@ export default function Navbar() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm"
             onClick={() => setSearchOpen(false)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setSearchOpen(false);
+                setSearchText("");
+              }
+            }}
           >
             <div className="mx-auto w-full max-w-3xl px-4 pt-4 sm:px-6 sm:pt-10" onClick={(e) => e.stopPropagation()}>
               <form onSubmit={onSearchSubmit} className="rounded-full border border-black/10 bg-[#E9E6EE] px-5 py-3 shadow-2xl">
@@ -251,7 +273,7 @@ export default function Navbar() {
                         type="button"
                         onMouseEnter={() => setActiveSuggestion(idx)}
                         onClick={() => {
-                          setSearchText(item.title);
+                          setSearchText(""); // Clear for next search session
                           setSearchOpen(false);
                           setLocation(`/search?q=${encodeURIComponent(item.title)}`);
                         }}

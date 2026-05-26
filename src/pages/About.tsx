@@ -1,21 +1,20 @@
 import { motion } from "framer-motion";
-import { Users, MapPin, Star, Award, Target, Eye } from "lucide-react";
+import { Users, MapPin, Star, Target, Eye } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import PageHeader from "@/components/PageHeader";
 import PageHero from "@/components/PageHero";
 
 const team = [
-  { name: "Harsh Tiwari", role: "Founder & Owner", img: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&q=80", bio: "Passionate traveler and explorer, dedicated to crafting perfect itineraries and unforgettable travel journeys." },
-  { name: "Priya Sharma", role: "Head of Destinations", img: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&q=80", bio: "Expert in Indian travel with extensive knowledge of all major states and hidden gems." },
-  { name: "Rohit Verma", role: "Lead Tour Guide", img: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&q=80", bio: "Award-winning guide with deep expertise in adventure and luxury travel." },
-  { name: "Sneha Patel", role: "Customer Experience", img: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&q=80", bio: "Dedicated to making every traveler's experience seamless and memorable." },
+  { name: "Harsh Tiwari", role: "Founder & Owner", img: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg", bio: "Passionate traveler and explorer, dedicated to crafting perfect itineraries and unforgettable travel journeys." },
+  { name: "Priya Sharma", role: "Head of Destinations", img: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg", bio: "Expert in Indian travel with extensive knowledge of all major states and hidden gems." },
+  { name: "Rohit Verma", role: "Lead Tour Guide", img: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg", bio: "Award-winning guide with deep expertise in adventure and luxury travel." },
+  { name: "Sneha Patel", role: "Customer Experience", img: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg", bio: "Dedicated to making every traveler's experience seamless and memorable." },
 ];
 
 const achievements = [
   { icon: Users, num: "5000+", label: "Happy Travelers" },
   { icon: MapPin, num: "120+", label: "Destinations" },
   { icon: Star, num: "4.9", label: "Average Rating" },
-  { icon: Award, num: "10+", label: "Industry Awards" },
 ];
 
 export default function About() {
@@ -88,7 +87,7 @@ export default function About() {
       <section className="py-20 bg-muted/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading badge="Our Track Record" title="Our Achievements" />
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12 text-center">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-12 text-center">
             {achievements.map(({ icon: Icon, num, label }) => (
               <motion.div key={label} initial={{ opacity: 0, scale: 0.8 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
                 <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
@@ -118,7 +117,7 @@ export default function About() {
               data-testid={`card-team-${i}`}
               className="group text-center"
             >
-              <div className="relative w-48 h-48 mx-auto mb-5 rounded-2xl overflow-hidden">
+              <div className="relative w-48 h-48 mx-auto mb-5 rounded-full overflow-hidden border-2 border-primary/20">
                 <img src={member.img} alt={member.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/20 transition-colors" />
               </div>
