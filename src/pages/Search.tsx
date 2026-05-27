@@ -72,9 +72,24 @@ export default function SearchPage() {
 
 
   return (
-    <div className="pt-24 pb-20 min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col items-center mb-12">
+    <div className="min-h-screen bg-background">
+      {/* Adventure Video Hero */}
+      <section className="relative h-[45vh] flex items-center overflow-hidden">
+        <video 
+          src="https://videos.pexels.com/video-files/3205584/3205584-hd_1920_1080_25fps.mp4"
+          autoPlay muted loop playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-background" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 w-full pt-16">
+          <span className="text-xs font-bold tracking-widest uppercase text-accent mb-3 block">Explorer Mode</span>
+          <h1 className="text-4xl md:text-6xl font-serif font-bold text-white mb-4">Search Your Journey</h1>
+          <p className="text-white/80 text-lg max-w-lg">Find the perfect destination, package or blog post across our entire catalog.</p>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20 pb-20">
+        <div className="flex flex-col items-center mb-16">
           <form onSubmit={handleSearchSubmit} className="w-full max-w-2xl relative group">
             <SearchIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <input

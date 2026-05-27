@@ -40,7 +40,7 @@ export default function Navbar() {
   useEffect(() => {
     setSearchOpen(false);
     setOpen(false);
-  }, [location, searchString]);
+  }, [location, searchString]); // Ultimate fix: URL badalte hi sab gayab
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30);
@@ -78,19 +78,21 @@ export default function Navbar() {
 
   const onSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    e.stopPropagation();
-
-    const query = searchText.trim();
+    const q = searchText.trim();
     const fallback = suggestions[activeSuggestion]?.title ?? "";
-    const finalQuery = (query || fallback).trim();
+    const finalQuery = (q || fallback).trim();
 
-    // 1. Clear state synchronously
+    // Synchronous closure to fix UX "stuck" overlay
     setSearchOpen(false);
     setSearchText("");
-    (document.activeElement as HTMLElement)?.blur();
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
 
-    // 2. Navigate
-    setLocation(finalQuery ? `/search?q=${encodeURIComponent(finalQuery)}` : "/search");
+    // Navigate after state has updated to allow the overlay to start hiding
+    setTimeout(() => {
+      setLocation(finalQuery ? `/search?q=${encodeURIComponent(finalQuery)}` : "/search");
+    }, 50);
   };
 
   return (
@@ -105,10 +107,15 @@ export default function Navbar() {
           <img
             src="/logo.png"
             alt=""
-            className={`h-16 w-auto object-contain sm:h-[4.5rem] ${solid ? "" : "drop-shadow-lg"}`}
+            className={`h-14 w-auto object-contain sm:h-20 ${solid ? "" : "drop-shadow-lg"}`}
           />
           <span
-            className={`text-2xl font-extrabold sm:text-3xl tracking-tight ${solid ? "text-foreground" : "text-white drop-shadow-md"}`}
+            className={`text-2xl font-black sm:text-3xl tracking-tight leading-none ${
+              solid ? "text-foreground" : "text-white"
+            } transition-colors duration-300 drop-shadow-sm`}
+            style={{
+              fontFamily: "'Plus Jakarta Sans', sans-serif",
+            }}
           >
             Wanderly Trails
           </span>
@@ -193,7 +200,11 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={() => setOpen(false)}
+                  onClick={(e) => {
+                    e.preventDefault(); // Prevent immediate navigation
+                    setOpen(false); // Close the menu immediately
+                    setTimeout(() => setLocation(link.href), 300); // Navigate after a short delay
+                  }}
                   className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium ${
                     location === link.href ? "bg-foreground/5 text-foreground" : "text-foreground/75 hover:bg-foreground/5"
                   }`}
@@ -206,7 +217,11 @@ export default function Navbar() {
                 href={`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
                 target="_blank"
                 rel="noreferrer"
-                onClick={() => setOpen(false)}
+                onClick={(e) => {
+                  e.preventDefault(); // Prevent immediate navigation
+                  setOpen(false); // Close the menu immediately
+                  setTimeout(() => window.open(`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`, "_blank"), 300); // Open WhatsApp after a short delay
+                }}
                 className="wa-btn mt-2 w-full justify-center py-3.5"
               >
                 Book on WhatsApp
@@ -221,14 +236,14 @@ export default function Navbar() {
       <AnimatePresence>
         {searchOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm"
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            className="fixed inset-0 z-[80] bg-black/60"
             onClick={() => setSearchOpen(false)}
             onKeyDown={(e) => {
               if (e.key === "Escape") {
-                setSearchOpen(false);
+                setSearchOpen(false); 
                 setSearchText("");
               }
             }}
@@ -264,7 +279,7 @@ export default function Navbar() {
 
                 </div>
               </form>
-              <div className="mt-1 rounded-3xl border border-black/10 bg-[#E9E6EE] p-5 shadow-2xl">
+              <div className="mt-2 rounded-[2rem] border border-black/10 bg-[#E9E6EE] p-4 sm:p-6 shadow-2xl max-h-[70vh] overflow-y-auto scrollbar-hide">
                 <div className="space-y-5">
                   {suggestions.length ? (
                     suggestions.map((item, idx) => (
@@ -273,9 +288,11 @@ export default function Navbar() {
                         type="button"
                         onMouseEnter={() => setActiveSuggestion(idx)}
                         onClick={() => {
-                          setSearchText(""); // Clear for next search session
                           setSearchOpen(false);
-                          setLocation(`/search?q=${encodeURIComponent(item.title)}`);
+                          setSearchText(""); 
+                          setTimeout(() => {
+                            setLocation(`/search?q=${encodeURIComponent(item.title)}`);
+                          }, 50);
                         }}
                         className={`flex w-full items-start gap-3 rounded-xl px-2 py-1 text-left ${
                           idx === activeSuggestion ? "bg-black/5" : ""
@@ -283,8 +300,8 @@ export default function Navbar() {
                       >
                         <Search className="mt-1 h-4 w-4 shrink-0 text-zinc-400" />
                         <span>
-                          <span className="block text-2xl leading-7 text-zinc-900">{item.title}</span>
-                          <span className="block text-lg text-zinc-600">{item.subtitle}</span>
+                          <span className="block text-xl sm:text-2xl leading-7 text-zinc-900">{item.title}</span>
+                          <span className="block text-sm sm:text-lg text-zinc-600">{item.subtitle}</span>
                         </span>
                       </button>
                     ))

@@ -7,6 +7,7 @@ import {
   ArrowRight, CheckCircle, Phone, Globe, TrendingUp, Sparkles
 } from "lucide-react";
 import { featuredDestinations, featuredPackages, testimonials, blogPosts } from "@/data/staticData";
+import { destinations as allDestinations } from "@/data/staticData";
 import DestinationCard from "@/components/DestinationCard";
 import PackageCard from "@/components/PackageCard";
 import TestimonialCard from "@/components/TestimonialCard";
@@ -21,6 +22,7 @@ const WHATSAPP_NUMBER = "911234567890";
 const heroSlides = [
   {
     img: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80",
+    video: "https://videos.pexels.com/video-files/2090375/2090375-hd_1920_1080_30fps.mp4",
     tag: "🏖️ Beach Getaways",
     title: "Discover Your",
     highlight: "Dream Destination",
@@ -28,6 +30,7 @@ const heroSlides = [
   },
   {
     img: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80",
+    video: "https://videos.pexels.com/video-files/3205917/3205917-hd_1920_1080_25fps.mp4",
     tag: "🏔️ Mountain Escapes",
     title: "Escape Into",
     highlight: "Pure Adventure",
@@ -35,6 +38,7 @@ const heroSlides = [
   },
   {
     img: "https://images.unsplash.com/photo-1504609813442-a8924e83f76e?w=1920&q=80",
+    video: "https://videos.pexels.com/video-files/3205584/3205584-hd_1920_1080_25fps.mp4",
     tag: "💑 Honeymoon Specials",
     title: "Create",
     highlight: "Lifelong Memories",
@@ -63,6 +67,14 @@ const whyUs = [
   { icon: Headphones, title: "24/7 WhatsApp Support", desc: "Instant help anytime, anywhere on WhatsApp." },
   { icon: Shield, title: "Fully Insured Trips", desc: "Your safety is our top priority on every journey." },
   { icon: TrendingUp, title: "5000+ Happy Trips", desc: "A track record you can trust for your next adventure." },
+];
+
+const indiaTrips = [
+  { name: "Leh Ladakh", price: "15,800", img: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=600&q=80" },
+  { name: "Spiti", price: "17,999", img: "https://images.unsplash.com/photo-1589133034988-d4432d677618?w=600&q=80" },
+  { name: "Kashmir", price: "24,499", img: "https://images.unsplash.com/photo-1604608672516-f1b9b6c5eca5?w=600&q=80" },
+  { name: "Meghalaya", price: "21,499", img: "https://images.unsplash.com/photo-1622323533474-05a8f9468e81?w=600&q=80" },
+  { name: "Himachal", price: "7,499", img: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80" },
 ];
 
 function AnimatedNumber({ target, suffix }: { target: number; suffix: string }) {
@@ -148,14 +160,24 @@ export default function Home() {
               animate={{ opacity: i === heroIdx ? 1 : 0 }}
               transition={heroBgCrossfade}
             >
-              <img
-                src={s.img}
-                alt=""
-                className="h-full w-full object-cover"
-                loading={i === 0 ? "eager" : "lazy"}
-                decoding="async"
-                fetchPriority={i === 0 ? "high" : "low"}
-              />
+              {s.video ? (
+                <video
+                  src={s.video}
+                  poster={s.img}
+                  className="h-full w-full object-cover"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                />
+              ) : (
+                <img
+                  src={s.img}
+                  alt=""
+                  className="h-full w-full object-cover"
+                  loading={i === 0 ? "eager" : "lazy"}
+                />
+              )}
               <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-black/70" />
             </motion.div>
           ))}
@@ -300,6 +322,46 @@ export default function Home() {
                 <p className="mt-1.5 max-w-[11rem] text-[11px] font-medium leading-snug text-white/75 md:text-xs">
                   {s.label}
                 </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── EXPLORE INDIA TRIPS (SMOOTH SLIDER) ─── */}
+      <section className="py-24 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
+            <div className="max-w-xl">
+              <span className="text-xs font-bold tracking-widest uppercase text-primary mb-3 block">Explore</span>
+              <h2 className="text-4xl md:text-5xl font-serif font-bold tracking-tight mb-4">India Trips</h2>
+              <p className="text-muted-foreground text-lg leading-relaxed">
+                A Journey Through Time, Colour And Culture
+              </p>
+            </div>
+            <Link href="/destinations" className="inline-flex items-center gap-2 bg-primary text-white px-8 py-3.5 rounded-2xl font-bold transition-all hover:bg-primary/90 hover:scale-105 active:scale-95 shadow-lg">
+              Explore All <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          <div className="flex overflow-x-auto pb-10 gap-6 no-scrollbar snap-x snap-mandatory touch-pan-x scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
+            {indiaTrips.map((trip, i) => (
+              <motion.div
+                key={trip.name}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="min-w-[290px] sm:min-w-[360px] aspect-[4/5] relative rounded-[2.5rem] overflow-hidden group snap-center cursor-pointer shadow-2xl"
+              >
+                <img src={trip.img} alt={trip.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+                <div className="absolute bottom-8 left-8 right-8">
+                  <h3 className="text-2xl font-bold text-white mb-1">{trip.name}</h3>
+                  <p className="text-white/80 text-sm font-medium mb-4">Starting Price Rs. {trip.price}/-</p>
+                  <Link href="/packages" className="inline-flex h-10 items-center justify-center px-6 rounded-xl bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-bold uppercase tracking-wider hover:bg-white hover:text-primary transition-all">
+                    View Package
+                  </Link>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -453,6 +515,34 @@ export default function Home() {
               className={`h-1.5 rounded-full transition-all duration-500 ${i === testimonialIdx ? "bg-primary w-10" : "bg-muted-foreground/30 w-4"}`}
             />
           ))}
+        </div>
+      </section>
+
+      {/* ─── INSTAGRAM SECTION ─── */}
+      <section className="py-24 border-t border-border/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <span className="text-xs font-bold tracking-widest uppercase text-accent mb-3 block">Social Feed</span>
+            <h2 className="text-4xl font-serif font-bold mb-4">Follow the Adventure</h2>
+            <p className="text-muted-foreground text-lg">Tag us in your photos for a chance to be featured!</p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="aspect-square relative group overflow-hidden rounded-2xl cursor-pointer">
+                <img 
+                  src={`https://images.unsplash.com/photo-${1500000000000 + (i * 1234567)}?w=600&q=80`} 
+                  alt="Instagram feed" 
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <svg className="w-8 h-8 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                  </svg>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

@@ -47,15 +47,19 @@ export default function Booking() {
   };
 
   return (
-    <div className="pt-20">
-      <section className="relative h-64 flex items-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80" alt="Booking" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-secondary/70" />
+    <div className="">
+      <section className="relative h-[50vh] flex items-center overflow-hidden">
+        <video 
+          src="https://videos.pexels.com/video-files/2090375/2090375-hd_1920_1080_30fps.mp4" 
+          autoPlay muted loop playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/20 to-background" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Booking</span>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold">WhatsApp pe Book Karo</h1>
-            <p className="text-white/80 mt-2 text-lg">Fast, easy aur personal — seedha hamare expert se baat karo</p>
+            <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Instant Booking</span>
+            <h1 className="text-4xl md:text-6xl font-serif font-bold">Plan Your Trip on WhatsApp</h1>
+            <p className="text-white/80 mt-2 text-lg max-w-xl">Chat directly with our travel experts for personalized itineraries and instant confirmations.</p>
           </motion.div>
         </div>
       </section>

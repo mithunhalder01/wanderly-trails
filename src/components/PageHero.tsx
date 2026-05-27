@@ -10,6 +10,7 @@ interface PageHeroProps {
   heightClass?: string;
   backHref?: string;
   breadcrumbs?: { label: string; href?: string }[];
+  video?: string;
 }
 
 export default function PageHero({
@@ -21,10 +22,23 @@ export default function PageHero({
   heightClass = "h-[400px] md:h-[450px]",
   backHref,
   breadcrumbs,
+  video,
 }: PageHeroProps) {
   return (
     <section className={`relative ${heightClass} flex flex-col overflow-hidden`}>
-      <img src={image} alt={alt} className="absolute inset-0 h-full w-full object-cover" />
+      {video ? (
+        <video
+          src={video}
+          poster={image}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      ) : (
+        <img src={image} alt={alt} className="absolute inset-0 h-full w-full object-cover" />
+      )}
       <div className="absolute inset-0 bg-black/50" />
 
       {backHref && breadcrumbs && (
