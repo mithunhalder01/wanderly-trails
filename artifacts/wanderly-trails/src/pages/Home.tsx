@@ -17,7 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 
-const WHATSAPP_NUMBER = "911234567890";
+const WHATSAPP_NUMBER = "917521824197";
 
 const heroSlides = [
   {

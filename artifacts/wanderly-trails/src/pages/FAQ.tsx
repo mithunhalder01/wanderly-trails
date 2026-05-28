@@ -75,7 +75,7 @@ export default function FAQ() {
           <p className="text-white/70 mb-5 text-sm">Our team is ready to help you plan your perfect journey.</p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a href="mailto:wanderlytrails.in@gmail.com" className="bg-white/20 hover:bg-white/30 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm">Email Us</a>
-            <a href="https://wa.me/911234567890" target="_blank" rel="noreferrer" className="bg-accent hover:bg-accent/90 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm">WhatsApp Us</a>
+            <a href="https://wa.me/917521824197" target="_blank" rel="noreferrer" className="bg-accent hover:bg-accent/90 text-white font-semibold px-6 py-2.5 rounded-xl transition-colors text-sm">WhatsApp Us</a>
           </div>
         </div>
       </section>

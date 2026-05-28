@@ -57,7 +57,7 @@ export default function Contact() {
             </div>
 
             {[
-              { icon: Phone, label: "Phone", val: "+91 12345 67890", href: "tel:+911234567890" },
+              { icon: Phone, label: "Phone", val: "+91 75218 24197 / +91 88878 67597", href: "tel:+917521824197" },
               { icon: Mail, label: "Email", val: "wanderlytrails.in@gmail.com", href: "mailto:wanderlytrails.in@gmail.com" },
               { icon: MapPin, label: "Office", val: "123 Travel Street, Mumbai, MH 400001" },
             ].map(({ icon: Icon, label, val, href }) => (
@@ -77,7 +77,7 @@ export default function Contact() {
             ))}
 
             <a
-              href="https://wa.me/911234567890"
+              href="https://wa.me/917521824197"
               target="_blank"
               rel="noreferrer"
               data-testid="btn-whatsapp"

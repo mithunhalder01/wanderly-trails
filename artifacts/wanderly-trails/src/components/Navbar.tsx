@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const WHATSAPP_NUMBER = "911234567890";
+const WHATSAPP_NUMBER = "917521824197";
 const WHATSAPP_MSG = encodeURIComponent("Hi! I want to book a travel package with Wanderly Trails. Please help me.");
 
 const navLinks = [

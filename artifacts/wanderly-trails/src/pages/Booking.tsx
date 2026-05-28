@@ -3,7 +3,7 @@ import { useSearch } from "wouter";
 import { motion } from "framer-motion";
 import { MessageCircle, Phone, Clock, CheckCircle, MapPin, Users, Calendar, Star } from "lucide-react";
 
-const WHATSAPP_NUMBER = "911234567890";
+const WHATSAPP_NUMBER = "917521824197";
 
 const steps = [
   { icon: MessageCircle, title: "WhatsApp karo", desc: "Hamein WhatsApp par apni trip details bhejo" },
