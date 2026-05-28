@@ -268,7 +268,7 @@ export default function Home() {
               aria-label={`Slide ${i + 1}`}
               aria-current={i === heroIdx}
               onClick={() => setHeroIdx(i)}
-              className={`h-1.5 rounded-full transition-[width,background-color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              className={`h-1.5 rounded-full transition-[width,background-color] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] select-none ${
                 i === heroIdx ? "bg-white w-10" : "bg-white/40 w-4 hover:bg-white/60"
               }`}
             />
@@ -464,7 +464,7 @@ export default function Home() {
               <Link
                 href={`/packages?category=${label}`}
                 data-testid={`btn-category-${label.toLowerCase()}`}
-                className={`${bg} flex flex-col items-center gap-4 py-9 px-4 rounded-2xl transition-all shadow-sm hover:shadow-md`}
+                className={`${bg} flex flex-col items-center gap-4 py-9 px-4 rounded-2xl transition-all shadow-sm hover:shadow-md select-none`}
               >
                 <Icon className="w-9 h-9" />
                 <span className="font-bold text-sm">{label}</span>

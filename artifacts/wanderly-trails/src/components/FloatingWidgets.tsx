@@ -125,7 +125,7 @@ export default function FloatingWidgets() {
                       { from: "bot", text: getResponse(q), time: now() },
                     ]);
                   }}
-                  className="text-[11px] font-semibold bg-primary/10 text-primary px-3 py-1 rounded-full whitespace-nowrap hover:bg-primary/20 transition-colors"
+                  className="text-[11px] font-semibold bg-primary/10 text-primary px-3 py-1 rounded-full whitespace-nowrap hover:bg-primary/20 transition-colors select-none"
                 >
                   {q}
                 </button>
@@ -164,7 +164,7 @@ export default function FloatingWidgets() {
           data-testid="whatsapp-float-btn"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
-          className="w-14 h-14 rounded-full shadow-xl flex items-center justify-center bg-[#25D366] hover:bg-[#20bd5c] transition-colors"
+          className="w-14 h-14 rounded-full shadow-xl flex items-center justify-center bg-[#25D366] hover:bg-[#20bd5c] transition-colors select-none"
           title="Chat on WhatsApp"
         >
           <svg viewBox="0 0 24 24" className="w-7 h-7 fill-white">
@@ -178,7 +178,7 @@ export default function FloatingWidgets() {
           data-testid="chatbot-float-btn"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
-          className="w-14 h-14 rounded-full shadow-xl flex items-center justify-center bg-primary hover:bg-primary/90 transition-colors relative"
+          className="w-14 h-14 rounded-full shadow-xl flex items-center justify-center bg-primary hover:bg-primary/90 transition-colors relative select-none"
           title="Chat with WanderBot"
         >
           <AnimatePresence mode="wait">

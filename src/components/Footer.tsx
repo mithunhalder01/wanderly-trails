@@ -46,15 +46,15 @@ export default function Footer() {
             <ul className="mt-6 space-y-3 text-sm text-secondary-foreground/70">
               <li className="flex items-center gap-2">
                 <Phone className="h-4 w-4 shrink-0 text-secondary-foreground/50" />
-                <a href={`tel:+91${CONTACT_PHONE_DIGITS}`} className="hover:text-white">{CONTACT_PHONE_DISPLAY}</a>
+                <a href={`tel:+91${CONTACT_PHONE_DIGITS}`} className="transition-colors hover:text-amber-500">{CONTACT_PHONE_DISPLAY}</a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 shrink-0 text-secondary-foreground/50" />
-                <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-white">{CONTACT_EMAIL}</a>
+                <a href={`mailto:${CONTACT_EMAIL}`} className="transition-colors hover:text-amber-500">{CONTACT_EMAIL}</a>
               </li>
               <li className="flex items-start gap-2">
                 <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-secondary-foreground/50" />
-                <a href={CONTACT_MAPS_URL} target="_blank" rel="noreferrer" className="hover:text-white">
+                <a href={CONTACT_MAPS_URL} target="_blank" rel="noreferrer" className="transition-colors hover:text-amber-500">
                   {CONTACT_OFFICE_ADDRESS}
                 </a>
               </li>
@@ -85,7 +85,7 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {quickLinks.map((link) => (
                 <li key={link.href}>
-                  <Link href={link.href} className="text-sm text-secondary-foreground/70 hover:text-white">
+                  <Link href={link.href} className="text-sm text-secondary-foreground/70 transition-colors hover:text-amber-500">
                     {link.label}
                   </Link>
                 </li>
@@ -98,7 +98,7 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {footerDestinations.map((dest) => (
                 <li key={dest}>
-                  <Link href="/destinations" className="text-sm text-secondary-foreground/70 hover:text-white">
+                  <Link href="/destinations" className="text-sm text-secondary-foreground/70 transition-colors hover:text-amber-500">
                     {dest}
                   </Link>
                 </li>
@@ -140,7 +140,7 @@ export default function Footer() {
               href="https://mithunhalder01.github.io/portfolio/" 
               target="_blank" 
               rel="noreferrer" 
-              className="font-medium text-secondary-foreground/70 hover:text-white transition-colors underline-offset-4 hover:underline"
+              className="font-medium text-secondary-foreground/70 hover:text-amber-500 transition-colors underline-offset-4 hover:underline"
             >
               Mithun
             </a>
@@ -149,14 +149,14 @@ export default function Footer() {
               href="https://anshpandey7836-dev.github.io/Hello-.Ansh/#" 
               target="_blank" 
               rel="noreferrer" 
-              className="font-medium text-secondary-foreground/70 hover:text-white transition-colors underline-offset-4 hover:underline"
+              className="font-medium text-secondary-foreground/70 hover:text-amber-500 transition-colors underline-offset-4 hover:underline"
             >
               Ansh
             </a>
           </p>
           <div className="flex gap-6">
-            <Link href="/faq" className="text-sm text-secondary-foreground/50 hover:text-white">Privacy Policy</Link>
-            <Link href="/faq" className="text-sm text-secondary-foreground/50 hover:text-white">Terms of Service</Link>
+            <Link href="/faq" className="text-sm text-secondary-foreground/50 transition-colors hover:text-amber-500">Privacy Policy</Link>
+            <Link href="/faq" className="text-sm text-secondary-foreground/50 transition-colors hover:text-amber-500">Terms of Service</Link>
           </div>
         </div>
       </div>
