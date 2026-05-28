@@ -122,6 +122,11 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
+      <style dangerouslySetInnerHTML={{ __html: `
+        * {
+          -webkit-tap-highlight-color: transparent;
+        }
+      ` }} />
       <TooltipProvider>
         <ContentProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>

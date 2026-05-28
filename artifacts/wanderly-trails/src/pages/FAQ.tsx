@@ -49,7 +49,7 @@ export default function FAQ() {
               <button
                 onClick={() => setOpen(open === i ? null : i)}
                 data-testid={`faq-toggle-${i}`}
-                className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-muted/50 transition-colors"
+                className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-muted/50 transition-colors outline-none select-none"
               >
                 <span className="font-semibold text-foreground pr-4">{faq.q}</span>
                 <ChevronDown className={`w-5 h-5 text-primary shrink-0 transition-transform ${open === i ? "rotate-180" : ""}`} />
