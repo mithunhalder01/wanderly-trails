@@ -43,6 +43,7 @@ export default function Gallery() {
   return (
     <div className="pt-20">
       <PageHero
+        video="https://videos.pexels.com/video-files/3205917/3205917-hd_1920_1080_25fps.mp4"
         image="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80"
         alt="Travel Gallery"
         badge="Our Memories"

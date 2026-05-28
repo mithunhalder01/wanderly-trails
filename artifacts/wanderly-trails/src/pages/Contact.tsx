@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { Phone, Mail, MapPin, MessageCircle, CheckCircle } from "lucide-react";
+import PageHero from "@/components/PageHero";
 
 const schema = z.object({
   name: z.string().min(2),
@@ -37,16 +38,16 @@ export default function Contact() {
 
   return (
     <div className="pt-20">
-      <section className="relative h-64 flex items-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=1920&q=80" alt="Contact" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-secondary/70" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Get In Touch</span>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold">Contact Us</h1>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero
+        video="https://videos.pexels.com/video-files/3205917/3205917-hd_1920_1080_25fps.mp4"
+        image="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=1920&q=80"
+        alt="Contact Wanderly Trails"
+        badge="Get In Touch"
+        title="Contact Us"
+        subtitle="Our travel experts are ready to help you plan the right trip."
+        backHref="/"
+        breadcrumbs={[{ label: "Home", href: "/" }]}
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -57,7 +58,7 @@ export default function Contact() {
             </div>
 
             {[
-              { icon: Phone, label: "Phone", val: "+91 75218 24197 / +91 88878 67597", href: "tel:+917521824197" },
+              { icon: Phone, label: "Phone", val: "+91 75218 24197 / +91 88878 67547", href: "tel:+917521824197" },
               { icon: Mail, label: "Email", val: "wanderlytrails.in@gmail.com", href: "mailto:wanderlytrails.in@gmail.com" },
               { icon: MapPin, label: "Office", val: "123 Travel Street, Mumbai, MH 400001" },
             ].map(({ icon: Icon, label, val, href }) => (

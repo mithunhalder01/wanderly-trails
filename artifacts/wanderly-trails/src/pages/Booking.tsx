@@ -50,7 +50,7 @@ export default function Booking() {
     <div className="">
       <section className="relative h-[50vh] flex items-center overflow-hidden">
         <video 
-          src="https://videos.pexels.com/video-files/2090375/2090375-hd_1920_1080_30fps.mp4" 
+          src="https://videos.pexels.com/video-files/3205917/3205917-hd_1920_1080_25fps.mp4" 
           autoPlay muted loop playsInline
           className="absolute inset-0 w-full h-full object-cover"
         />

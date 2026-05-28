@@ -48,6 +48,7 @@ export default function Contact() {
   return (
     <div className="pt-20">
       <PageHero
+        video="/packagevid.mp4"
         image="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=1920&q=80"
         alt="Contact Wanderly Trails"
         badge="Get In Touch"

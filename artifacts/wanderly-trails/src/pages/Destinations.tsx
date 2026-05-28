@@ -19,8 +19,7 @@ export default function Destinations() {
   return (
     <div className="pt-20">
       <PageHero
-        video="https://videos.pexels.com/video-files/856973/856973-hd_1920_1080_25fps.mp4"
-        image="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80"
+        video="https://pixabay.com/videos/download/video-229462_medium.mp4"
         alt="Wanderly Trails Destinations"
         badge="Explore the World"
         title="All Destinations"

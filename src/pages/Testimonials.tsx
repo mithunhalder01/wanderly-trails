@@ -9,6 +9,7 @@ export default function Testimonials() {
   return (
     <div className="pt-20">
       <PageHero
+        video="https://videos.pexels.com/video-files/3205917/3205917-hd_1920_1080_25fps.mp4"
         image="https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=1920&q=80"
         alt="Traveler Testimonials"
         badge="Real Reviews"

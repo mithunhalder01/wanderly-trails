@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
+import PageHero from "@/components/PageHero";
 
 const faqs = [
   { q: "What is your refund policy?", a: "We offer a full refund if you cancel 30+ days before departure, 50% refund for 15-29 days, and no refund for cancellations within 14 days. Travel insurance is strongly recommended." },
@@ -21,16 +22,16 @@ export default function FAQ() {
 
   return (
     <div className="pt-20">
-      <section className="relative h-64 flex items-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80" alt="FAQ" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-secondary/70" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Got Questions?</span>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold">Frequently Asked Questions</h1>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero
+        video="https://videos.pexels.com/video-files/3205917/3205917-hd_1920_1080_25fps.mp4"
+        image="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80"
+        alt="FAQ Wanderly Trails"
+        badge="Got Questions?"
+        title="Frequently Asked Questions"
+        subtitle="Find answers to common queries about our tour packages and booking process."
+        backHref="/"
+        breadcrumbs={[{ label: "Home", href: "/" }]}
+      />
 
       <section className="py-16 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading badge="FAQ" title="Everything You Need to Know" subtitle="Can't find what you're looking for? Contact our support team." />
