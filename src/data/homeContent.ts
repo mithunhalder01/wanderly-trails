@@ -206,7 +206,7 @@ export const vibeHome = {
     "Join our curated travel experiences designed for explorers, dreamers, and adventure lovers.",
   cta: "Vibe With Us",
   cards: [
-    { title: "Mussoorie Magic", subtitle: "Queen of Hills", video: "/vid1.mp4", poster: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" },
+    { title: "Himalyan ", subtitle: "Peace Of Nature", video: "/blogvid.mp4", poster: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" },
     { title: "Manali Snowscapes", subtitle: "Adventure & Snow", video: "/vid2.mp4", poster: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600&q=80" },
     { title: "Himachal's Main Spots", subtitle: "Mountains & Valleys", video: "/vid3.mp4", poster: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" },
     { title: "Top 4 Snow Places in Himachal", subtitle: "Winter Wonderland", video: "/vid4.mp4", poster: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=600&q=80" },

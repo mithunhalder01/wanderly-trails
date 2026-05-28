@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 const vibeCards = [
   {
     id: 1,
-    video: "/vid1.mp4",
+    video: "/blogvid.mp4",
     image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
     title: "Mussoorie Magic",
     subtitle: "Queen of Hills",

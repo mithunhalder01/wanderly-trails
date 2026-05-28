@@ -13,7 +13,7 @@ const chatResponses: Record<string, string> = {
   kashmir: "Kashmir — Paradise on Earth! Our Kashmir Valley Romance (7 days) starts at ₹22,999 🏔️",
   honeymoon: "We have amazing honeymoon packages! Bali, Maldives, and Kashmir are our top picks. Prices start at ₹22,999 💑",
   budget: "We have packages for every budget, starting from just ₹8,999! Check our Packages page for full details 💰",
-  booking: "To book a trip, visit our Booking page or call us at +91 75218 24197 / +91 88878 67597. We're available 24/7! 📞",
+  booking: "To book a trip, visit our Booking page or call us at +91 75218 24197 / +91 88878 67547. We're available 24/7! 📞",
   help: "I can help with:\n• Destination info\n• Package details\n• Booking queries\n• Visa guidance\n• Travel tips\n\nJust ask away! 😊",
 };
 
@@ -27,7 +27,7 @@ function getResponse(input: string): string {
   if (lower.includes("budget") || lower.includes("cheap") || lower.includes("price") || lower.includes("cost")) return chatResponses.budget;
   if (lower.includes("book") || lower.includes("reserve") || lower.includes("confirm")) return chatResponses.booking;
   if (lower.includes("help") || lower.includes("hi") || lower.includes("hello") || lower.includes("hey")) return chatResponses.help;
-  return "That's a great question! For detailed help, our travel experts are just a call away at +91 75218 24197 / +91 88878 67597, or you can WhatsApp us for a quick reply 😊";
+  return "That's a great question! For detailed help, our travel experts are just a call away at +91 75218 24197 / +91 88878 67547, or you can WhatsApp us for a quick reply 😊";
 }
 
 interface Message {

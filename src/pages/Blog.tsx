@@ -20,8 +20,8 @@ export default function Blog() {
   return (
     <div className="pt-20">
       <PageHero 
-        video="/blogvid.mp4"
-      
+        video=""
+        image="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=80"
         alt="Blog"
         badge="Travel Stories"
         title="Our Blog"

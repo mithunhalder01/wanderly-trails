@@ -1,5 +1,5 @@
 export const CONTACT_PHONE_DIGITS = "7521824197";
-export const CONTACT_PHONE_DISPLAY = "+91 75218 24197, +91 88878 67597";
+export const CONTACT_PHONE_DISPLAY = "+91 75218 24197, +91 88878 67547";
 export const CONTACT_EMAIL = "wanderlytrails.in@gmail.com";
 export const CONTACT_WHATSAPP_NUMBER = `91${CONTACT_PHONE_DIGITS}`;
 export const CONTACT_OFFICE_ADDRESS =
