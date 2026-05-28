@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Clock, User, ChevronRight } from "lucide-react";
 import { blogPosts } from "@/data/staticData";
+import PageHero from "@/components/PageHero";
 
 const categories = ["All", "Travel Tips", "Destinations", "Budget Travel", "Visa Guide", "Beaches"];
 
@@ -16,16 +17,15 @@ export default function Blog() {
 
   return (
     <div className="pt-20">
-      <section className="relative h-64 flex items-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=80" alt="Blog" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-secondary/70" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Travel Stories</span>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold">Our Blog</h1>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero
+        video="https://videos.pexels.com/video-files/3205917/3205917-hd_1920_1080_25fps.mp4"
+        image="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=80"
+        alt="Wanderly Trails Blog"
+        badge="Travel Stories"
+        title="Our Blog"
+        subtitle="Exp
+        breadcrumbs={[{ label: "Home", href: "/" }]}
+      />
 
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap gap-3 justify-center mb-12">

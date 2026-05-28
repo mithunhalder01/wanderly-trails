@@ -26,22 +26,10 @@ const Booking = lazy(() => import("@/pages/Booking"));
 const FAQ = lazy(() => import("@/pages/FAQ"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const SearchPage = lazy(() => import("@/pages/Search"));
-const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
-const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
-
-const SESSION_KEY = "wanderly_admin";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
 });
-
-function isAdminAuthenticated() {
-  try {
-    return sessionStorage.getItem(SESSION_KEY) === "true";
-  } catch {
-    return false;
-  }
-}
 
 function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -63,18 +51,6 @@ function PublicLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
-function AdminRoute() {
-  return isAdminAuthenticated() ? <AdminDashboard /> : <Redirect to="/admin/login" />;
-}
-
-function AdminLoginRoute() {
-  if (isAdminAuthenticated()) {
-    return <Redirect to="/admin" />;
-  }
-
-  return <AdminLogin />;
-}
-
 function ScrollToTopOnRouteChange() {
   const [location] = useLocation();
 
@@ -90,9 +66,6 @@ function Router() {
   return (
     <Suspense fallback={<div className="min-h-screen bg-background" />}>
       <Switch>
-        <Route path="/admin/login" component={AdminLoginRoute} />
-        <Route path="/admin" component={AdminRoute} />
-
         {/* Public Routes with Shared Layout (no admin needed) */}
         <PublicLayout>
           <Switch>

@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { destinations } from "@/data/staticData";
 import DestinationCard from "@/components/DestinationCard";
+import PageHero from "@/components/PageHero";
 
 const categories = ["All", "India", "International", "Beaches", "Mountains", "Desert"];
 
@@ -17,16 +18,16 @@ export default function Destinations() {
 
   return (
     <div className="pt-20">
-      <section className="relative h-64 flex items-center overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80" alt="Destinations" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-secondary/70" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Explore the World</span>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold">All Destinations</h1>
-          </motion.div>
-        </div>
-      </section>
+      <PageHero
+        video="https://videos.pexels.com/video-files/856973/856973-hd_1920_1080_25fps.mp4"
+        image="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80"
+        alt="Wanderly Trails Destinations"
+        badge="Explore the World"
+        title="All Destinations"
+        subtitle="From the golden beaches of Goa to the peaks of Kashmir, find your next adventure."
+        backHref="/"
+        breadcrumbs={[{ label: "Home", href: "/" }]}
+      />
 
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-wrap gap-3 mb-12 justify-center">

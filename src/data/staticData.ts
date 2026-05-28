@@ -90,7 +90,7 @@ export const destinations: Destination[] = [
     "country": "India",
     "category": "Nature",
     "description": "Paradise on Earth—lakes, valleys, and serene landscapes across the Kashmir region.",
-    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Pahalgam_Valley.jpg/1280px-Pahalgam_Valley.jpg",
+    "imageUrl": "/kashmir.png",
     "rating": 4.7,
     "startingPrice": 6999,
     "bestSeason": "March to June & Sep to Nov",

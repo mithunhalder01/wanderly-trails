@@ -22,9 +22,17 @@ export default function BlogDetail() {
 
   return (
     <div className="pt-20">
-      <div className="relative h-[450px] overflow-hidden">
-        <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-black/40" />
+      <div className="relative h-[450px] overflow-hidden"> {/* Height adjusted for better visual */}
+        <video
+          src="https://videos.pexels.com/video-files/1093582/1093582-hd_1920_1080_25fps.mp4" // Online adventure video
+          poster={post.imageUrl} // Fallback image from blog post
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/60" /> {/* Slightly darker overlay for better text readability */}
 
         <div className="absolute top-0 left-0 right-0 z-20 pt-6">
           <PageHeader 
