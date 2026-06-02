@@ -113,7 +113,7 @@ export default function HomeTours() {
         <div className="hidden lg:block">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {featuredDestinations.map((d) => (
-              <DestinationCard key={d.id} destination={d} />
+              <div key={d.id} className="will-change-transform"><DestinationCard destination={d} /></div>
             ))}
           </div>
         </div>
@@ -127,7 +127,7 @@ export default function HomeTours() {
             {/* render 3 copies: 1 2 3, and we keep scroll in middle copy */}
             {[0, 1, 2].flatMap((copy) =>
               featuredDestinations.map((d, idx) => (
-                <div key={`${copy}-${d.id}-${idx}`} className="snap-center shrink-0 w-[72vw]">
+                <div key={`${copy}-${d.id}-${idx}`} className="snap-center shrink-0 w-[72vw] will-change-transform">
                   <div className="h-[460px]">
                     <DestinationCard destination={d} />
                   </div>

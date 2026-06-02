@@ -150,6 +150,7 @@ export default function HomeJourneyFrames() {
                   opacity: absOffset > 2 ? 0 : opacity,
                   transformStyle: "preserve-3d",
                   backfaceVisibility: "hidden",
+                  WebkitBackfaceVisibility: "hidden",
                   pointerEvents: absOffset > 2 ? "none" : "auto",
                 }}
               >

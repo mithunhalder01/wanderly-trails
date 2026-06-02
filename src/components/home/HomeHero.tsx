@@ -38,7 +38,7 @@ export default function HomeHero() {
         <img
           src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2200&q=80"
           alt="Mountain landscape"
-          className="hero-bg-vid h-full w-full object-cover scale-105"
+          className="hero-bg-vid h-full w-full object-cover scale-105 will-change-transform"
         />
         {/* Gradients for readability and blending */}
         <div className="absolute inset-0 bg-black/35" />
