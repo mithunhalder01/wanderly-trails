@@ -7,7 +7,7 @@ const TripCarouselSection = lazy(() => import("@/components/home/TripCarouselSec
 const HomeTours = lazy(() => import("@/components/home/HomeTours"));
 const HomeDestinations = lazy(() => import("@/components/home/HomeDestinations"));
 const HomeServices = lazy(() => import("@/components/home/HomeServices"));
-const HomeAdventure = lazy(() => import("@/components/home/HomeAdventure"));
+// const HomeAdventure = lazy(() => import("@/components/home/HomeAdventure"));
 const HomeVibe = lazy(() => import("@/components/home/HomeVibe"));
 const HomeWhyChoose = lazy(() => import("@/components/home/HomeWhyChoose"));
 const HomeJourneyFrames = lazy(() => import("@/components/home/HomeJourneyFrames"));
@@ -41,7 +41,7 @@ export default function Home() {
         <HomeServices />
       </Suspense>
       <Suspense fallback={<SectionFallback />}>
-        <HomeAdventure />
+        {/* <HomeAdventure /> */}
       </Suspense>
       <Suspense fallback={<SectionFallback />}>
         <HomeVibe />
