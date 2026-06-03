@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Bot, ChevronDown } from "lucide-react";
+import { X, Send, Bot, ChevronDown, ChevronUp } from "lucide-react";
 import {
   CONTACT_PHONE_DISPLAY,
   CONTACT_WHATSAPP_NUMBER,
@@ -46,6 +46,14 @@ export default function FloatingWidgets() {
   const [messages, setMessages] = useState<Message[]>([
     { from: "bot", text: chatResponses.default, time: now() },
   ]);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const updateVisibility = () => setShowScrollTop(window.scrollY > 320);
+    updateVisibility();
+    window.addEventListener("scroll", updateVisibility, { passive: true });
+    return () => window.removeEventListener("scroll", updateVisibility);
+  }, []);
 
   const sendMessage = () => {
     if (!input.trim()) return;
@@ -60,7 +68,7 @@ export default function FloatingWidgets() {
   };
 
   return (
-    <div className="fixed right-6 bottom-24 z-50 flex flex-col items-end gap-3 md:bottom-6">
+    <div className="fixed right-6 bottom-24 z-50 flex flex-col items-end gap-2 md:bottom-6">
       {/* Chat window */}
       <AnimatePresence>
         {chatOpen && (
@@ -200,6 +208,18 @@ export default function FloatingWidgets() {
             </span>
           )}
         </motion.button>
+
+        {showScrollTop && (
+          <motion.button
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-12 h-12 rounded-full shadow-lg flex items-center justify-center bg-white text-foreground hover:bg-slate-100 transition-colors"
+            title="Scroll to top"
+          >
+            <ChevronUp className="w-5 h-5" />
+          </motion.button>
+        )}
       </div>
     </div>
   );

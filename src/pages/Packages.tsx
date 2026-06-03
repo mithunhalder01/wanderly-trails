@@ -41,6 +41,7 @@ export default function Packages() {
   return (
     <div className="pt-20">
       <PageHero
+        video="/vid3.mp4"
         image="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80"
         alt="Packages"
         badge="Find Your Trip"

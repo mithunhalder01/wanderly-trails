@@ -21,6 +21,7 @@ export default function About() {
   return (
     <div className="pt-20">
       <PageHero
+        video="/hero-vid.mp4"
         image="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80"
         alt="About Wanderly Trails"
         badge="Our Story"

@@ -198,6 +198,43 @@ export const whyChooseHome = [
   },
 ];
 
+export const adventureHome = {
+  badge: "Adventure",
+  title: "Adventure Meets",
+  titleHighlight: "Creative Travel",
+  subtitle:
+    "Explore journeys designed to thrill your adventurous spirit and inspire your creativity — from wild treks to artistic escapes.",
+  cards: [
+    {
+      icon: "compass",
+      label: "Bold Routes",
+      title: "Trailblaze The Unknown",
+      description:
+        "Dive into mountain trails, river crossings, and offbeat routes that take you beyond the ordinary.",
+      href: "/destinations",
+      cta: "Explore Trails",
+    },
+    {
+      icon: "globe",
+      label: "Creative Stays",
+      title: "Stay In Style",
+      description:
+        "Sleep in designer camps, art-filled lodges, and curated homes that spark fresh travel stories.",
+      href: "/packages",
+      cta: "Find Creative Stays",
+    },
+    {
+      icon: "wand",
+      label: "Unique Moments",
+      title: "Craft Your Own Story",
+      description:
+        "Mix adventure, culture, and creativity in a custom itinerary that feels truly yours.",
+      href: "/about",
+      cta: "Create Your Journey",
+    },
+  ],
+};
+
 export const vibeHome = {
   badge: "Vibe With Us",
   title: "Make Every Trip An",
