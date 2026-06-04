@@ -33,13 +33,20 @@ export default function HomeHero() {
 
   return (
     <section ref={container} className="relative min-h-[90vh] md:min-h-screen overflow-hidden bg-black text-white flex items-center pt-20">
-      {/* Background Image */}
-      <div className="absolute inset-0">
-        <img
-          src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2200&q=80"
-          alt="Mountain landscape"
+      {/* Background Video */}
+      <div className="absolute inset-0 overflow-hidden">
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/hero-video.mp4"
           className="hero-bg-vid h-full w-full object-cover scale-105 will-change-transform"
-        />
+        >
+          <source src="/hero-video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
         {/* Gradients for readability and blending */}
         <div className="absolute inset-0 bg-black/35" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-transparent" />

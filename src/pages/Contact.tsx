@@ -25,6 +25,12 @@ const schema = z.object({
 });
 type ContactForm = z.infer<typeof schema>;
 
+const EMAILJS_SERVICE_ID = "service_1idxxab";
+const EMAILJS_TEMPLATE_ID = "template_uznoz0r";
+const EMAILJS_PUBLIC_KEY = "Ja_S3PXDBOYgIeJc1";
+const EMAILJS_USER_ID = EMAILJS_PUBLIC_KEY; // EmailJS may accept either field depending on account version.
+const EMAILJS_URL = "https://api.emailjs.com/api/v1.0/email/send";
+
 export default function Contact() {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
@@ -35,14 +41,47 @@ export default function Contact() {
     defaultValues: { name: "", email: "", phone: "", subject: "", message: "" },
   });
 
-  const onSubmit = (_data: ContactForm) => {
+  const onSubmit = async (data: ContactForm) => {
     setIsSending(true);
-    setTimeout(() => {
-      setIsSending(false);
+    setSubmitted(false);
+
+    try {
+      const response = await fetch(EMAILJS_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          service_id: EMAILJS_SERVICE_ID,
+          template_id: EMAILJS_TEMPLATE_ID,
+          user_id: EMAILJS_USER_ID,
+          publicKey: EMAILJS_PUBLIC_KEY,
+          template_params: {
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            subject: data.subject || "No subject",
+            message: data.message,
+            time: new Date().toLocaleString(),
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("EmailJS response error:", { status: response.status, errorText });
+        throw new Error(errorText || "EmailJS request failed");
+      }
+
       setSubmitted(true);
       toast({ title: "Message Sent!", description: "We'll get back to you within 24 hours." });
       form.reset();
-    }, 1000);
+    } catch (error) {
+      console.error("EmailJS send error:", error);
+      toast({ title: "Send failed", description: "Please try again or contact us directly." });
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
