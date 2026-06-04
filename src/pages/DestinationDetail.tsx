@@ -250,7 +250,15 @@ export default function DestinationDetail() {
   return (
     <div className="pt-20">
       <div className="relative h-[300px] sm:h-[380px] md:h-[450px] overflow-hidden">
-        <img src={heroImage} alt={destination.name} className="w-full h-full object-cover" />
+        <video
+          src="/sec-heading-vid/des.mp4"
+          poster={heroImage}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent z-10" />
         
         <div className="absolute top-0 left-0 right-0 z-20 pt-6">

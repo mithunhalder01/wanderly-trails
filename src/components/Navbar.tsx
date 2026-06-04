@@ -327,14 +327,19 @@ export function MobileBottomNav() {
   );
 
   return (
-    <nav className="fixed bottom-3 left-1/2 z-50 w-[min(26rem,calc(100vw-1.5rem))] -translate-x-1/2 rounded-full border border-white/15 bg-black/70 px-2 py-2 backdrop-blur-xl shadow-2xl lg:hidden">
-      <div className="relative mx-auto grid max-w-md grid-cols-5 gap-1">
+    <nav className="fixed bottom-4 left-1/2 z-50 w-[min(26rem,calc(100vw-1.5rem))] -translate-x-1/2 rounded-[2.5rem] border border-white/20 bg-black/40 px-2 py-3 backdrop-blur-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.1)] lg:hidden">
+      <div className="relative mx-auto grid max-w-md grid-cols-5 items-center gap-1">
         <span
-          className="pointer-events-none absolute bottom-1 top-1 w-[calc(20%-0.25rem)] rounded-full bg-white/15 transition-transform duration-300 ease-out"
-          style={{ transform: `translateX(calc(${activeIndex * 100}% + ${activeIndex * 0.25}rem))` }}
+          className="pointer-events-none absolute bottom-0 top-0 w-[calc(20%-0.25rem)] rounded-full bg-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+          style={{ 
+            transform: `translateX(calc(${activeIndex * 100}% + ${activeIndex * 0.25}rem))`,
+            opacity: activeIndex === 2 ? 0 : 1
+          }}
         />
-        {bottomNavLinks.map(({ label, href, Icon }) => {
+        {bottomNavLinks.map(({ label, href, Icon }, idx) => {
           const active = location === href;
+          const isCenter = idx === 2;
+
           return (
             <Link
               key={href}
@@ -345,12 +350,27 @@ export function MobileBottomNav() {
                   window.dispatchEvent(new CustomEvent("toggle-chatbot")); // Chatbot open karein
                 }
               }}
-              className={`relative z-10 flex flex-col items-center justify-center rounded-xl py-2 text-[11px] font-semibold transition-colors ${
-                active ? "text-white" : "text-white/70 hover:text-white"
+              className={`relative z-10 flex flex-col items-center justify-center transition-all duration-300 ${
+                active ? "text-white" : "text-white/30 hover:text-white/60"
               }`}
             >
-              <Icon className="mb-1 h-4 w-4" />
-              <span>{label}</span>
+              {isCenter ? (
+                <div className="flex flex-col items-center">
+                  <div className={`group relative flex h-14 w-14 -translate-y-9 items-center justify-center rounded-full bg-primary shadow-[0_10px_20px_rgba(var(--primary-rgb),0.3)] ring-[10px] ring-black/40 backdrop-blur-md transition-all duration-500 active:scale-90 ${active ? 'scale-110 shadow-[0_15px_30px_rgba(var(--primary-rgb),0.5)]' : 'hover:scale-105'}`}>
+                    <Icon className={`h-7 w-7 text-white transition-transform duration-500 ${active ? 'rotate-[360deg]' : ''}`} />
+                  </div>
+                  <span className={`absolute -bottom-1 text-[9px] font-black uppercase tracking-[0.15em] transition-colors duration-300 ${active ? 'text-primary' : 'text-white/30'}`}>
+                    {label}
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <Icon className={`mb-1 transition-all duration-500 ${active ? "h-5 w-5 scale-110 text-primary" : "h-5 w-5"}`} />
+                  <span className={`text-[9px] font-bold tracking-wide transition-all duration-300 ${active ? "opacity-100 translate-y-0" : "opacity-60 translate-y-0.5"}`}>
+                    {label}
+                  </span>
+                </>
+              )}
             </Link>
           );
         })}

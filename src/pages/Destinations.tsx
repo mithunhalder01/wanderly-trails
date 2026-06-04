@@ -28,7 +28,7 @@ export default function Destinations() {
   return (
     <div className="pt-20 bg-background min-h-screen overflow-x-hidden">
       <PageHero
-        video="/vid1.mp4"
+        video="/sec-heading-vid/des.mp4"
         image="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80"
         alt="Destinations"
         badge="Explore the World"
