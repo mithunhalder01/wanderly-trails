@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation, useSearch } from "wouter";
-import { Menu, X, ChevronDown, House, MapPinned, BriefcaseBusiness, Ticket, Search, Mic, ArrowLeft } from "lucide-react";
+import { Menu, X, ChevronDown, House, MapPinned, BriefcaseBusiness, Ticket, Search, Mic, ArrowLeft, Bot } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
 import { useContent } from "@/context/content";
@@ -21,8 +21,9 @@ const navLinks = [
 const bottomNavLinks = [
   { label: "Home", href: "/", Icon: House },
   { label: "Destinations", href: "/destinations", Icon: MapPinned },
-  { label: "Packages", href: "/packages", Icon: BriefcaseBusiness },
   { label: "Book Now", href: "/booking", Icon: Ticket },
+  { label: "Packages", href: "/packages", Icon: BriefcaseBusiness },
+  { label: "Chat", href: "/contact", Icon: Bot },
 ];
 
 export default function Navbar() {
@@ -326,10 +327,10 @@ export function MobileBottomNav() {
   );
 
   return (
-    <nav className="fixed bottom-3 left-1/2 z-50 w-[min(24rem,calc(100vw-1.5rem))] -translate-x-1/2 rounded-full border border-white/15 bg-black/70 px-2 py-2 backdrop-blur-xl shadow-2xl lg:hidden">
-      <div className="relative mx-auto grid max-w-md grid-cols-4 gap-1">
+    <nav className="fixed bottom-3 left-1/2 z-50 w-[min(26rem,calc(100vw-1.5rem))] -translate-x-1/2 rounded-full border border-white/15 bg-black/70 px-2 py-2 backdrop-blur-xl shadow-2xl lg:hidden">
+      <div className="relative mx-auto grid max-w-md grid-cols-5 gap-1">
         <span
-          className="pointer-events-none absolute bottom-1 top-1 w-[calc(25%-0.25rem)] rounded-full bg-white/15 transition-transform duration-300 ease-out"
+          className="pointer-events-none absolute bottom-1 top-1 w-[calc(20%-0.25rem)] rounded-full bg-white/15 transition-transform duration-300 ease-out"
           style={{ transform: `translateX(calc(${activeIndex * 100}% + ${activeIndex * 0.25}rem))` }}
         />
         {bottomNavLinks.map(({ label, href, Icon }) => {
@@ -338,6 +339,12 @@ export function MobileBottomNav() {
             <Link
               key={href}
               href={href}
+              onClick={(e) => {
+                if (label === "Chat") {
+                  e.preventDefault(); // Navigation stop karein
+                  window.dispatchEvent(new CustomEvent("toggle-chatbot")); // Chatbot open karein
+                }
+              }}
               className={`relative z-10 flex flex-col items-center justify-center rounded-xl py-2 text-[11px] font-semibold transition-colors ${
                 active ? "text-white" : "text-white/70 hover:text-white"
               }`}

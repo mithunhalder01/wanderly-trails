@@ -183,6 +183,19 @@
       "featured": false
     },
     {
+      "id": 16,
+      "name": "Munnar",
+      "country": "India",
+      "category": "Nature",
+      "description": "Munnar’s rolling tea gardens, misty hills, and cool mountain retreats for a serene South India escape.",
+      "imageUrl": "https://images.unsplash.com/photo-1501973801540-537f08ccae7b?w=1200&q=80",
+      "rating": 4.8,
+      "startingPrice": 12999,
+      "bestSeason": "Sep to Feb",
+      "weather": "Cool and misty",
+      "featured": false
+    },
+    {
       "id": 14,
       "name": "Goa",
       "country": "India",

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Bot, ChevronDown, ChevronUp } from "lucide-react";
 import {
@@ -47,6 +48,7 @@ export default function FloatingWidgets() {
     { from: "bot", text: chatResponses.default, time: now() },
   ]);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [location] = useLocation();
 
   useEffect(() => {
     const updateVisibility = () => setShowScrollTop(window.scrollY > 320);
@@ -54,6 +56,18 @@ export default function FloatingWidgets() {
     window.addEventListener("scroll", updateVisibility, { passive: true });
     return () => window.removeEventListener("scroll", updateVisibility);
   }, []);
+
+  // Bottom bar se chatbot toggle karne ke liye listener
+  useEffect(() => {
+    const handleToggle = () => setChatOpen((prev) => !prev);
+    window.addEventListener("toggle-chatbot", handleToggle);
+    return () => window.removeEventListener("toggle-chatbot", handleToggle);
+  }, []);
+
+  // Page change hone par chat close kar dein
+  useEffect(() => {
+    setChatOpen(false);
+  }, [location]);
 
   const sendMessage = () => {
     if (!input.trim()) return;
@@ -182,13 +196,13 @@ export default function FloatingWidgets() {
           </svg>
         </motion.a>
 
-        {/* Chatbot */}
+        {/* Chatbot (Desktop Only) */}
         <motion.button
           onClick={() => setChatOpen(!chatOpen)}
           data-testid="chatbot-float-btn"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
-          className="w-14 h-14 rounded-full shadow-xl flex items-center justify-center bg-primary hover:bg-primary/90 transition-colors relative"
+          className="hidden md:flex w-14 h-14 rounded-full shadow-xl items-center justify-center bg-primary hover:bg-primary/90 transition-colors relative"
           title="Chat with WanderBot"
         >
           <AnimatePresence mode="wait">
