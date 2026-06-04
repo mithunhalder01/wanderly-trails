@@ -54,7 +54,7 @@ export default function Booking() {
         badge="Booking"
         title="Book via WhatsApp"
         subtitle="Fast, personal, and guided booking support from our travel experts."
-        video="https://videos.pexels.com/video-files/2090375/2090375-hd_1920_1080_30fps.mp4"
+        video="/sec-heading-vid/contact.mp4"
       />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

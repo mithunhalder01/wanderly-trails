@@ -118,7 +118,9 @@ export default function Navbar() {
               fontFamily: "'Plus Jakarta Sans', sans-serif",
             }}
           >
-            Wanderly Trails
+            Wanderly <span className="bg-clip-text text-transparent bg-[linear-gradient(to_right,rgba(170,119,28,1)_0%,rgba(242,193,46,1)_25%,rgba(212,148,16,1)_50%,rgba(251,211,80,1)_75%,rgba(136,88,3,1)_100%)] font-bold">
+  Trails
+</span>
           </span>
         </Link>
 
@@ -328,11 +330,11 @@ export function MobileBottomNav() {
 
   return (
     <nav className="fixed bottom-4 left-1/2 z-50 w-[min(26rem,calc(100vw-1.5rem))] -translate-x-1/2 rounded-[2.5rem] border border-zinc-800 bg-zinc-950 px-2 py-3 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] lg:hidden">
-      <div className="relative mx-auto grid max-w-md grid-cols-5 items-center gap-1">
+      <div className="relative mx-auto grid max-w-md grid-cols-5 items-center">
         <span
-          className="pointer-events-none absolute bottom-0 top-0 w-[calc(20%-0.25rem)] rounded-full bg-zinc-800/50 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+          className="pointer-events-none absolute bottom-0 top-0 w-1/5 rounded-full bg-zinc-800/50 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
           style={{
-            transform: `translateX(calc(${activeIndex * 100}% + ${activeIndex * 0.25}rem))`,
+            transform: `translateX(${activeIndex * 100}%)`,
             opacity: activeIndex === 2 ? 0 : 1
           }}
         >
@@ -361,7 +363,7 @@ export function MobileBottomNav() {
                   <div className={`group relative flex h-14 w-14 items-center justify-center rounded-full bg-primary ring-[10px] ring-zinc-950 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-90 ${active ? '-translate-y-11 scale-110 shadow-[0_20px_40px_rgba(191,149,63,0.4)]' : '-translate-y-3 hover:scale-105 shadow-xl shadow-black/40'}`}>
                     <Icon className={`h-7 w-7 text-white transition-all duration-500 ${active ? 'rotate-[360deg] scale-110' : ''}`} />
                   </div>
-                  <span className={`absolute -bottom-1 text-[9px] font-black uppercase tracking-[0.15em] transition-colors duration-300 ${active ? 'text-primary' : 'text-white/30'}`}>
+                  <span className={`absolute bottom-0 left-1/2 w-full -translate-x-1/2 whitespace-nowrap text-center text-[9px] font-black uppercase tracking-[0.15em] transition-colors duration-300 ${active ? 'text-primary' : 'text-white/30'}`}>
                     {label}
                   </span>
                 </div>
