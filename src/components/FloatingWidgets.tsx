@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Bot, ChevronDown, ChevronUp } from "lucide-react";
@@ -47,8 +47,10 @@ export default function FloatingWidgets() {
   const [messages, setMessages] = useState<Message[]>([
     { from: "bot", text: chatResponses.default, time: now() },
   ]);
+  const [isTyping, setIsTyping] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [location] = useLocation();
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const updateVisibility = () => setShowScrollTop(window.scrollY > 320);
@@ -64,17 +66,35 @@ export default function FloatingWidgets() {
     return () => window.removeEventListener("toggle-chatbot", handleToggle);
   }, []);
 
+  // Auto scroll to bottom when messages change
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages, isTyping]);
+
   // Page change hone par chat close kar dein
   useEffect(() => {
     setChatOpen(false);
   }, [location]);
 
-  const sendMessage = () => {
-    if (!input.trim()) return;
-    const userMsg: Message = { from: "user", text: input, time: now() };
-    const botReply: Message = { from: "bot", text: getResponse(input), time: now() };
-    setMessages((m) => [...m, userMsg, botReply]);
+  const sendMessage = (text: string = input) => {
+    if (!text.trim() || isTyping) return;
+    
+    const userMsg: Message = { from: "user", text, time: now() };
+    setMessages((m) => [...m, userMsg]);
     setInput("");
+
+    // Simulate bot thinking
+    setIsTyping(true);
+    setTimeout(() => {
+      const botReply: Message = { from: "bot", text: getResponse(text), time: now() };
+      setMessages((m) => [...m, botReply]);
+      setIsTyping(false);
+    }, 1200);
   };
 
   const handleKey = (e: React.KeyboardEvent) => {
@@ -90,66 +110,88 @@ export default function FloatingWidgets() {
             initial={{ opacity: 0, scale: 0.85, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.85, y: 20 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="w-80 bg-white rounded-3xl shadow-2xl overflow-hidden border border-border mb-1"
+            transition={{ type: "spring", damping: 25, stiffness: 400 }}
+            className="w-[340px] bg-zinc-950/90 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] overflow-hidden border border-white/[0.08] mb-2 relative"
             data-testid="chatbot-window"
           >
+            {/* Ambient Background Glow */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
+              <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-primary rounded-full blur-[80px] animate-pulse" />
+              <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-amber-500/30 rounded-full blur-[80px]" />
+            </div>
+
             {/* Header */}
-            <div className="bg-primary px-4 py-3 flex items-center justify-between">
+            <div className="relative z-10 bg-white/[0.03] border-b border-white/[0.05] px-6 py-5 flex items-center justify-between backdrop-blur-md">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-white" />
+                <div className="relative">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-amber-600 flex items-center justify-center shadow-lg shadow-primary/20">
+                    <Bot className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-zinc-950 animate-pulse" />
                 </div>
                 <div>
-                  <p className="text-white font-semibold text-sm">WanderBot</p>
-                  <div className="flex items-center gap-1">
-                    <span className="w-2 h-2 bg-green-400 rounded-full" />
-                    <span className="text-white/70 text-xs">Online</span>
-                  </div>
+                  <p className="text-white font-bold text-sm tracking-tight leading-none">WanderBot</p>
+                  <p className="text-white/40 text-[10px] font-bold uppercase tracking-[0.15em] mt-1.5">Travel Assistant</p>
                 </div>
               </div>
-              <button onClick={() => setChatOpen(false)} className="text-white/80 hover:text-white transition-colors">
-                <ChevronDown className="w-5 h-5" />
+              <button 
+                onClick={() => setChatOpen(false)} 
+                className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all"
+              >
+                <ChevronDown className="w-4 h-4" />
               </button>
             </div>
 
             {/* Messages */}
-            <div className="h-64 overflow-y-auto p-4 space-y-3 bg-gray-50">
+            <div ref={scrollRef} className="relative z-10 h-80 overflow-y-auto p-6 space-y-5 scrollbar-hide">
               {messages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.from === "user" ? "justify-end" : "justify-start"}`}>
+                <motion.div 
+                  key={i} 
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  className={`flex items-end gap-2 ${msg.from === "user" ? "justify-end" : "justify-start"}`}
+                >
                   {msg.from === "bot" && (
-                    <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center shrink-0 mr-2 mt-auto">
-                      <Bot className="w-3.5 h-3.5 text-white" />
+                    <div className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 border border-white/10 mb-1">
+                      <Bot className="w-3.5 h-3.5 text-primary" />
                     </div>
                   )}
-                  <div className={`max-w-[80%] ${msg.from === "user" ? "items-end" : "items-start"} flex flex-col`}>
-                    <div className={`px-3 py-2 rounded-2xl text-xs leading-relaxed whitespace-pre-line ${
+                  <div className={`max-w-[85%] ${msg.from === "user" ? "items-end" : "items-start"} flex flex-col`}>
+                    <div className={`px-4 py-3 rounded-[1.5rem] text-[13px] leading-relaxed whitespace-pre-line shadow-xl ${
                       msg.from === "user"
-                        ? "bg-primary text-white rounded-br-sm"
-                        : "bg-white text-foreground shadow-sm rounded-bl-sm border border-border"
+                        ? "bg-gradient-to-br from-[#BF953F] to-[#AA771C] text-white font-semibold rounded-br-sm"
+                        : "bg-white/[0.08] text-white/90 border border-white/10 rounded-bl-sm backdrop-blur-md"
                     }`}>
                       {msg.text}
                     </div>
-                    <span className="text-[10px] text-muted-foreground mt-1 px-1">{msg.time}</span>
+                    <span className="text-[8px] mt-1 px-1 text-white/20 font-bold uppercase">{msg.time}</span>
                   </div>
-                </div>
+                </motion.div>
               ))}
+              {isTyping && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-start">
+                  <div className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center shrink-0 border border-white/10 mb-1 mr-2">
+                    <Bot className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <div className="bg-white/5 border border-white/5 px-5 py-4 rounded-[1.5rem] rounded-bl-sm">
+                    <div className="flex gap-1">
+                      <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
             </div>
 
             {/* Quick replies */}
-            <div className="px-3 py-2 bg-gray-50 border-t border-border flex gap-1.5 overflow-x-auto">
+            <div className="relative z-10 px-5 py-4 bg-white/[0.02] border-t border-white/[0.05] flex gap-2.5 overflow-x-auto scrollbar-hide">
               {["Goa", "Bali", "Honeymoon", "Budget"].map((q) => (
                 <button
                   key={q}
-                  onClick={() => {
-                    setInput(q);
-                    setMessages((m) => [
-                      ...m,
-                      { from: "user", text: q, time: now() },
-                      { from: "bot", text: getResponse(q), time: now() },
-                    ]);
-                  }}
-                  className="text-[11px] font-semibold bg-primary/10 text-primary px-3 py-1 rounded-full whitespace-nowrap hover:bg-primary/20 transition-colors"
+                  disabled={isTyping}
+                  onClick={() => sendMessage(q)}
+                  className="text-[10px] font-bold uppercase tracking-wider bg-white/[0.05] text-white/60 border border-white/10 px-4 py-2 rounded-full whitespace-nowrap hover:bg-primary hover:text-white hover:border-primary transition-all active:scale-95"
                 >
                   {q}
                 </button>
@@ -157,21 +199,21 @@ export default function FloatingWidgets() {
             </div>
 
             {/* Input */}
-            <div className="px-3 py-3 bg-white border-t border-border flex items-center gap-2">
+            <div className="relative z-10 p-5 bg-white/[0.03] border-t border-white/[0.05] flex items-center gap-3">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKey}
                 placeholder="Type a message..."
                 data-testid="chatbot-input"
-                className="flex-1 text-xs bg-muted border-none outline-none rounded-full px-3 py-2 text-foreground placeholder:text-muted-foreground"
+                className="flex-1 text-[14px] bg-white/[0.05] border border-white/10 outline-none rounded-2xl px-5 py-3 text-white placeholder:text-white/20 focus:border-primary/50 focus:bg-white/[0.08] transition-all"
               />
               <button
-                onClick={sendMessage}
+                onClick={() => sendMessage()}
                 data-testid="chatbot-send"
-                className="w-8 h-8 rounded-full bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors shrink-0"
+                className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all shrink-0 shadow-lg shadow-primary/30"
               >
-                <Send className="w-3.5 h-3.5 text-white" />
+                <Send className="w-4 h-4 text-white" />
               </button>
             </div>
           </motion.div>
@@ -217,7 +259,7 @@ export default function FloatingWidgets() {
             )}
           </AnimatePresence>
           {!chatOpen && (
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full flex items-center justify-center animate-pulse">
               <span className="text-white text-[9px] font-bold">1</span>
             </span>
           )}

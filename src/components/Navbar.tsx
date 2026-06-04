@@ -327,15 +327,17 @@ export function MobileBottomNav() {
   );
 
   return (
-    <nav className="fixed bottom-4 left-1/2 z-50 w-[min(26rem,calc(100vw-1.5rem))] -translate-x-1/2 rounded-[2.5rem] border border-white/20 bg-black/40 px-2 py-3 backdrop-blur-3xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.1)] lg:hidden">
+    <nav className="fixed bottom-4 left-1/2 z-50 w-[min(26rem,calc(100vw-1.5rem))] -translate-x-1/2 rounded-[2.5rem] border border-zinc-800 bg-zinc-950 px-2 py-3 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] lg:hidden">
       <div className="relative mx-auto grid max-w-md grid-cols-5 items-center gap-1">
         <span
-          className="pointer-events-none absolute bottom-0 top-0 w-[calc(20%-0.25rem)] rounded-full bg-white/[0.08] shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
-          style={{ 
+          className="pointer-events-none absolute bottom-0 top-0 w-[calc(20%-0.25rem)] rounded-full bg-zinc-800/50 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+          style={{
             transform: `translateX(calc(${activeIndex * 100}% + ${activeIndex * 0.25}rem))`,
             opacity: activeIndex === 2 ? 0 : 1
           }}
-        />
+        >
+          <span className="absolute -bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-primary" />
+        </span>
         {bottomNavLinks.map(({ label, href, Icon }, idx) => {
           const active = location === href;
           const isCenter = idx === 2;
@@ -351,13 +353,13 @@ export function MobileBottomNav() {
                 }
               }}
               className={`relative z-10 flex flex-col items-center justify-center transition-all duration-300 ${
-                active ? "text-white" : "text-white/30 hover:text-white/60"
+                active ? "text-white" : "text-white/40 hover:text-white/70"
               }`}
             >
               {isCenter ? (
                 <div className="flex flex-col items-center">
-                  <div className={`group relative flex h-14 w-14 -translate-y-9 items-center justify-center rounded-full bg-primary shadow-[0_10px_20px_rgba(var(--primary-rgb),0.3)] ring-[10px] ring-black/40 backdrop-blur-md transition-all duration-500 active:scale-90 ${active ? 'scale-110 shadow-[0_15px_30px_rgba(var(--primary-rgb),0.5)]' : 'hover:scale-105'}`}>
-                    <Icon className={`h-7 w-7 text-white transition-transform duration-500 ${active ? 'rotate-[360deg]' : ''}`} />
+                  <div className={`group relative flex h-14 w-14 items-center justify-center rounded-full bg-primary ring-[10px] ring-zinc-950 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-90 ${active ? '-translate-y-11 scale-110 shadow-[0_20px_40px_rgba(191,149,63,0.4)]' : '-translate-y-3 hover:scale-105 shadow-xl shadow-black/40'}`}>
+                    <Icon className={`h-7 w-7 text-white transition-all duration-500 ${active ? 'rotate-[360deg] scale-110' : ''}`} />
                   </div>
                   <span className={`absolute -bottom-1 text-[9px] font-black uppercase tracking-[0.15em] transition-colors duration-300 ${active ? 'text-primary' : 'text-white/30'}`}>
                     {label}
@@ -365,8 +367,8 @@ export function MobileBottomNav() {
                 </div>
               ) : (
                 <>
-                  <Icon className={`mb-1 transition-all duration-500 ${active ? "h-5 w-5 scale-110 text-primary" : "h-5 w-5"}`} />
-                  <span className={`text-[9px] font-bold tracking-wide transition-all duration-300 ${active ? "opacity-100 translate-y-0" : "opacity-60 translate-y-0.5"}`}>
+                  <Icon className={`mb-1 transition-all duration-500 ${active ? "h-5 w-5 scale-110 text-primary drop-shadow-[0_0_8px_rgba(191,149,63,0.3)]" : "h-5 w-5"}`} />
+                  <span className={`text-[9px] font-bold tracking-wide transition-all duration-300 ${active ? "opacity-100 translate-y-0" : "opacity-40 translate-y-0.5"}`}>
                     {label}
                   </span>
                 </>
