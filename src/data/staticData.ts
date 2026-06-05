@@ -121,7 +121,7 @@ export const destinations: Destination[] = [
     "startingPrice": 17999,
     "bestSeason": "May to Oct",
     "weather": "Cold, crisp air with clear days",
-    "featured": false
+    "featured": true
   },
   {
     "id": 6,
@@ -134,7 +134,7 @@ export const destinations: Destination[] = [
     "startingPrice": 7499,
     "bestSeason": "Mar to Jun & Sep to Nov",
     "weather": "Pleasant temperatures",
-    "featured": false
+    "featured": true
   },
   {
     "id": 7,
@@ -147,7 +147,7 @@ export const destinations: Destination[] = [
     "startingPrice": 20999,
     "bestSeason": "Oct to Mar",
     "weather": "Cool evenings",
-    "featured": false
+    "featured": true
   },
   {
     "id": 8,
@@ -160,7 +160,7 @@ export const destinations: Destination[] = [
     "startingPrice": 8999,
     "bestSeason": "Oct to Mar",
     "weather": "Pleasant days, cool evenings",
-    "featured": false
+    "featured": true
   },
   {
     "id": 9,

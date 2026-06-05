@@ -3,57 +3,24 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo, useRef } from "react";
 import DestinationCard from "@/components/DestinationCard";
 import { useContent } from "@/context/content";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, FreeMode } from "swiper/modules";
+import "swiper/css/free-mode";
+import "swiper/css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-
 export default function HomeTours() {
   const container = useRef<HTMLElement>(null);
-
   const { destinations } = useContent();
   
   const featuredDestinations = useMemo(() => {
     if (!destinations || !Array.isArray(destinations)) return [];
-    return destinations.filter(d => d.featured).slice(0, 4);
+    return destinations.filter(d => d.featured).slice(0, 16);
   }, [destinations]);
-
-  const mobileLoopRef = useRef<HTMLDivElement | null>(null);
-
-  // Mobile: seamless looping for the horizontal scroll container
-  useEffect(() => {
-    const el = mobileLoopRef.current;
-    if (!el || window.innerWidth >= 768 || featuredDestinations.length === 0) return;
-
-    const firstItem = el.querySelector<HTMLElement>('[class*="w-[72vw]"]');
-    const itemWidth = firstItem?.getBoundingClientRect().width ?? 0;
-    const gap = 16; // gap-4 in tailwind is 16px
-    const step = itemWidth + gap;
-    const singleSetWidth = step * featuredDestinations.length;
-    const startPos = singleSetWidth;
-
-    el.scrollLeft = startPos;
-
-    let raf = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        const maxScroll = singleSetWidth * 2;
-        if (el.scrollLeft >= maxScroll) {
-          el.scrollLeft = el.scrollLeft - singleSetWidth;
-        } else if (el.scrollLeft <= 0) {
-          el.scrollLeft = el.scrollLeft + singleSetWidth;
-        }
-      });
-    };
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => {
-      el.removeEventListener('scroll', onScroll);
-      cancelAnimationFrame(raf);
-    };
-  }, [featuredDestinations]); // Dependency on featuredDestinations to re-run if data changes.
 
   useGSAP(() => {
     const tl = gsap.timeline({
@@ -109,39 +76,37 @@ export default function HomeTours() {
           </div>
         </div>
 
-        {/* Desktop: grid. Mobile: slider carousel */}
-        <div className="hidden lg:block">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {featuredDestinations.map((d) => (
-              <div key={d.id} className="will-change-transform"><DestinationCard destination={d} /></div>
-            ))}
-          </div>
-        </div>
-
-        {/* Mobile: slider */}
-        <div className="lg:hidden mt-2">
-          <div
-            ref={mobileLoopRef}
-            className="relative flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-6 -mx-6"
+        {/* Unified Slider for Desktop & Mobile */}
+        <div className="relative group/slider">
+          <Swiper
+            modules={[Autoplay, FreeMode]}
+            slidesPerView={1.2}
+            spaceBetween={16}
+            loop={true}
+            freeMode={true}
+            autoplay={{ delay: 3000, disableOnInteraction: false }}
+            breakpoints={{
+              640: { slidesPerView: 2.2, spaceBetween: 24 },
+              1024: { slidesPerView: 3, spaceBetween: 24 },
+              1280: { slidesPerView: 4, spaceBetween: 24 }
+            }}
+            className="w-full !overflow-visible lg:!overflow-hidden"
           >
-            {/* render 3 copies: 1 2 3, and we keep scroll in middle copy */}
-            {[0, 1, 2].flatMap((copy) =>
-              featuredDestinations.map((d, idx) => (
-                <div key={`${copy}-${d.id}-${idx}`} className="snap-center shrink-0 w-[72vw] will-change-transform">
-                  <div className="h-[460px]">
-                    <DestinationCard destination={d} />
-                  </div>
+            {featuredDestinations.map((d) => (
+              <SwiperSlide key={d.id}>
+                <div className="destination-card will-change-transform h-full pb-4">
+                  <DestinationCard destination={d} />
                 </div>
-              ))
-            )}
-          </div>
+              </SwiperSlide>
+            ))}
+          </Swiper>
         </div>
 
-
-        <div className="mt-2 lg:hidden">
+        {/* Mobile View All link */}
+        <div className="mt-8 lg:hidden text-center">
           <Link
             href="/packages"
-            className="inline-flex items-center gap-2 px-4 py-2 text-primary font-semibold hover:gap-3 transition-all text-lg"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-primary/10 text-primary font-bold hover:bg-primary/20 transition-all text-sm"
           >
             View All Tours
             <ArrowRight className="w-5 h-5" />

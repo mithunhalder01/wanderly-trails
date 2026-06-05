@@ -24,7 +24,7 @@ export default function Home() {
   return (
     <div className="overflow-x-hidden">
       <HomeHero />
-      <HomeAbout />
+      {/* <HomeAbout /> */}
       <Suspense fallback={<SectionFallback />}>
         <HomeDestinations />
       </Suspense>
