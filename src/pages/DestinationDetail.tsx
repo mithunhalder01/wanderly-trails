@@ -43,6 +43,14 @@ export default function DestinationDetail() {
     return destination?.imageUrl;
   }, [destination]);
 
+  const heroVideo = useMemo(() => {
+    const name = (destination?.name ?? "").toLowerCase();
+    if (/(^|\b)kerala(\b|$)/i.test(name) || /(^|\b)munnar(\b|$)/i.test(name)) {
+      return "/sec-heading-vid/kerala-vid.mp4";
+    }
+    return "/sec-heading-vid/des.mp4";
+  }, [destination]);
+
   const handleDownloadPDF = () => {
     if (!destination) return;
     const printWindow = window.open("", "_blank");
@@ -251,7 +259,7 @@ export default function DestinationDetail() {
     <div className="pt-20">
       <div className="relative h-[300px] sm:h-[380px] md:h-[450px] overflow-hidden">
         <video
-          src="/sec-heading-vid/des.mp4"
+          src={heroVideo}
           poster={heroImage}
           autoPlay
           loop
