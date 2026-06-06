@@ -46,7 +46,7 @@ export default function DestinationDetail() {
   const heroVideo = useMemo(() => {
     const name = (destination?.name ?? "").toLowerCase();
     if (/(^|\b)kerala(\b|$)/i.test(name) || /(^|\b)munnar(\b|$)/i.test(name)) {
-      return "/sec-heading-vid/kerala-vid.mp4";
+      return "/our-promiss.mp4";
     }
     return "/sec-heading-vid/des.mp4";
   }, [destination]);

@@ -58,7 +58,7 @@ export const availableTours = [
     price: 19999,
     description:
       "Famous for its high rainfall, subtropical forests and biodiversity, it is abutted by Assam.",
-    image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=800&q=80",
+    image: "/meghalaya.png",
   },
   {
     id: 302,
@@ -114,14 +114,14 @@ export const availableTours = [
     title: "Jaipur",
     price: 20999,
     description: "Discover the Pink City's royal heritage, majestic forts, and vibrant culture.",
-    image: "https://images.unsplash.com/photo-1593181629936-11c609b8db9b?w=800&q=80",
+    image: "/jaipur.png",
   },
   {
     id: 701,
     title: "Kashmir",
     price: 6999,
     description: "Experience the paradise on earth with serene lakes, snow-capped mountains and beautiful valleys.",
-    image: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=600&q=80",
+    image: "/kashmir.png",
   },
 ];
 
@@ -139,7 +139,7 @@ export const indiaTrips = {
     { name: "Himachal", price: 7499, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80", slug: "himachal" },
     { name: "Goa", price: 10499, image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600&q=80", slug: "goa" },
     { name: "Kerala", price: 14000, image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&q=80", slug: "kerala" },
-    { name: "Rajasthan", price: 15999, image: "https://images.unsplash.com/photo-1593181629936-11c609b8db9b?w=600&q=80", slug: "rajasthan" },
+    { name: "Rajasthan", price: 15999, image: "/rajisthan.png", slug: "rajasthan" },
   ],
 };
 
@@ -154,7 +154,7 @@ export const weekendGetaways = {
     { name: "Mussoorie", price: 6999, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80" },
     { name: "Kasol", price: 5499, image: "https://images.unsplash.com/photo-1544085311-11a028465b03?w=600&q=80" },
     { name: "Nainital", price: 7499, image: "https://images.unsplash.com/photo-1615551043360-33de8b5f410c?w=600&q=80" },
-    { name: "Udaipur", price: 8999, image: "https://images.unsplash.com/photo-1615551043360-33de8b5f410c?w=600&q=80" },
+    { name: "Udaipur", price: 8999, image: "/udaipur.png" },
     { name: "Pushkar", price: 4599, image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=500&q=70" },
   ],
 };

@@ -6,6 +6,7 @@ import { indiaTrips, weekendGetaways } from "@/data/homeContent";
 const TripCarouselSection = lazy(() => import("@/components/home/TripCarouselSection"));
 const HomeTours = lazy(() => import("@/components/home/HomeTours"));
 const HomeDestinations = lazy(() => import("@/components/home/HomeDestinations"));
+const PopularDestinationsSlider = lazy(() => import("@/components/home/PopularDestinationsSlider"));
 const HomeServices = lazy(() => import("@/components/home/HomeServices"));
 // const HomeAdventure = lazy(() => import("@/components/home/HomeAdventure"));
 const HomeVibe = lazy(() => import("@/components/home/HomeVibe"));
@@ -27,6 +28,9 @@ export default function Home() {
       {/* <HomeAbout /> */}
       <Suspense fallback={<SectionFallback />}>
         <HomeDestinations />
+      </Suspense>
+      <Suspense fallback={<SectionFallback />}>
+        <PopularDestinationsSlider />
       </Suspense>
       <Suspense fallback={<SectionFallback />}>
         <TripCarouselSection {...indiaTrips} exploreHref="/destinations" />
