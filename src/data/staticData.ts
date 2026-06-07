@@ -207,13 +207,14 @@ export const destinations: Destination[] = [
     "country": "India",
     "category": "Beaches",
     "description": "Turquoise waters and island-hopping adventures in the Andaman region.",
-    "imageUrl": "https://images.unsplash.com/photo-1589133641163-c4419b58354b?w=1200&q=80",
+    "imageUrl": "/andaman.png",
     "rating": 4.6,
     "startingPrice": 19999,
     "bestSeason": "Nov to May",
     "weather": "Warm and humid",
     "featured": false
   },
+
   {
     "id": 13,
     "name": "Kerala",
@@ -240,6 +241,7 @@ export const destinations: Destination[] = [
     "weather": "Cool and misty",
     "featured": false
   },
+
   {
     "id": 14,
     "name": "Goa",
