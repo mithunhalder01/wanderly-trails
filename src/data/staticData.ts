@@ -1,13 +1,13 @@
 /**
  * Cache Busting Utility
  * Appends a version hash to static assets in the /public folder.
- * In production, VITE_BUILD_ID can be set via your build script (e.g., git commit hash).
  */
 export const getAssetUrl = (url: string) => {
   if (!url || url.startsWith('http') || url.startsWith('data:')) return url;
   
-  // Fallback to a timestamp or a hardcoded version if env variable is missing
-  const version = "1.0.0"; 
+  // Incremented version to force all browser tabs to reload images
+  // Change this number whenever you update images in the public folder
+  const version = "1.0.5"; 
   const separator = url.includes('?') ? '&' : '?';
   return `${url}${separator}v=${version}`;
 };
@@ -69,8 +69,6 @@ export interface Testimonial {
   destination: string;
 }
 
-// NOTE: keep these in sync with src/data/content.json
-// (regenerate using: node src/data/syncStaticData.ts)
 export const destinations: Destination[] = [
   {
     "id": 1,

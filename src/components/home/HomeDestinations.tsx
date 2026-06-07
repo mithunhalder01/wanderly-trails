@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { useContent } from "@/context/content";
-import { getAssetUrl } from "@/data/staticData";
+import { destinations, getAssetUrl } from "@/data/staticData";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import type { Swiper as SwiperType } from "swiper";
@@ -77,7 +76,6 @@ const UsersIcon = () => (
 );
 
 export default function HomeDestinations() {
-  const { destinations } = useContent();
   const featured = destinations.filter((d) => d.rating >= 4.5);
   const [swiper, setSwiper] = useState<SwiperType | null>(null);
 
