@@ -80,29 +80,6 @@ export default function HomeDestinations() {
   const featured = destinations.filter((d) => d.rating >= 4.5);
   const [swiper, setSwiper] = useState<SwiperType | null>(null);
 
-  const stats = [
-    {
-      value: "24,000",
-      label: "Travel Experiences",
-      icon: <GlobePlaneIcon />,
-    },
-    {
-      value: "55+",
-      label: "Countries",
-      icon: <GlobePinsIcon />,
-    },
-    {
-      value: "Best Price",
-      label: "Guaranteed",
-      icon: <PriceGuaranteedIcon />,
-    },
-    {
-      value: "84 Million+",
-      label: "User per year",
-      icon: <UsersIcon />,
-    },
-  ];
-
   return (
     <section className="relative pb-16 md:pb-24 bg-background overflow-visible">
       
@@ -133,29 +110,7 @@ export default function HomeDestinations() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 relative z-10 -mt-4">
-        
-   
-          
-          <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-16 md:mb-24">
-            {stats.map((stat, idx) => (
-              <div 
-                key={idx} 
-                className="bg-white dark:bg-zinc-900/95 border border-black/[0.03] dark:border-white/5 rounded-2xl p-4 md:p-6 flex flex-col items-start justify-center text-left shadow-[0_4px_15px_rgba(0,0,0,0.02)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 min-h-[120px] md:min-h-[150px] w-full"
-              >
-                <div className="mb-2.5 transform hover:scale-105 transition-transform duration-300">
-                  {stat.icon}
-                </div>
-                <span className="text-base sm:text-xl md:text-2xl font-extrabold text-[#D95F4F] leading-tight mb-1 whitespace-normal">
-                  {stat.value}
-                </span>
-                <span className="text-[10px] sm:text-xs font-bold text-foreground/70 tracking-wide leading-snug whitespace-normal">
-                  {stat.label}
-                </span>
-              </div>
-            ))}
-          </div>
-      
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 relative z-10 pt-16">
 
         {/* ── FIND THE PERFECT PLACE SECTION ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
