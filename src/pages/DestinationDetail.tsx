@@ -20,11 +20,9 @@ export default function DestinationDetail() {
     const heroByName: Array<[RegExp, string]> = [
       [/(^|\b)goa(\b|$)/i, "https://images.contentstack.io/v3/assets/blt06f605a34f1194ff/bltea57b2eea49b1ca0/686f68cb1e063116c08e1053/alexey-turenkov-bWJiSZjIgTM-unsplash-HEADERMOBILE.jpg?fit=crop&disable=upscale&auto=webp&quality=60&crop=smart"],
       [/(^|\b)manali(\b|$)/i, "https://cdn.trekthehimalayas.com/images/HomePageImages/Desktop/ef74d78c-3f2c-49a0-9611-80be45c3e54b_Solang-Valley%20(1).jpg"],
-      [/(^|\b)himachal(\b|$)/i, "https://cdn.trekthehimalayas.com/images/HomePageImages/Desktop/ef74d78c-3f2c-49a0-9611-80be45c3e54b_Solang-Valley%20(1).jpg"],
-      [/(^|\b)meghalaya(\b|$)/i, "https://www.thestupidbear.com/wp-content/uploads/2019/03/PLaces-to-visit-in-Meghalaya.jpg"],
+      [/(^|\b)meghalaya(\b|$)/i, "/meghalya.png"],
       [/(^|\b)rajasthan(\b|$)/i, "https://images.unsplash.com/photo-1524492412937-430c6b6f9a55?w=1920&q=80"],
       [/(^|\b)jaipur(\b|$)/i, "https://images.unsplash.com/photo-1599661046289-e31897846e41?w=1920&q=80"],
-      [/(^|\b)kerala(\b|$)/i, "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1920&q=80"],
       [/(^|\b)udaipur(\b|$)/i, "https://images.unsplash.com/photo-1615551043360-33de8b5f410c?w=1920&q=80"],
       [/(^|\b)ladakh(\b|$)/i, "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=1920&q=80"],
       [/(^|\b)leh(\b|$)/i, "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=1920&q=80"],
@@ -34,6 +32,7 @@ export default function DestinationDetail() {
       [/(^|\b)sikkim(\b|$)/i, "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=1920&q=80"],
       [/(^|\b)spiti(\b|$)/i, "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1920&q=80"],
       [/(^|\b)uttarakhand(\b|$)/i, "https://images.unsplash.com/photo-1545562083-a600704fa487?w=1920&q=80"],
+      [/(^|\b)munnar(\b|$)/i, "/munnar.png"],
     ];
 
     for (const [re, url] of heroByName) {
@@ -45,7 +44,10 @@ export default function DestinationDetail() {
 
   const heroVideo = useMemo(() => {
     const name = (destination?.name ?? "").toLowerCase();
-    if (/(^|\b)kerala(\b|$)/i.test(name) || /(^|\b)munnar(\b|$)/i.test(name)) {
+    if (/(^|\b)kerala(\b|$)/i.test(name)) {
+      return "/sec-heading-vid/kerala-vid.mp4";
+    }
+    if (/(^|\b)himachal(\b|$)/i.test(name)) {
       return "/our-promiss.mp4";
     }
     return "/sec-heading-vid/des.mp4";
