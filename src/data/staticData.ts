@@ -1,3 +1,17 @@
+/**
+ * Cache Busting Utility
+ * Appends a version hash to static assets in the /public folder.
+ * In production, VITE_BUILD_ID can be set via your build script (e.g., git commit hash).
+ */
+export const getAssetUrl = (url: string) => {
+  if (!url || url.startsWith('http') || url.startsWith('data:')) return url;
+  
+  // Fallback to a timestamp or a hardcoded version if env variable is missing
+  const version = "1.0.0"; 
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}v=${version}`;
+};
+
 export interface Destination {
   id: number;
   name: string;

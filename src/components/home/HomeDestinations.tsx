@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { useContent } from "@/context/content";
+import { getAssetUrl } from "@/data/staticData";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import type { Swiper as SwiperType } from "swiper";
@@ -152,7 +153,7 @@ export default function HomeDestinations() {
                       
                       {/* Destination Image */}
                       <img
-                        src={dest.imageUrl}
+                        src={getAssetUrl(dest.imageUrl)}
                         alt={dest.name}
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       />
