@@ -1,17 +1,3 @@
-/**
- * Cache Busting Utility
- * Appends a version hash to static assets in the /public folder.
- */
-export const getAssetUrl = (url: string) => {
-  if (!url || url.startsWith('http') || url.startsWith('data:')) return url;
-  
-  // Incremented version to force all browser tabs to reload images
-  // Change this number whenever you update images in the public folder
-  const version = "1.0.5"; 
-  const separator = url.includes('?') ? '&' : '?';
-  return `${url}${separator}v=${version}`;
-};
-
 export interface Destination {
   id: number;
   name: string;
@@ -226,14 +212,13 @@ export const destinations: Destination[] = [
     "weather": "Warm and humid",
     "featured": false
   },
-
   {
     "id": 13,
     "name": "Kerala",
     "country": "India",
     "category": "Family",
     "description": "Kerala backwaters and hill-station charm—houseboats, greenery, and slow travel.",
-    "imageUrl": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=80",
+    "imageUrl": "/kerala.png",
     "rating": 4.7,
     "startingPrice": 14000,
     "bestSeason": "Sep to Mar",
@@ -253,7 +238,6 @@ export const destinations: Destination[] = [
     "weather": "Cool and misty",
     "featured": false
   },
-
   {
     "id": 14,
     "name": "Goa",
@@ -282,7 +266,6 @@ export const destinations: Destination[] = [
   }
 ];
 
-
 export const packages: Package[] = [
   {
     "id": 101,
@@ -291,7 +274,7 @@ export const packages: Package[] = [
     "title": "Goa Chill & Coastal Lights (3D/2N)",
     "description": "Beach hopping, sunset cruise, and a laid-back itinerary with curated stops.",
     "imageUrl": "https://images.unsplash.com/photo-1493558103817-58b2924bce98?w=1200&q=80",
-    "price": 15999,
+    "price": 12999,
     "duration": 3,
     "nights": 2,
     "category": "Beaches",
@@ -311,7 +294,7 @@ export const packages: Package[] = [
     "title": "Adventure North Goa (5D/4N)",
     "description": "Water sports, forts, and vibrant markets—built for active travelers.",
     "imageUrl": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200&q=80",
-    "price": 27999,
+    "price": 18999,
     "duration": 5,
     "nights": 4,
     "category": "Adventure",
@@ -385,26 +368,6 @@ export const packages: Package[] = [
     "featured": false
   },
   {
-    "id": 1003,
-    "destinationId": 1,
-    "destinationName": "Himachal, India",
-    "title": "Himachal Grand Holiday (8D/7N)",
-    "description": "A full-fledged Himalayan getaway with relaxed pacing and standout scenic highlights.",
-    "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80",
-    "price": 39999,
-    "duration": 8,
-    "nights": 7,
-    "category": "Himachal",
-    "rating": 4.9,
-    "hotelStars": 4,
-    "mealsIncluded": true,
-    "transportIncluded": true,
-    "includedItems": "7 breakfasts, curated sightseeing, local guide, transfers",
-    "excludedItems": "Flights, personal expenses, tips",
-    "itinerary": "Day 1: Arrival & check-in. Day 2: Scenic circuit + viewpoints. Day 3: Local culture + heritage. Day 4: Nature day trip. Day 5: Relaxed day + markets. Day 6: Scenic drive + photo stops. Day 7: Leisure/optional add-ons. Day 8: Departure.",
-    "featured": false
-  },
-  {
     "id": 1004,
     "destinationId": 1,
     "destinationName": "Himachal, India",
@@ -425,13 +388,33 @@ export const packages: Package[] = [
     "featured": false
   },
   {
+    "id": 1003,
+    "destinationId": 1,
+    "destinationName": "Himachal, India",
+    "title": "Himachal Grand Holiday (8D/7N)",
+    "description": "A full-fledged Himalayan getaway with relaxed pacing and standout scenic highlights.",
+    "imageUrl": "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800&q=80",
+    "price": 28999,
+    "duration": 8,
+    "nights": 7,
+    "category": "Himachal",
+    "rating": 4.9,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "7 breakfasts, curated sightseeing, local guide, transfers",
+    "excludedItems": "Flights, personal expenses, tips",
+    "itinerary": "Day 1: Arrival & check-in. Day 2: Scenic circuit. Day 3: Local culture. Day 4: Nature day trip. Day 5: Relaxed day. Day 6: Scenic drive. Day 7: Leisure. Day 8: Departure.",
+    "featured": false
+  },
+  {
     "id": 201,
     "destinationId": 2,
     "destinationName": "Bali, Indonesia",
     "title": "Bali Luxury Retreat (6D/5N)",
     "description": "Boutique stays, private transfers, and temple visits with a premium touch.",
     "imageUrl": "/bali.png",
-    "price": 55999,
+    "price": 48999,
     "duration": 6,
     "nights": 5,
     "category": "Luxury",
@@ -470,8 +453,8 @@ export const packages: Package[] = [
     "destinationName": "Rajasthan, India",
     "title": "Desert & Forts Explorer (7D/6N)",
     "description": "Camel rides, heritage dinners, and royal palaces across Rajasthan.",
-    "imageUrl": "https://images.unsplash.com/photo-1524492412937-430c6b6f9a55?w=1200&q=80",
-    "price": 47999,
+    "imageUrl": "/rajisthan.png",
+    "price": 18999,
     "duration": 7,
     "nights": 6,
     "category": "Adventure",
@@ -490,7 +473,7 @@ export const packages: Package[] = [
     "destinationName": "Rajasthan, India",
     "title": "Rajasthan Cultural Loop (6D/5N)",
     "description": "A focused journey through Jaipur, Jodhpur, and the vibrant villages.",
-    "imageUrl": "https://images.unsplash.com/photo-1542410537-844e1a9b5d38?w=1200&q=80",
+    "imageUrl": "/rajisthan.png",
     "price": 15999,
     "duration": 6,
     "nights": 5,
@@ -543,46 +526,6 @@ export const packages: Package[] = [
     "excludedItems": "Oxygen cylinders, Flights",
     "itinerary": "Day 1: Leh Arrival. Day 2: Leh Local. Day 3: Nubra Valley. Day 4: Hunder. Day 5: Pangong Lake. Day 6: Leh return. Day 7: Departure.",
     "featured": true
-  },
-  {
-    "id": 401,
-    "destinationId": 13,
-    "destinationName": "Kerala, India",
-    "title": "Backwater Family Cruise (4D/3N)",
-    "description": "Houseboat stay, village lunch, and slow travel moments for families.",
-    "imageUrl": "https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&q=80",
-    "price": 23999,
-    "duration": 4,
-    "nights": 3,
-    "category": "Family",
-    "rating": 4.6,
-    "hotelStars": 4,
-    "mealsIncluded": true,
-    "transportIncluded": true,
-    "includedItems": "Houseboat cruise, meals, backwater guide",
-    "excludedItems": "Flights, personal expenses",
-    "itinerary": "Day 1: Arrival & check-in. Day 2: Backwater cruise. Day 3: Village lunch + sightseeing. Day 4: Departure.",
-    "featured": true
-  },
-  {
-    "id": 402,
-    "destinationId": 13,
-    "destinationName": "Kerala, India",
-    "title": "Solo Serenity in Kerala (5D/4N)",
-    "description": "Mindful stays, scenic boat rides, and café-friendly local routes.",
-    "imageUrl": "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1200&q=80",
-    "price": 29999,
-    "duration": 5,
-    "nights": 4,
-    "category": "Solo",
-    "rating": 4.5,
-    "hotelStars": 3,
-    "mealsIncluded": false,
-    "transportIncluded": true,
-    "includedItems": "Transfers, curated itinerary, local guide",
-    "excludedItems": "Meals, flights",
-    "itinerary": "Day 1: Arrival. Day 2: Cruise + markets. Day 3: Nature trails. Day 4: Cooking class. Day 5: Departure.",
-    "featured": false
   },
   {
     "id": 502,
@@ -745,6 +688,46 @@ export const packages: Package[] = [
     "featured": true
   },
   {
+    "id": 401,
+    "destinationId": 13,
+    "destinationName": "Kerala, India",
+    "title": "Backwater Family Cruise (4D/3N)",
+    "description": "Houseboat stay, village lunch, and slow travel moments for families.",
+    "imageUrl": "https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&q=80",
+    "price": 23999,
+    "duration": 4,
+    "nights": 3,
+    "category": "Family",
+    "rating": 4.6,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Houseboat cruise, meals, backwater guide",
+    "excludedItems": "Flights, personal expenses",
+    "itinerary": "Day 1: Arrival & check-in. Day 2: Backwater cruise. Day 3: Village lunch + sightseeing. Day 4: Departure.",
+    "featured": true
+  },
+  {
+    "id": 402,
+    "destinationId": 13,
+    "destinationName": "Kerala, India",
+    "title": "Solo Serenity in Kerala (5D/4N)",
+    "description": "Mindful stays, scenic boat rides, and café-friendly local routes.",
+    "imageUrl": "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1200&q=80",
+    "price": 18999,
+    "duration": 5,
+    "nights": 4,
+    "category": "Solo",
+    "rating": 4.5,
+    "hotelStars": 3,
+    "mealsIncluded": false,
+    "transportIncluded": true,
+    "includedItems": "Transfers, curated itinerary, local guide",
+    "excludedItems": "Meals, flights",
+    "itinerary": "Day 1: Arrival. Day 2: Cruise + markets. Day 3: Nature trails. Day 4: Cooking class. Day 5: Departure.",
+    "featured": false
+  },
+  {
     "id": 2001,
     "destinationId": 3,
     "destinationName": "Kashmir, India",
@@ -870,7 +853,7 @@ export const packages: Package[] = [
     "destinationName": "Uttarakhand, India",
     "title": "Uttarakhand Hill Station Hopping (6D/5N)",
     "description": "Discover the serene beauty of Uttarakhand's popular hill stations, including Nainital, Mussoorie, and Corbett National Park.",
-    "imageUrl": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&q=80",
+    "imageUrl": "/uttrakhand.png",
     "price": 22000,
     "duration": 6,
     "nights": 5,
@@ -890,7 +873,7 @@ export const packages: Package[] = [
     "destinationName": "Uttarakhand, India",
     "title": "Rishikesh Adventure Getaway (4D/3N)",
     "description": "An exciting short trip to Rishikesh, the adventure capital of India, offering white-water rafting, bungee jumping, and spiritual experiences.",
-    "imageUrl": "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1200&q=80",
+    "imageUrl": "/uttrakhand.png",
     "price": 12000,
     "duration": 4,
     "nights": 3,
@@ -1219,18 +1202,7 @@ export const getRelatedPackages = (packageId: number) => {
   const pkg = getPackageById(packageId);
   if (!pkg) return [];
   return packages
-    .filter((p) => p.id !== packageId)
-    .sort((a, b) => {
-      // Algorithm: Prioritize same destination first
-      const aSameDest = a.destinationId === pkg.destinationId ? 1 : 0;
-      const bSameDest = b.destinationId === pkg.destinationId ? 1 : 0;
-      if (aSameDest !== bSameDest) return bSameDest - aSameDest;
-      
-      // Then prioritize same category
-      const aSameCat = a.category === pkg.category ? 1 : 0;
-      const bSameCat = b.category === pkg.category ? 1 : 0;
-      return bSameCat - aSameCat;
-    })
+    .filter((p) => p.id !== packageId && (p.destinationId === pkg.destinationId || p.category === pkg.category))
     .slice(0, 4);
 };
 export const getPackagesByDestination = (destId: number) => packages.filter((p) => p.destinationId === destId);
