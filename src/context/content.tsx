@@ -149,14 +149,32 @@ const sanitizeSnapshot = (rawValue: unknown): SiteContentSnapshot => {
   };
 };
 
+const SESSION_INIT_KEY = "wanderly_session_initialized";
+
 const loadInitialSnapshot = (): SiteContentSnapshot => {
-  // Fallback snapshot (until /api/content loads)
+  // Agar naya browser session hai, toh localStorage saaf karein taaki purana data interfere na kare
+  if (typeof window !== "undefined") {
+    try {
+      if (!sessionStorage.getItem(SESSION_INIT_KEY)) {
+        console.log("New session detected. Clearing old storage for sync...");
+        localStorage.removeItem(SITE_CONTENT_STORAGE_KEY);
+        // Agar aapne pehle koi aur key use ki thi (jaise 'wanderly_content_storage_key'), use bhi yahan clear karein
+        localStorage.removeItem("wanderly_content_storage_key");
+        sessionStorage.setItem(SESSION_INIT_KEY, "true");
+      }
+    } catch (e) {
+      console.error("Storage reset failed", e);
+    }
+  }
+  
   return buildDefaultSnapshot();
 };
 
 async function fetchSiteContentSnapshot(): Promise<SiteContentSnapshot | null> {
   try {
-    const res = await fetch("/api/content", { cache: "force-cache" });
+    // Cache bypass karne ke liye timestamp query parameter add karein
+    const cacheBuster = `t=${Date.now()}`;
+    const res = await fetch(`/api/content?${cacheBuster}`, { cache: "no-cache" });
     const json: unknown = await res.json();
 
     if (
@@ -185,6 +203,14 @@ const getNextId = <T extends { id: number }>(rows: T[]): number =>
 export function ContentProvider({ children }: { children: ReactNode }) {
   const [snapshot, setSnapshot] = useState<SiteContentSnapshot>(() => loadInitialSnapshot());
 
+  // Function to re-fetch and update snapshot
+  const refreshSnapshot = useCallback(async () => {
+    const remote = await fetchSiteContentSnapshot();
+    if (remote) {
+      setSnapshot(remote);
+    }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -197,7 +223,21 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       cancelled = true;
     };
   }, []);
+  
+  // Storage event listener for cross-tab synchronization
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      // Only react to changes in our specific key and if the value actually changed
+      if (e.key === SITE_CONTENT_STORAGE_KEY) {
+        console.log("Storage event detected, refreshing content...");
+        refreshSnapshot();
+      }
+    };
 
+    window.addEventListener("storage", handleStorageChange);
+
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, [refreshSnapshot]);
   // LocalStorage persistence removed.
 
 

@@ -16,7 +16,7 @@ import {
   Trash2,
   X,
   Upload,
-} from "lucide-react";
+} from "lucide-react"; 
 import { getAdminByEmail, type AdminUser } from "@/data/admins";
 import {
   type BlogPost,
@@ -24,7 +24,7 @@ import {
   type Package,
   type Testimonial,
 } from "@/data/staticData";
-import { useContent, type SiteSettings } from "@/context/content";
+import { useContent, type SiteSettings, SITE_CONTENT_STORAGE_KEY } from "@/context/content";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -272,6 +272,7 @@ export default function AdminDashboard() {
     };
 
     upsertDestination({ ...payload, id: editingDestinationId ?? undefined });
+    localStorage.setItem(SITE_CONTENT_STORAGE_KEY, Date.now().toString());
 
     toast({
       title: editingDestinationId ? "Destination updated" : "Destination added",
@@ -309,6 +310,7 @@ export default function AdminDashboard() {
     };
 
     upsertPackage({ ...payload, id: editingPackageId ?? undefined });
+    localStorage.setItem(SITE_CONTENT_STORAGE_KEY, Date.now().toString());
 
     toast({
       title: editingPackageId ? "Package updated" : "Package added",
@@ -342,6 +344,7 @@ export default function AdminDashboard() {
     };
 
     upsertBlogPost({ ...payload, id: editingBlogId ?? undefined });
+    localStorage.setItem(SITE_CONTENT_STORAGE_KEY, Date.now().toString());
 
     toast({
       title: editingBlogId ? "Blog updated" : "Blog published",
@@ -371,6 +374,7 @@ export default function AdminDashboard() {
     };
 
     upsertTestimonial({ ...payload, id: editingTestimonialId ?? undefined });
+    localStorage.setItem(SITE_CONTENT_STORAGE_KEY, Date.now().toString());
 
     toast({
       title: editingTestimonialId ? "Testimonial updated" : "Testimonial added",
@@ -382,6 +386,7 @@ export default function AdminDashboard() {
 
   const saveSettings = () => {
     updateSettings(settingsForm);
+    localStorage.setItem(SITE_CONTENT_STORAGE_KEY, Date.now().toString());
     toast({
       title: "Settings updated",
       description: "Homepage customization values apply ho gaye.",
@@ -398,6 +403,7 @@ export default function AdminDashboard() {
     }
 
     resetToDefaults();
+    localStorage.setItem(SITE_CONTENT_STORAGE_KEY, Date.now().toString());
     resetDestinationForm();
     resetPackageForm();
     resetBlogForm();
@@ -458,6 +464,7 @@ export default function AdminDashboard() {
     }
 
     toast({
+      // No need to set storage key here, as importData already calls setSnapshot, which will trigger the storage event if it was persisted.
       title: "Import successful",
       description: "Admin content updated from JSON payload.",
     });

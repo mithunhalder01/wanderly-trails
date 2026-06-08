@@ -2,48 +2,16 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { ArrowRight, Clock, Users } from "lucide-react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-
-
-const tours = [
-  {
-    id: 1,
-    title: "Goa Tour",
-    image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800&q=80",
-    price: "₹12,999",
-    duration: "5 Days 4 Nights",
-    description: "Experience the vibrant beaches, nightlife, and Portuguese heritage of Goa with our curated package.",
-    highlights: ["Beach Hopping", "Water Sports", "Nightlife", "Heritage Walk"],
-  },
-  {
-    id: 2,
-    title: "Memorable Himachal",
-    image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800&q=80",
-    price: "₹15,999",
-    duration: "6 Days 5 Nights",
-    description: "Explore the majestic mountains, serene valleys, and charming villages of Himachal Pradesh.",
-    highlights: ["Manali", "Kullu", "Rohtang Pass", "Local Culture"],
-  },
-  {
-    id: 3,
-    title: "Meghalaya Tour",
-    image: "https://images.unsplash.com/photo-1609766857041-ed402ea8069a?w=800&q=80",
-    price: "₹18,999",
-    duration: "7 Days 6 Nights",
-    description: "Discover the abode of clouds with living root bridges, waterfalls, and pristine landscapes.",
-    highlights: ["Living Root Bridges", "Cherrapunji", "Shillong", "Waterfalls"],
-  },
-  {
-    id: 4,
-    title: "Spiti Circuit",
-    image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&q=80",
-    price: "₹24,999",
-    duration: "8 Days 7 Nights",
-    description: "Journey through the cold desert of Spiti Valley with ancient monasteries and stunning landscapes.",
-    highlights: ["Key Monastery", "Chandratal Lake", "Kaza", "Pin Valley"],
-  },
-];
+import { useContent } from "@/context/content";
 
 export default function ToursSection() {
+  const { packages, settings } = useContent();
+  
+  // Get featured packages from context
+  const tours = packages
+    .filter(p => p.featured)
+    .slice(0, settings.featuredPackageCount || 4);
+
   const carouselRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
