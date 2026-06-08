@@ -13,7 +13,7 @@ const HomeVibe = lazy(() => import("@/components/home/HomeVibe"));
 const HomeWhyChoose = lazy(() => import("@/components/home/HomeWhyChoose"));
 const HomeJourneyFrames = lazy(() => import("@/components/home/HomeJourneyFrames"));
 const HomeReviews = lazy(() => import("@/components/home/HomeReviews"));
-// const HomeInstagram = lazy(() => import("@/components/home/HomeInstagram"));
+const HomeInstagram = lazy(() => import("@/components/home/HomeInstagram"));
 const HomeFaq = lazy(() => import("@/components/home/HomeFaq"));
 const HomeNewsletter = lazy(() => import("@/components/home/HomeNewsletter"));
 
@@ -60,7 +60,7 @@ export default function Home() {
         <HomeReviews />
       </Suspense>
       <Suspense fallback={<SectionFallback />}>
-        {/* <HomeInstagram /> */}
+        <HomeInstagram />
       </Suspense>
       <Suspense fallback={<SectionFallback />}>
         <HomeFaq />

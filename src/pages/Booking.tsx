@@ -49,7 +49,7 @@ export default function Booking() {
   return (
     <div className="pt-20">
       <PageHero
-        image="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80"
+        image="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=75&auto=format"
         alt="Booking"
         badge="Booking"
         title="Book via WhatsApp"
