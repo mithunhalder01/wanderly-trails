@@ -70,6 +70,9 @@ export default function PopularDestinationsSlider() {
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   draggable="false"
                 />
+                <div className="c_l">
+                  
+                </div>
               </div>
               </div>
               
