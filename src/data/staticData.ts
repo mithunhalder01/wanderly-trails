@@ -218,7 +218,7 @@ export const destinations: Destination[] = [
     "country": "India",
     "category": "Family",
     "description": "Kerala backwaters and hill-station charm—houseboats, greenery, and slow travel.",
-    "imageUrl": "/kerala.png",
+    "imageUrl": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=80",
     "rating": 4.7,
     "startingPrice": 14000,
     "bestSeason": "Sep to Mar",

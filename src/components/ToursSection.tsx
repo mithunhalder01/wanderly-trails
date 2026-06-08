@@ -151,13 +151,13 @@ export default function ToursSection() {
             className="tour-card relative rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 group shrink-0 w-[75vw] md:w-auto snap-center"
           >
             <img
-              src={tour.image}
+              src={tour.imageUrl}
               alt={tour.title}
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-600 group-hover:scale-110 md:group-hover:scale-110"
             />
             <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md border border-white/30 px-4 py-2 rounded-xl shadow-lg z-10">
-              <span className="text-white/90 font-bold text-xs">Starting at</span>
-              <span className="block text-white font-bold text-xl">{tour.price}</span>
+              <span className="text-white/90 font-bold text-[10px]">Starting at</span>
+              <span className="block text-white font-bold text-lg">₹{tour.price.toLocaleString()}</span>
             </div>
 
             <div className="relative h-56 overflow-hidden" />
@@ -171,7 +171,7 @@ export default function ToursSection() {
               <div className="flex items-center gap-3 mb-2 text-xs text-muted-foreground">
                 <div className="flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5" />
-                  <span>{tour.duration}</span>
+                  <span>{tour.duration}D/{tour.nights}N</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Users className="w-3.5 h-3.5" />
@@ -184,18 +184,18 @@ export default function ToursSection() {
               </p>
 
               <div className="flex flex-wrap gap-1.5 mb-3">
-                {tour.highlights.slice(0, 3).map((highlight) => (
+                {tour.includedItems.split(',').slice(0, 3).map((highlight) => (
                   <span
-                    key={highlight}
+                    key={highlight.trim()}
                     className="text-xs bg-white/50 backdrop-blur-sm text-foreground px-2 py-0.5 rounded-full"
                   >
-                    {highlight}
+                    {highlight.trim()}
                   </span>
                 ))}
               </div>
 
               <Link
-                href={`/packages`}
+                href={`/packages/${tour.id}`}
                 className="inline-flex items-center gap-2 w-full justify-center bg-primary text-white font-semibold py-2.5 px-4 rounded-xl hover:bg-primary/90 transition-all group-hover:gap-3 text-sm"
               >
                 More Details
