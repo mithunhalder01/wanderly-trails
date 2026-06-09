@@ -282,4 +282,7 @@ export const footerDestinations = [
   "Kerala",
   "Goa",
   "Dubai",
+  "Thailand",
+  "Singapore",
+  "Sri Lanka",
 ];

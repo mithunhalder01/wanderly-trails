@@ -2,28 +2,48 @@ import { useState, useMemo, useRef } from "react";
 import DestinationCard from "@/components/DestinationCard";
 import PageHero from "@/components/PageHero";
 import { useContent } from "@/context/content";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-
-const categories = ["All", "India", "Beaches", "Mountains", "Desert"];
+import { motion, AnimatePresence } from "framer-motion"; // Import motion and AnimatePresence
 
 export default function Destinations() {
   const { destinations } = useContent();
   const [active, setActive] = useState("All");
   const container = useRef<HTMLElement>(null);
 
+  const categories = useMemo(() => {
+    // Dynamically add "International" if there are any non-Indian destinations
+    const hasInternational = destinations.some(d => d.country !== "India");
+    const baseCategories = ["All", "India", "Beaches", "Mountains", "Desert"];
+    return hasInternational ? [...baseCategories, "International"] : baseCategories;
+  }, [destinations]);
+  
+  // Update filter logic to include "International"
   const filtered = useMemo(() => {
-    if (active === "All") return destinations;
-    if (active === "India") return destinations.filter((d) => d.country === "India");
-    return destinations.filter((d) => d.category === active);
-  }, [active, destinations]);
+    return destinations.filter((dest) => {
+      const country = (dest.country || "").toLowerCase();
+      const desc = (dest.description || "").toLowerCase();
+      const name = (dest.name || "").toLowerCase();
+      const cat = (dest.category || "").toLowerCase();
 
-  useGSAP(() => {
-    gsap.fromTo(".destination-card",
-      { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" }
-    );
-  }, { scope: container, dependencies: [filtered] });
+      if (active === "All") return true;
+      if (active === "India") return country === "india";
+      if (active === "International") return country !== "india";
+      
+      if (active === "Beaches") {
+        const beachKeywords = ["beach", "island", "coastal", "goa", "phuket", "maldives", "andaman", "lakshadweep", "konkan"];
+        return beachKeywords.some(key => cat.includes(key) || name.includes(key) || desc.includes(key));
+      }
+      if (active === "Mountains") {
+        const mountainKeywords = ["mountain", "himalayan", "hill station", "himachal", "kashmir", "ladakh", "leh", "spiti", "uttarakhand", "mussoorie", "nepal", "bhutan", "sikkim", "munnar"];
+        return mountainKeywords.some(key => cat.includes(key) || name.includes(key) || desc.includes(key));
+      }
+      if (active === "Desert") {
+        const desertKeywords = ["desert", "rajasthan", "spiti", "uae", "dubai", "sand dunes", "kutch", "gujarat", "ladakh"];
+        return desertKeywords.some(key => cat.includes(key) || name.includes(key) || desc.includes(key));
+      }
+      return cat === active.toLowerCase();
+    });
+  }, [active, destinations]);
+  // Removed GSAP animation for cards, as Framer Motion will handle it.
 
   return (
     <div className="pt-20 bg-background min-h-screen overflow-x-hidden">
@@ -70,8 +90,21 @@ export default function Destinations() {
         </div>
 
         {filtered.length > 0 ? (
-          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filtered.map((d) => <DestinationCard key={d.id} destination={d} />)}
+          <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"> 
+            <AnimatePresence> {/* Wrap with AnimatePresence */}
+              {filtered.map((d) => (
+                <motion.div
+                  key={d.id} // Key is crucial for AnimatePresence to track items
+                  layout // Enables smooth layout transitions
+                  initial={{ opacity: 0, y: 50, scale: 0.8 }} // Initial state for entering items
+                  animate={{ opacity: 1, y: 0, scale: 1 }} // Animation for present items
+                  exit={{ opacity: 0, y: -50, scale: 0.8 }} // Animation for exiting items
+                  transition={{ duration: 0.3, ease: "easeOut" }} // Transition properties
+                >
+                  <DestinationCard destination={d} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         ) : (
           <div className="relative z-10 text-center py-20 bg-card/50 rounded-3xl border border-border/50">
