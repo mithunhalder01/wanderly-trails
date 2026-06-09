@@ -18,7 +18,7 @@ export default function HomeTours() {
   const { featuredDestinations: allFeatured, settings } = useContent();
   
   const featuredDestinations = useMemo(() => {
-    const limit = settings?.featuredDestinationCount ?? 16;
+    const limit = settings?.featuredDestinationCount ?? 50;
     return allFeatured.slice(0, limit);
   }, [allFeatured, settings?.featuredDestinationCount]);
 
