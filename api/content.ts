@@ -12,6 +12,11 @@ export default async function handler(req: any, res: any) {
     return res.status(405).json({ ok: false, error: "Method not allowed" });
   }
 
+  // Prevent stale content from CDN/edge cache
+  res.setHeader("Cache-Control", "no-store, max-age=0, must-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+
   try {
     const raw = await fs.readFile(contentPath, "utf-8");
     const parsed = JSON.parse(raw);
@@ -20,3 +25,4 @@ export default async function handler(req: any, res: any) {
     return res.status(500).json({ ok: false, error: "Content file read failed" });
   }
 }
+
