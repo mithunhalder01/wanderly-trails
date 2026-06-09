@@ -7,8 +7,8 @@
     "heroSubtitle": "From Rajasthan to Kerala and the Himalayas — Wanderly Trails brings India closer to you.",
     "heroPrimaryCta": "Explore Packages",
     "heroSecondaryCta": "Customize Trip",
-    "featuredDestinationCount": 8,
-    "featuredPackageCount": 6,
+    "featuredDestinationCount": 50,
+    "featuredPackageCount": 12,
     "featuredBlogCount": 3,
     "showTrustBar": true
   },
@@ -128,7 +128,7 @@
       "startingPrice": 21499,
       "bestSeason": "Mar to Jun & Sep to Nov",
       "weather": "Misty with occasional showers",
-      "featured": false
+      "featured": true
     },
     {
       "id": 10,
@@ -141,7 +141,7 @@
       "startingPrice": 18999,
       "bestSeason": "Mar to Jun & Sep to Nov",
       "weather": "Cool and clear",
-      "featured": false
+      "featured": true
     },
     {
       "id": 11,
@@ -154,7 +154,7 @@
       "startingPrice": 15999,
       "bestSeason": "Oct to Mar",
       "weather": "Pleasant temperatures",
-      "featured": false
+      "featured": true
     },
     {
       "id": 12,
@@ -167,7 +167,7 @@
       "startingPrice": 19999,
       "bestSeason": "Nov to May",
       "weather": "Warm and humid",
-      "featured": false
+      "featured": true
     },
     {
       "id": 13,
@@ -175,12 +175,12 @@
       "country": "India",
       "category": "Family",
       "description": "Kerala backwaters and hill-station charm—houseboats, greenery, and slow travel.",
-      "imageUrl": "/kerala.png",
+      "imageUrl": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=80",
       "rating": 4.7,
       "startingPrice": 14000,
       "bestSeason": "Sep to Mar",
       "weather": "Tropical and scenic",
-      "featured": false
+      "featured": true
     },
     {
       "id": 16,
@@ -193,7 +193,7 @@
       "startingPrice": 12999,
       "bestSeason": "Sep to Feb",
       "weather": "Cool and misty",
-      "featured": false
+      "featured": true
     },
     {
       "id": 14,
@@ -206,20 +206,176 @@
       "startingPrice": 12999,
       "bestSeason": "Nov to Mar",
       "weather": "Warm days, cool evenings",
-      "featured": false
+      "featured": true
     },
     {
-      "id": 15,
+      "id": 24,
+      "name": "Konkan",
+      "country": "India",
+      "category": "Beaches",
+      "description": "Explore the pristine beaches and lush green landscapes of the Konkan coast.",
+      "imageUrl": "https://images.unsplash.com/photo-1610641865821-57b85f0586a2?w=1200&q=80",
+      "rating": 4.5,
+      "startingPrice": 10000,
+      "bestSeason": "October to March",
+      "weather": "Warm and humid",
+      "featured": true
+    },
+    {
+      "id": 25,
+      "name": "Phuket",
+      "country": "Thailand",
+      "category": "Beaches",
+      "description": "Thailand's largest island, known for its stunning beaches and vibrant nightlife.",
+      "imageUrl": "https://images.unsplash.com/photo-1582500851890-481977995116?w=1200&q=80",
+      "rating": 4.7,
+      "startingPrice": 30000,
+      "bestSeason": "November to February",
+      "weather": "Tropical, warm and humid",
+      "featured": true
+    },
+    {
+      "id": 26,
+      "name": "Krabi",
+      "country": "Thailand",
+      "category": "Beaches",
+      "description": "Famous for its stunning limestone cliffs and dense mangrove forests.",
+      "imageUrl": "https://images.unsplash.com/photo-1506197603052-3bd5c3a2d602?w=1200&q=80",
+      "rating": 4.6,
+      "startingPrice": 28000,
+      "bestSeason": "November to February",
+      "weather": "Tropical, warm and humid",
+      "featured": true
+    },
+    {
+      "id": 27,
+      "name": "Lakshadweep",
+      "country": "India",
+      "category": "Beaches",
+      "description": "Stunning coral islands with pristine white-sand beaches.",
+      "imageUrl": "https://images.unsplash.com/photo-1620175591062-84307562854b?w=1200&q=80",
+      "rating": 4.8,
+      "startingPrice": 25000,
+      "bestSeason": "October to May",
+      "weather": "Tropical monsoon climate",
+      "featured": true
+    },
+    {
+      "id": 17,
+      "name": "Thailand",
+      "country": "Thailand",
+      "category": "Beaches",
+      "description": "Explore vibrant cities, ancient temples, and stunning beaches.",
+      "imageUrl": "https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&q=80",
+      "rating": 4.7,
+      "startingPrice": 25000,
+      "bestSeason": "November to February",
+      "weather": "Tropical, warm and humid",
+      "featured": true
+    },
+    {
+      "id": 20,
+      "name": "Nepal",
+      "country": "Nepal",
+      "category": "Adventure",
+      "description": "Home to Mount Everest, Nepal offers breathtaking Himalayan treks and ancient temples.",
+      "imageUrl": "https://images.unsplash.com/photo-1587502537095-b778d9292817?w=1200&q=80",
+      "rating": 4.7,
+      "startingPrice": 28000,
+      "bestSeason": "October to December",
+      "weather": "Varied, from tropical to alpine",
+      "featured": true
+    },
+    {
+      "id": 22,
+      "name": "Vietnam",
+      "country": "Vietnam",
+      "category": "Culture",
+      "description": "Discover a land of stunning natural beauty, rich history, and delicious cuisine.",
+      "imageUrl": "https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&q=80",
+      "rating": 4.6,
+      "startingPrice": 30000,
+      "bestSeason": "February to April",
+      "weather": "Tropical monsoon climate",
+      "featured": true
+    },
+    {
+      "id": 23,
+      "name": "Singapore",
+      "country": "Singapore",
+      "category": "City",
+      "description": "A global financial hub with iconic landmarks and a multicultural population.",
+      "imageUrl": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1200&q=80",
+      "rating": 4.7,
+      "startingPrice": 45000,
+      "bestSeason": "February to April",
+      "weather": "Hot and humid",
+      "featured": true
+    },
+    {
+      "id": 18,
+      "name": "Bhutan",
+      "country": "Bhutan",
+      "category": "Mountains",
+      "description": "Land of the Thunder Dragon, known for its monasteries and dramatic landscapes.",
+      "imageUrl": "https://images.unsplash.com/photo-1594950346066-5b3e7d5e4d2a?w=1200&q=80",
+      "rating": 4.8,
+      "startingPrice": 40000,
+      "bestSeason": "March to May",
+      "weather": "Cool and pleasant",
+      "featured": true
+    },
+    {
+      "id": 19,
       "name": "Dubai",
       "country": "UAE",
       "category": "City Break",
-      "description": "Modern skyline, desert adventures, and world-class shopping. Dubai is perfect for short, high-impact vacations.",
-      "imageUrl": "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=1200&q=80",
-      "rating": 4.7,
-      "startingPrice": 44999,
+      "description": "Modern architecture, luxury shopping, and a vibrant nightlife.",
+      "imageUrl": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=1200&q=80",
+      "rating": 4.6,
+      "startingPrice": 35000,
       "bestSeason": "November to March",
-      "weather": "Warm days, cooler evenings",
-      "featured": false
+      "weather": "Warm and sunny",
+      "featured": true
+    },
+    {
+      "id": 21,
+      "name": "Maldives",
+      "country": "Maldives",
+      "category": "Beaches",
+      "description": "Luxurious overwater bungalows and vibrant coral reefs.",
+      "imageUrl": "https://images.unsplash.com/photo-1542296332-2a44700d7049?w=1200&q=80",
+      "rating": 4.9,
+      "startingPrice": 60000,
+      "bestSeason": "November to April",
+      "weather": "Warm and sunny",
+      "featured": true
+    },
+    {
+      "id": 28,
+      "name": "Sri Lanka",
+      "country": "Sri Lanka",
+      "category": "Culture",
+      "description": "Explore pristine beaches and ancient Buddhist heritage.",
+      "imageUrl": "https://images.unsplash.com/photo-1529260830199-42c24126f198?w=1200&q=80",
+      "rating": 4.6,
+      "startingPrice": 32000,
+      "bestSeason": "December to April",
+      "weather": "Tropical and warm",
+      "featured": true
+    },
+    {
+      "id": 29,
+      "name": "Kutch",
+      "country": "India",
+      "category": "Desert",
+      "description": "Experience the vast white salt desert of the Rann of Kutch.",
+      "imageUrl": "https://images.unsplash.com/photo-1612879505435-08e1b0c9f0c0?w=1200&q=80",
+      "rating": 4.6,
+      "startingPrice": 15000,
+      "bestSeason": "October to March",
+      "weather": "Dry and hot",
+      "featured": true
     }
   ],
   "packages": [
