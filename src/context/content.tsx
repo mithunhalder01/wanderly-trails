@@ -70,7 +70,7 @@ const defaultSettings: SiteSettings = {
     "Curated packages for every traveler — from Goa beaches to Bali villas.",
   heroPrimaryCta: "Explore Packages",
   heroSecondaryCta: "Customize Trip",
-  featuredDestinationCount: 8,
+  featuredDestinationCount: 16,
   featuredPackageCount: 6,
   featuredBlogCount: 3,
   showTrustBar: true,
@@ -92,7 +92,7 @@ const normalizeCount = (value: unknown, fallback: number) => {
   if (!Number.isFinite(numeric)) {
     return fallback;
   }
-  return clamp(numeric, 1, 12);
+  return clamp(numeric, 1, 48);
 };
 
 const sanitizeSettings = (rawSettings: unknown): SiteSettings => {

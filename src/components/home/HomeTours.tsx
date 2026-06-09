@@ -15,12 +15,12 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function HomeTours() {
   const container = useRef<HTMLElement>(null);
-  const { destinations } = useContent();
+  const { featuredDestinations: allFeatured, settings } = useContent();
   
   const featuredDestinations = useMemo(() => {
-    if (!destinations || !Array.isArray(destinations)) return [];
-    return destinations.filter(d => d.featured).slice(0, 16);
-  }, [destinations]);
+    const limit = settings?.featuredDestinationCount ?? 16;
+    return allFeatured.slice(0, limit);
+  }, [allFeatured, settings?.featuredDestinationCount]);
 
   useGSAP(() => {
     const tl = gsap.timeline({
