@@ -171,7 +171,7 @@ export const destinations: Destination[] = [
     "startingPrice": 21499,
     "bestSeason": "Mar to Jun & Sep to Nov",
     "weather": "Misty with occasional showers",
-    "featured": false
+    "featured": true
   },
   {
     "id": 10,
@@ -184,7 +184,7 @@ export const destinations: Destination[] = [
     "startingPrice": 18999,
     "bestSeason": "Mar to Jun & Sep to Nov",
     "weather": "Cool and clear",
-    "featured": false
+    "featured": true
   },
   {
     "id": 11,
@@ -197,7 +197,7 @@ export const destinations: Destination[] = [
     "startingPrice": 15999,
     "bestSeason": "Oct to Mar",
     "weather": "Pleasant temperatures",
-    "featured": false
+    "featured": true
   },
   {
     "id": 12,
@@ -210,7 +210,7 @@ export const destinations: Destination[] = [
     "startingPrice": 19999,
     "bestSeason": "Nov to May",
     "weather": "Warm and humid",
-    "featured": false
+    "featured": true
   },
   {
     "id": 13,
@@ -223,7 +223,7 @@ export const destinations: Destination[] = [
     "startingPrice": 14000,
     "bestSeason": "Sep to Mar",
     "weather": "Tropical and scenic",
-    "featured": false
+    "featured": true
   },
   {
     "id": 16,
@@ -236,7 +236,7 @@ export const destinations: Destination[] = [
     "startingPrice": 12999,
     "bestSeason": "Sep to Feb",
     "weather": "Cool and misty",
-    "featured": false
+    "featured": true
   },
   {
     "id": 14,
@@ -249,7 +249,7 @@ export const destinations: Destination[] = [
     "startingPrice": 12999,
     "bestSeason": "Nov to Mar",
     "weather": "Warm days, cool evenings",
-    "featured": false
+    "featured": true
   },
   {
     "id": 24,
@@ -262,7 +262,7 @@ export const destinations: Destination[] = [
     "startingPrice": 10000,
     "bestSeason": "October to March",
     "weather": "Warm and humid",
-    "featured": false
+    "featured": true
   },
   {
     "id": 25,
@@ -275,7 +275,7 @@ export const destinations: Destination[] = [
     "startingPrice": 30000,
     "bestSeason": "November to February",
     "weather": "Tropical, warm and humid",
-    "featured": false
+    "featured": true
   },
   {
     "id": 26,
@@ -288,7 +288,7 @@ export const destinations: Destination[] = [
     "startingPrice": 28000,
     "bestSeason": "November to February",
     "weather": "Tropical, warm and humid",
-    "featured": false
+    "featured": true
   },
   {
     "id": 27,
@@ -301,7 +301,7 @@ export const destinations: Destination[] = [
     "startingPrice": 25000,
     "bestSeason": "October to May",
     "weather": "Tropical monsoon climate",
-    "featured": false
+    "featured": true
   },
   {
     "id": 17,
@@ -314,7 +314,7 @@ export const destinations: Destination[] = [
     "startingPrice": 25000,
     "bestSeason": "November to February",
     "weather": "Tropical, warm and humid",
-    "featured": false
+    "featured": true
   },
   {
     "id": 18,
@@ -327,7 +327,7 @@ export const destinations: Destination[] = [
     "startingPrice": 40000,
     "bestSeason": "March to May & September to November",
     "weather": "Cool and pleasant",
-    "featured": false
+    "featured": true
   },
   {
     "id": 19,
@@ -340,7 +340,7 @@ export const destinations: Destination[] = [
     "startingPrice": 35000,
     "bestSeason": "November to March",
     "weather": "Warm and sunny",
-    "featured": false
+    "featured": true
   },
   {
     "id": 20,
@@ -353,7 +353,7 @@ export const destinations: Destination[] = [
     "startingPrice": 28000,
     "bestSeason": "October to December & March to May",
     "weather": "Varied, from tropical to alpine",
-    "featured": false
+    "featured": true
   },
   {
     "id": 21,
@@ -366,7 +366,7 @@ export const destinations: Destination[] = [
     "startingPrice": 60000,
     "bestSeason": "November to April",
     "weather": "Warm and sunny",
-    "featured": false
+    "featured": true
   },
   {
     "id": 22,
@@ -379,7 +379,7 @@ export const destinations: Destination[] = [
     "startingPrice": 30000,
     "bestSeason": "February to April & August to October",
     "weather": "Tropical monsoon climate",
-    "featured": false
+    "featured": true
   },
   {
     "id": 23,
@@ -392,7 +392,7 @@ export const destinations: Destination[] = [
     "startingPrice": 45000,
     "bestSeason": "February to April",
     "weather": "Hot and humid",
-    "featured": false
+    "featured": true
   },
   {
     "id": 28,
@@ -405,7 +405,7 @@ export const destinations: Destination[] = [
     "startingPrice": 32000,
     "bestSeason": "December to April",
     "weather": "Tropical and warm",
-    "featured": false
+    "featured": true
   },
   {
     "id": 29,
@@ -418,7 +418,7 @@ export const destinations: Destination[] = [
     "startingPrice": 15000,
     "bestSeason": "October to March",
     "weather": "Dry and hot during day, cool nights",
-    "featured": false
+    "featured": true
   },
 ];
 
@@ -461,7 +461,7 @@ export const packages: Package[] = [
     "includedItems": "Breakfasts, scooter/vehicle support, guided fort walk",
     "excludedItems": "Flights, optional activities",
     "itinerary": "Day 1: Arrival & evening markets. Day 2: Forts + beaches. Day 3: Water sport session. Day 4: Culture tour. Day 5: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 103,
@@ -481,7 +481,7 @@ export const packages: Package[] = [
     "includedItems": "Heritage stay, South Goa tour, Traditional meals",
     "excludedItems": "Water sports, Bar bills",
     "itinerary": "Day 1: Arrival & check-in. Day 2: Heritage walk. Day 3: Palolem beach. Day 4: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 1001,
@@ -521,7 +521,7 @@ export const packages: Package[] = [
     "includedItems": "5 breakfasts, 2 dinners, local guide, transfers & sightseeing",
     "excludedItems": "Flights, personal expenses, activities",
     "itinerary": "Day 1: Arrival & city orientation. Day 2: Scenic route + viewpoints. Day 3: Heritage stop & local experiences. Day 4: Day trip to nearby attractions. Day 5: Leisure + market time. Day 6: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 1004,
@@ -541,7 +541,7 @@ export const packages: Package[] = [
     "includedItems": "6 breakfasts, 2 dinners, transfers & sightseeing, local guide",
     "excludedItems": "Flights, personal expenses, tips",
     "itinerary": "Day 1: Arrival & check-in. Day 2: Viewpoints + scenic drive. Day 3: Local market + heritage stop. Day 4: Valley day with optional activities. Day 5: Culture & nature mix. Day 6: Relaxed sightseeing + photos. Day 7: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 1003,
@@ -561,7 +561,7 @@ export const packages: Package[] = [
     "includedItems": "7 breakfasts, curated sightseeing, local guide, transfers",
     "excludedItems": "Flights, personal expenses, tips",
     "itinerary": "Day 1: Arrival & check-in. Day 2: Scenic circuit. Day 3: Local culture. Day 4: Nature day trip. Day 5: Relaxed day. Day 6: Scenic drive. Day 7: Leisure. Day 8: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 201,
@@ -601,7 +601,7 @@ export const packages: Package[] = [
     "includedItems": "Mt Batur hike, Surfing lesson, Local guide",
     "excludedItems": "Visa fees, Flights",
     "itinerary": "Day 1: Arrival. Day 2: Culture Tour. Day 3: Mt Batur Trek. Day 4: Beach & Surf. Day 5: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 301,
@@ -621,7 +621,7 @@ export const packages: Package[] = [
     "includedItems": "Breakfasts, heritage dinner, guided sightseeing",
     "excludedItems": "Flights, souvenirs",
     "itinerary": "Day 1: Arrival & city orientation. Day 2: Forts & bazaars. Day 3: Desert camp. Day 4: Heritage tour. Day 5: Culture show. Day 6: Scenic drives. Day 7: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 304,
@@ -721,7 +721,7 @@ export const packages: Package[] = [
     "includedItems": "Rafting session, Ganga Aarti, Mall Road visit",
     "excludedItems": "Entry fees, Personal gear",
     "itinerary": "Day 1: Dehradun Arrival. Day 2: Mussoorie. Day 3: Rishikesh. Day 4: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 702,
@@ -741,7 +741,7 @@ export const packages: Package[] = [
     "includedItems": "Amer Fort entry, Chokhi Dhani dinner, AC car",
     "excludedItems": "Camera fees, Tips",
     "itinerary": "Day 1: Arrival & City Palace. Day 2: Amer Fort & Hawa Mahal. Day 3: Shopping & Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 802,
@@ -761,7 +761,7 @@ export const packages: Package[] = [
     "includedItems": "Boat ride on Lake Pichola, Bagore Ki Haveli show",
     "excludedItems": "Flights, Personal shopping",
     "itinerary": "Day 1: Arrival & Sunset Boat Ride. Day 2: City Palace & Lakes. Day 3: Leisure & Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 902,
@@ -861,7 +861,7 @@ export const packages: Package[] = [
     "includedItems": "Transfers, curated itinerary, local guide",
     "excludedItems": "Meals, flights",
     "itinerary": "Day 1: Arrival. Day 2: Cruise + markets. Day 3: Nature trails. Day 4: Cooking class. Day 5: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2001,
@@ -881,7 +881,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, All meals, Trekking guide, Transfers, Permits",
     "excludedItems": "Flights, Personal gear, Tips",
     "itinerary": "Day 1: Arrive Srinagar, transfer to Sonmarg. Day 2: Trek to Nichnai. Day 3: Trek to Vishansar Lake. Day 4: Trek to Gadsar Lake. Day 5: Trek to Satsar. Day 6: Trek to Naranag, transfer to Srinagar. Day 7: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2002,
@@ -901,7 +901,7 @@ export const packages: Package[] = [
     "includedItems": "Houseboat stay, Hotel accommodation, Breakfast & dinner, Airport transfers, Shikara ride, Mughal Gardens, Gulmarg excursion",
     "excludedItems": "Flights, Personal expenses, Pony rides",
     "itinerary": "Day 1: Arrive Srinagar, houseboat check-in, Shikara ride. Day 2: Mughal Gardens, Shankaracharya Temple. Day 3: Gulmarg excursion. Day 4: Pahalgam day trip. Day 5: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2003,
@@ -921,7 +921,7 @@ export const packages: Package[] = [
     "includedItems": "Royal Enfield bike, Fuel, Accommodation, All meals, Support vehicle, Mechanic, Permits",
     "excludedItems": "Flights, Personal gear, Medical insurance",
     "itinerary": "Day 1: Arrive Leh, acclimatization. Day 2: Leh local sightseeing. Day 3: Leh to Nubra Valley via Khardung La. Day 4: Nubra Valley to Pangong Lake. Day 5: Pangong to Leh. Day 6: Leh to Kargil. Day 7: Kargil to Srinagar. Day 8: Srinagar local. Day 9: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2004,
@@ -941,7 +941,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, Breakfast & dinner, Airport transfers, Local sightseeing, Monastery visits, Permits",
     "excludedItems": "Flights, Personal expenses, Entry fees",
     "itinerary": "Day 1: Arrive Leh, acclimatization. Day 2: Leh local - monasteries. Day 3: Leh to Nubra Valley. Day 4: Nubra Valley to Pangong Lake. Day 5: Pangong to Leh. Day 6: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2005,
@@ -961,7 +961,7 @@ export const packages: Package[] = [
     "includedItems": "Homestay accommodation, All meals, 4x4 transport, Guide, Permits, Winter gear",
     "excludedItems": "Flights, Personal expenses, High altitude sickness medication",
     "itinerary": "Day 1: Shimla to Kalpa. Day 2: Kalpa to Kaza. Day 3: Kaza local - Key, Kibber. Day 4: Pin Valley. Day 5: Langza, Hikkim, Komic. Day 6: Kaza to Shimla. Day 7: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2006,
@@ -981,7 +981,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, Breakfast & dinner, Transfers, Photography guide, Permits",
     "excludedItems": "Flights, Camera gear, Personal expenses",
     "itinerary": "Day 1: Shimla to Sangla. Day 2: Sangla to Kaza. Day 3: Kaza local - Key, Kibber. Day 4: Langza, Hikkim, Komic. Day 5: Pin Valley. Day 6: Kaza to Manali/Shimla.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2007,
@@ -1001,7 +1001,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, Breakfast & dinner, Transfers, Local sightseeing, Boat ride in Naini Lake, Cable car ride",
     "excludedItems": "Flights, Personal expenses, Safari charges",
     "itinerary": "Day 1: Delhi to Nainital. Day 2: Nainital local. Day 3: Nainital to Corbett. Day 4: Corbett Safari. Day 5: Corbett to Mussoorie. Day 6: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2008,
@@ -1021,7 +1021,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, Breakfast & dinner, Transfers, White-water rafting, Ganga Aarti, Yoga session",
     "excludedItems": "Flights, Personal expenses, Bungee jumping charges",
     "itinerary": "Day 1: Delhi to Rishikesh. Day 2: White-water rafting, Laxman Jhula, Ram Jhula. Day 3: Bungee jumping (optional), Ganga Aarti. Day 4: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2009,
@@ -1041,7 +1041,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, Breakfast, Transfers, Guided city tour, Amer Fort, Hawa Mahal, City Palace, Jantar Mantar",
     "excludedItems": "Flights, Lunch & dinner, Personal shopping, Entry fees",
     "itinerary": "Day 1: Arrive Jaipur, check-in, Hawa Mahal. Day 2: Amer Fort, Jaigarh Fort, Nahargarh Fort. Day 3: City Palace, Jantar Mantar, local markets. Day 4: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2010,
@@ -1061,7 +1061,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, Breakfast, Transfers, Food walk, Cooking class, Cultural show",
     "excludedItems": "Flights, Personal shopping",
     "itinerary": "Day 1: Arrive Jaipur, check-in, evening food walk. Day 2: Cooking class, cultural show, local market. Day 3: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2011,
@@ -1081,7 +1081,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, Breakfast, Transfers, Boat ride on Lake Pichola, City Palace, Jag Mandir, Saheliyon-ki-Bari",
     "excludedItems": "Flights, Lunch & dinner, Personal shopping, Entry fees",
     "itinerary": "Day 1: Arrive Udaipur, check-in, Lake Pichola boat ride. Day 2: City Palace, Jag Mandir, Jagdish Temple. Day 3: Saheliyon-ki-Bari, Fateh Sagar Lake, local markets. Day 4: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2012,
@@ -1101,7 +1101,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, Breakfast, Transfers, City Palace, Lake Pichola, Jagdish Temple",
     "excludedItems": "Flights, Lunch & dinner, Personal shopping",
     "itinerary": "Day 1: Arrive Udaipur, check-in, City Palace. Day 2: Lake Pichola boat ride, Jagdish Temple, local markets. Day 3: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2013,
@@ -1121,7 +1121,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, All meals, Transfers, Trekking guide, Living Root Bridge trek, Dawki boating",
     "excludedItems": "Flights, Personal gear, Permits",
     "itinerary": "Day 1: Arrive Guwahati, transfer to Shillong. Day 2: Shillong local. Day 3: Cherrapunji, Double Decker Living Root Bridge. Day 4: Mawlynnong, Dawki. Day 5: Krang Suri Falls, Jowai. Day 6: Laitlum Canyons, back to Shillong. Day 7: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2014,
@@ -1141,7 +1141,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, Breakfast & dinner, Transfers, Nohkalikai Falls, Mawsmai Cave, Seven Sisters Falls",
     "excludedItems": "Flights, Personal expenses, Caving equipment",
     "itinerary": "Day 1: Arrive Guwahati, transfer to Shillong. Day 2: Shillong local, Elephant Falls. Day 3: Cherrapunji - Nohkalikai Falls, Mawsmai Cave. Day 4: Dawki, Mawlynnong. Day 5: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2015,
@@ -1161,7 +1161,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, Breakfast & dinner, Transfers, Gangtok sightseeing, Tsomgo Lake, Baba Mandir, Permits",
     "excludedItems": "Flights, Personal expenses, Nathula Pass permit",
     "itinerary": "Day 1: Arrive Bagdogra, transfer to Gangtok. Day 2: Gangtok local sightseeing. Day 3: Tsomgo Lake, Baba Mandir. Day 4: Namchi, Ravangla. Day 5: Pelling. Day 6: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2016,
@@ -1181,7 +1181,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, Breakfast & dinner, Transfers, Pelling sightseeing, Yuksom, Khecheopalri Lake, Pemayangtse Monastery",
     "excludedItems": "Flights, Personal expenses, Permits",
     "itinerary": "Day 1: Arrive Bagdogra, transfer to Pelling. Day 2: Pelling local sightseeing. Day 3: Yuksom, Khecheopalri Lake. Day 4: Ravangla, Namchi. Day 5: Gangtok. Day 6: Tsomgo Lake, Baba Mandir. Day 7: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2017,
@@ -1201,7 +1201,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, Breakfast, Transfers, Scuba diving session, Snorkeling, Havelock Island, Neil Island, Cellular Jail",
     "excludedItems": "Flights, Personal expenses, Advanced diving courses",
     "itinerary": "Day 1: Arrive Port Blair, Cellular Jail. Day 2: Port Blair to Havelock, Radhanagar Beach. Day 3: Scuba diving, Elephant Beach. Day 4: Havelock to Neil Island, Bharatpur Beach. Day 5: Neil Island to Port Blair. Day 6: Ross Island, North Bay. Day 7: Departure.",
-    "featured": false
+    "featured": true
   },
   {
     "id": 2018,
@@ -1221,7 +1221,7 @@ export const packages: Package[] = [
     "includedItems": "Accommodation, Breakfast, Transfers, Havelock Island, Radhanagar Beach, Light & Sound Show",
     "excludedItems": "Flights, Personal expenses, Water sports",
     "itinerary": "Day 1: Arrive Port Blair, Cellular Jail, Light & Sound Show. Day 2: Port Blair to Havelock, Radhanagar Beach. Day 3: Elephant Beach, Snorkeling. Day 4: Havelock to Port Blair. Day 5: Departure.",
-    "featured": false
+    "featured": true
   },
 ];
 

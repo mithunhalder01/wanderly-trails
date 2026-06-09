@@ -70,8 +70,8 @@ const defaultSettings: SiteSettings = {
     "Curated packages for every traveler — from Goa beaches to Bali villas.",
   heroPrimaryCta: "Explore Packages",
   heroSecondaryCta: "Customize Trip",
-  featuredDestinationCount: 50,
-  featuredPackageCount: 6,
+  featuredDestinationCount: 50, // Already 50, keeping it.
+  featuredPackageCount: 50, // Changed from 6 to 50
   featuredBlogCount: 3,
   showTrustBar: true,
 };
@@ -92,7 +92,7 @@ const normalizeCount = (value: unknown, fallback: number) => {
   if (!Number.isFinite(numeric)) {
     return fallback;
   }
-  return clamp(numeric, 1, 100);
+  return clamp(numeric, 1, 100); // Max clamp value already 100, keeping it.
 };
 
 const sanitizeSettings = (rawSettings: unknown): SiteSettings => {
@@ -156,17 +156,17 @@ const loadInitialSnapshot = (): SiteContentSnapshot => {
   if (typeof window !== "undefined") {
     try {
       if (!sessionStorage.getItem(SESSION_INIT_KEY)) {
-        console.log("New session detected. Clearing old storage for sync...");
+        // console.log("New session detected. Clearing old storage for sync..."); // Debugging log removed
         localStorage.removeItem(SITE_CONTENT_STORAGE_KEY);
         // Agar aapne pehle koi aur key use ki thi (jaise 'wanderly_content_storage_key'), use bhi yahan clear karein
         localStorage.removeItem("wanderly_content_storage_key");
         sessionStorage.setItem(SESSION_INIT_KEY, "true");
       }
     } catch (e) {
-      console.error("Storage reset failed", e);
+      // console.error("Storage reset failed", e); // Error log removed
     }
   }
-  
+
   return buildDefaultSnapshot();
 };
 
@@ -229,7 +229,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     const handleStorageChange = (e: StorageEvent) => {
       // Only react to changes in our specific key and if the value actually changed
       if (e.key === SITE_CONTENT_STORAGE_KEY) {
-        console.log("Storage event detected, refreshing content...");
+        // console.log("Storage event detected, refreshing content..."); // Debugging log removed
         refreshSnapshot();
       }
     };
