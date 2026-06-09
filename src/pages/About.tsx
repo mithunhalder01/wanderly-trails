@@ -42,7 +42,7 @@ export default function About() {
               Founded in 2020 by Harsh Tiwari, Wanderly Trails started with a simple belief: travel should be accessible, safe, and truly memorable for everyone. What began as a small team of passionate explorers has grown into one of India's most trusted travel agencies.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-5">
-              We've taken thousands of travelers to their dream destinations — from the golden beaches of Goa to the snow-capped peaks of Kashmir, from the bustling souks of Dubai to the serene temples of Bali.
+              We've taken thousands of travelers to their dream destinations — from the golden beaches of Goa to the snow-capped peaks of Kashmir, and the serene temples of Bali.
             </p>
             <p className="text-muted-foreground leading-relaxed">
               Every trip we craft is a labor of love — meticulously planned, beautifully executed, and filled with moments that last a lifetime.

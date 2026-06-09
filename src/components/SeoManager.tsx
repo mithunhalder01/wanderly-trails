@@ -50,7 +50,7 @@ const STATIC_PAGES: Record<string, Omit<SeoPayload, "canonicalPath" | "ogImage">
   "/destinations": {
     title: "Top Travel Destinations | Wanderly Trails",
     description:
-      "Explore popular travel destinations in India and abroad including Goa, Kashmir, Kerala, Bali, Dubai, Maldives, and more.",
+      "Explore popular travel destinations in India and abroad including Goa, Kashmir, Kerala, Bali, Maldives, and more.",
     keywords: `${DEFAULT_KEYWORDS}, best travel destinations`,
     robots: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
     ogType: "website",

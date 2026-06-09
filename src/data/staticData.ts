@@ -251,19 +251,6 @@ export const destinations: Destination[] = [
     "weather": "Warm days, cool evenings",
     "featured": false
   },
-  {
-    "id": 15,
-    "name": "Dubai",
-    "country": "UAE",
-    "category": "City Break",
-    "description": "Modern skyline, desert adventures, and world-class shopping. Dubai is perfect for short, high-impact vacations.",
-    "imageUrl": "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=1200&q=80",
-    "rating": 4.7,
-    "startingPrice": 44999,
-    "bestSeason": "November to March",
-    "weather": "Warm days, cooler evenings",
-    "featured": false
-  }
 ];
 
 export const packages: Package[] = [
@@ -668,26 +655,6 @@ export const packages: Package[] = [
     "featured": true
   },
   {
-    "id": 1501,
-    "destinationId": 15,
-    "destinationName": "Dubai, UAE",
-    "title": "Dubai Skyline & Safari (5D/4N)",
-    "description": "Experience the glamour of Dubai with Burj Khalifa and desert adventures.",
-    "imageUrl": "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=1200&q=80",
-    "price": 42999,
-    "duration": 5,
-    "nights": 4,
-    "category": "City Break",
-    "rating": 4.8,
-    "hotelStars": 4,
-    "mealsIncluded": true,
-    "transportIncluded": true,
-    "includedItems": "Burj Khalifa entry, Desert Safari with BBQ, Marina Dhow Cruise",
-    "excludedItems": "Visa, Flights",
-    "itinerary": "Day 1: Arrival. Day 2: City Tour. Day 3: Burj Khalifa & Dubai Mall. Day 4: Desert Safari. Day 5: Departure.",
-    "featured": true
-  },
-  {
     "id": 401,
     "destinationId": 13,
     "destinationName": "Kerala, India",
@@ -1087,46 +1054,6 @@ export const packages: Package[] = [
     "itinerary": "Day 1: Arrive Port Blair, Cellular Jail, Light & Sound Show. Day 2: Port Blair to Havelock, Radhanagar Beach. Day 3: Elephant Beach, Snorkeling. Day 4: Havelock to Port Blair. Day 5: Departure.",
     "featured": false
   },
-  {
-    "id": 2019,
-    "destinationId": 15,
-    "destinationName": "Dubai, UAE",
-    "title": "Dubai Family Adventure (6D/5N)",
-    "description": "An exciting family trip to Dubai, featuring theme parks, desert adventures, and iconic city attractions suitable for all ages.",
-    "imageUrl": "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=1200&q=80",
-    "price": 60000,
-    "duration": 6,
-    "nights": 5,
-    "category": "Family",
-    "rating": 4.8,
-    "hotelStars": 4,
-    "mealsIncluded": true,
-    "transportIncluded": true,
-    "includedItems": "Accommodation, Breakfast, Transfers, Dubai Parks & Resorts, Desert Safari, Burj Khalifa, Dubai Aquarium",
-    "excludedItems": "Flights, Visa, Lunch & dinner, Personal shopping",
-    "itinerary": "Day 1: Arrive Dubai, check-in, Dubai Mall. Day 2: Dubai Parks & Resorts. Day 3: Desert Safari. Day 4: Burj Khalifa, Dubai Aquarium. Day 5: Global Village, Miracle Garden. Day 6: Departure.",
-    "featured": false
-  },
-  {
-    "id": 2020,
-    "destinationId": 15,
-    "destinationName": "Dubai, UAE",
-    "title": "Dubai Shopping Extravaganza (4D/3N)",
-    "description": "A short but intense shopping and luxury experience in Dubai, perfect for fashion enthusiasts and luxury seekers.",
-    "imageUrl": "https://images.unsplash.com/photo-1505761671935-60b3a7427bad?w=1200&q=80",
-    "price": 40000,
-    "duration": 4,
-    "nights": 3,
-    "category": "Luxury",
-    "rating": 4.7,
-    "hotelStars": 5,
-    "mealsIncluded": true,
-    "transportIncluded": true,
-    "includedItems": "Accommodation, Breakfast, Transfers, Dubai Mall, Gold Souk, Spice Souk, City tour",
-    "excludedItems": "Flights, Visa, Lunch & dinner, Personal shopping budget",
-    "itinerary": "Day 1: Arrive Dubai, check-in, Dubai Mall. Day 2: Gold Souk, Spice Souk, Old Dubai. Day 3: Mall of the Emirates, optional Ski Dubai. Day 4: Departure.",
-    "featured": false
-  }
 ];
 
 export const blogPosts: BlogPost[] = [

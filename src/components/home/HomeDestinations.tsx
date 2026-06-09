@@ -9,7 +9,7 @@ import "swiper/css";
 // ── COLORFUL FLOATING BAR ICONS ──
 const FlightsIcon = () => (
   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-950/40">
-    <img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRNAoE5exIFCrlJGn5msF1dB7lgg81rlHEHeBiq8wjuEz5p8WvM" alt="" />
+    <img src="/instagram.png" alt="" className="w-6 h-6 object-contain" />
   </div>
 );
 
@@ -90,10 +90,15 @@ export default function HomeDestinations() {
       <div className="relative z-20 -translate-y-1/2 max-w-5xl mx-auto px-4 sm:px-6">
         <div className="bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/10 rounded-full shadow-[0_15px_40px_rgba(0,0,0,0.08)] flex items-center justify-between py-3 px-4 md:px-8 gap-1.5 md:gap-4">
           
-          <Link href="/packages" className="flex-1 flex items-center justify-center gap-3 px-1 md:px-3 py-1 border-r border-gray-100 dark:border-zinc-800 hover:opacity-85 transition-opacity group">
+          <a 
+            href="https://www.instagram.com/wanderly_trails/" 
+            target="_blank" 
+            rel="noreferrer" 
+            className="flex-1 flex items-center justify-center gap-3 px-1 md:px-3 py-1 border-r border-gray-100 dark:border-zinc-800 hover:opacity-85 transition-opacity group"
+          >
             <FlightsIcon />
-            <span className="hidden md:inline text-[11px] sm:text-xs md:text-sm font-bold text-gray-850 dark:text-zinc-205 whitespace-nowrap">Flights</span>
-          </Link>
+            <span className="hidden md:inline text-[11px] sm:text-xs md:text-sm font-bold text-gray-850 dark:text-zinc-205 whitespace-nowrap">Instagram & social</span>
+          </a>
           
           <Link href="/packages" className="flex-1 flex items-center justify-center gap-3 px-1 md:px-3 py-1 border-r border-gray-100 dark:border-zinc-800 hover:opacity-85 transition-opacity group">
             <HolidayPackagesIcon />

@@ -12,7 +12,6 @@ const chatResponses: Record<string, string> = {
   default: "Hi there! I'm WanderBot 🌍 I can help you with destinations, packages, bookings, and travel tips. What are you looking for?",
   goa: "Goa is perfect year-round but best from October–March! We have packages starting at ₹8,999. Check out our Goa Beach Paradise package 🏖️",
   bali: "Bali is magical! Our Bali Honeymoon Special (7 days) starts at ₹49,999 with a private villa included 🌺",
-  dubai: "Dubai is an incredible experience! Our Dubai City of Dreams package (6 days) starts at ₹55,000 🌆",
   kashmir: "Kashmir — Paradise on Earth! Our Kashmir Valley Romance (7 days) starts at ₹22,999 🏔️",
   honeymoon: "We have amazing honeymoon packages! Bali, Maldives, and Kashmir are our top picks. Prices start at ₹22,999 💑",
   budget: "We have packages for every budget, starting from just ₹8,999! Check our Packages page for full details 💰",
@@ -24,7 +23,6 @@ function getResponse(input: string): string {
   const lower = input.toLowerCase();
   if (lower.includes("goa")) return chatResponses.goa;
   if (lower.includes("bali")) return chatResponses.bali;
-  if (lower.includes("dubai")) return chatResponses.dubai;
   if (lower.includes("kashmir")) return chatResponses.kashmir;
   if (lower.includes("honeymoon") || lower.includes("couple")) return chatResponses.honeymoon;
   if (lower.includes("budget") || lower.includes("cheap") || lower.includes("price") || lower.includes("cost")) return chatResponses.budget;
