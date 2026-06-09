@@ -4,6 +4,7 @@ import { SlidersHorizontal } from "lucide-react";
 import PackageCard from "@/components/PackageCard";
 import PageHero from "@/components/PageHero";
 import PageHeader from "@/components/PageHeader";
+import { IMAGES, VIDEOS } from "@/data/assets";
 import { useContent } from "@/context/content";
 
 const categories = ["All", "Adventure", "Honeymoon", "Family", "Solo", "Luxury", "Beaches"];
@@ -41,8 +42,8 @@ export default function Packages() {
   return (
     <div className="pt-20">
       <PageHero
-        video="/vid3.mp4"
-        image="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80"
+        video={VIDEOS.packagesHero}
+        image={IMAGES.hero.packages}
         alt="Packages"
         badge="Find Your Trip"
         title="All Packages"

@@ -3,6 +3,8 @@ import { useSearch } from "wouter";
 import { motion } from "framer-motion";
 import { MessageCircle, Phone, Clock, CheckCircle, MapPin, Users, Calendar, Star } from "lucide-react";
 import PageHero from "@/components/PageHero";
+
+import { IMAGES, VIDEOS } from "@/data/assets";
 import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
 
 const steps = [
@@ -49,12 +51,12 @@ export default function Booking() {
   return (
     <div className="pt-20">
       <PageHero
-        image="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=75&auto=format"
+        image={IMAGES.hero.booking}
         alt="Booking"
         badge="Booking"
         title="Book via WhatsApp"
         subtitle="Fast, personal, and guided booking support from our travel experts."
-        video="/sec-heading-vid/contact.mp4"
+        video={VIDEOS.bookingHero}
       />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

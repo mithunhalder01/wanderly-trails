@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import PageHero from "@/components/PageHero";
+import { IMAGES } from "@/data/assets";
 import { CONTACT_EMAIL, CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
 
 const faqs = [
@@ -24,7 +25,7 @@ export default function FAQ() {
   return (
     <div className="pt-20">
       <PageHero
-        image="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80"
+        image={IMAGES.hero.faq}
         alt="Frequently asked questions"
         badge="Got Questions?"
         title="Frequently Asked Questions"

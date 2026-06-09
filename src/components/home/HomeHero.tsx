@@ -4,6 +4,7 @@ import { ArrowRight, Instagram, Facebook, Youtube, Sparkles, Compass, Star } fro
 import { homeHero, homeStats } from "@/data/homeContent";
 import { CONTACT_WHATSAPP_NUMBER, SOCIAL_LINKS } from "@/lib/contact";
 import AnimatedCounter from "./AnimatedCounter";
+import { IMAGES, VIDEOS } from "@/data/assets";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
@@ -40,10 +41,10 @@ export default function HomeHero() {
           muted
           loop
           playsInline
-          poster="/hero-video.mp4"
+          poster={IMAGES.hero.home}
           className="hero-bg-vid h-full w-full object-cover scale-105 will-change-transform"
         >
-          <source src="/hero-video.mp4" type="video/mp4" />
+          <source src={VIDEOS.homeHero} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
 
@@ -121,13 +122,7 @@ export default function HomeHero() {
 
                 <div className="relative z-10 mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-4">
                   <div className="flex -space-x-2.5 overflow-hidden max-w-full">
-                    {[
-                      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop&crop=faces",
-                      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=faces",
-                      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=faces",
-                      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=faces",
-                      "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=80&h=80&fit=crop&crop=faces"
-                    ].map((src, i) => (
+                    {IMAGES.ui.statsUsers.map((src, i) => (
                       <img
                         key={i}
                         className="inline-block h-8 w-8 rounded-full ring-2 ring-black object-cover"

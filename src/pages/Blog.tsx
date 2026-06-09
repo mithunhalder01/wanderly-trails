@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Clock, User, ChevronRight } from "lucide-react";
 import PageHero from "@/components/PageHero";
 import PageHeader from "@/components/PageHeader";
+import { IMAGES, VIDEOS } from "@/data/assets";
 import { useContent } from "@/context/content";
 
 const categories = ["All", "Travel Tips", "Destinations", "Budget Travel", "Visa Guide", "Beaches"];
@@ -20,7 +21,8 @@ export default function Blog() {
   return (
     <div className="pt-20">
       <PageHero 
-        video="/blogvid.mp4"
+        video={VIDEOS.blogHero}
+        image={IMAGES.hero.destinations}
         alt="Blog"
         badge="Travel Stories"
         title="Our Blog"

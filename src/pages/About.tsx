@@ -3,12 +3,13 @@ import { Users, MapPin, Star, Target, Eye } from "lucide-react";
 import SectionHeading from "@/components/SectionHeading";
 import PageHeader from "@/components/PageHeader";
 import PageHero from "@/components/PageHero";
+import { IMAGES, VIDEOS } from "@/data/assets";
 
 const team = [
-  { name: "Harsh Tiwari", role: "Founder & Owner", img: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg", bio: "Passionate traveler and explorer, dedicated to crafting perfect itineraries and unforgettable travel journeys." },
-  { name: "Priya Sharma", role: "Head of Destinations", img: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg", bio: "Expert in Indian travel with extensive knowledge of all major states and hidden gems." },
-  { name: "Rohit Verma", role: "Lead Tour Guide", img: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg", bio: "Award-winning guide with deep expertise in adventure and luxury travel." },
-  { name: "Sneha Patel", role: "Customer Experience", img: "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg", bio: "Dedicated to making every traveler's experience seamless and memorable." },
+  { name: "Harsh Tiwari", role: "Founder & Owner", img: IMAGES.placeholders.avatar, bio: "Passionate traveler and explorer, dedicated to crafting perfect itineraries and unforgettable travel journeys." },
+  { name: "Priya Sharma", role: "Head of Destinations", img: IMAGES.placeholders.avatar, bio: "Expert in Indian travel with extensive knowledge of all major states and hidden gems." },
+  { name: "Rohit Verma", role: "Lead Tour Guide", img: IMAGES.placeholders.avatar, bio: "Award-winning guide with deep expertise in adventure and luxury travel." },
+  { name: "Sneha Patel", role: "Customer Experience", img: IMAGES.placeholders.avatar, bio: "Dedicated to making every traveler's experience seamless and memorable." },
 ];
 
 const achievements = [
@@ -21,8 +22,8 @@ export default function About() {
   return (
     <div className="pt-20">
       <PageHero
-        video="/sec-heading-vid/about.mp4"
-        image="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80"
+        video={VIDEOS.aboutHero}
+        image={IMAGES.hero.about}
         alt="About Wanderly Trails"
         badge="Our Story"
         title="About Wanderly Trails"
@@ -48,7 +49,7 @@ export default function About() {
             </p>
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative">
-            <img src="https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=800&q=80" alt="Team" className="rounded-3xl shadow-xl w-full object-cover h-96" />
+            <img src={IMAGES.placeholders.team} alt="Team" className="rounded-3xl shadow-xl w-full object-cover h-96" />
             <div className="absolute -bottom-4 -left-4 sm:-bottom-6 sm:-left-6 bg-primary text-white rounded-2xl p-4 sm:p-6 shadow-xl">
               <p className="text-3xl sm:text-4xl font-serif font-bold">10+</p>
               <p className="text-white/80 text-sm">Years of Excellence</p>
