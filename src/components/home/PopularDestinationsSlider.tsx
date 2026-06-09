@@ -3,6 +3,7 @@ import { useContent } from "@/context/content";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
+import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
 
 export default function PopularDestinationsSlider() {
   const { destinations } = useContent();
@@ -49,17 +50,20 @@ export default function PopularDestinationsSlider() {
           }}
         >
           {items.map((dest) => (
-            <motion.div
-              key={dest.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: dest.id * 0.05 }}
-            >
-              <Link 
-              href={`/destinations/${dest.id}`}
-              className="flex-shrink-0 flex flex-col items-center gap-4 snap-start group cursor-pointer"
-            >
+            <motion.div key={dest.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: dest.id * 0.05 }}>
+              {(() => {
+                const isInternational = dest.country !== "India";
+                const whatsappMessage = encodeURIComponent(
+                  `Hi! I'm interested in the ${dest.name} (${dest.country}) package. Can you tell me more?`
+                );
+                const whatsappLink = `https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${whatsappMessage}`;
+
+                return (
+                  <Link
+                    href={isInternational ? whatsappLink : `/destinations/${dest.id}`}
+                    target={isInternational ? "_blank" : "_self"}
+                    className="flex-shrink-0 flex flex-col items-center gap-4 snap-start group cursor-pointer"
+                  >
               {/* Circular Destination Card */}
               <div className="relative">
                 <div className="w-[100px] h-[100px] sm:w-[115px] sm:h-[115px] md:w-[130px] md:h-[130px] rounded-full border-2 border-transparent group-hover:border-primary/40 transition-all duration-500 absolute -inset-1 z-0" />
@@ -80,7 +84,9 @@ export default function PopularDestinationsSlider() {
               <span className="text-xs sm:text-sm font-semibold text-foreground/90 text-center tracking-tight transition-colors group-hover:text-primary group-hover:font-bold">
                 {dest.name}
               </span>
-            </Link>
+                  </Link>
+                );
+              })()}
             </motion.div>
           ))}
         </div>

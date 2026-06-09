@@ -37,7 +37,7 @@ export default function Destinations() {
         return mountainKeywords.some(key => cat.includes(key) || name.includes(key) || desc.includes(key));
       }
       if (active === "Desert") {
-        const desertKeywords = ["desert", "rajasthan", "spiti", "uae", "dubai", "sand dunes", "kutch", "gujarat", "ladakh"];
+        const desertKeywords = ["rajasthan", "uae", "dubai", "sand dunes", "kutch", "gujarat"]; // Removed generic "desert" keyword
         return desertKeywords.some(key => cat.includes(key) || name.includes(key) || desc.includes(key));
       }
       return cat === active.toLowerCase();
