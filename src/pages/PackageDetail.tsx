@@ -48,6 +48,7 @@ export default function PackageDetail() {
       </div>
     `).join("");
 
+
     const includedHtml = included.map(item => `
       <li class="included-item"><span class="check-icon">✔</span> ${item}</li>
     `).join("");
