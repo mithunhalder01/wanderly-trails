@@ -44,7 +44,6 @@ export default function Gallery() {
   return (
     <div className="pt-20">
       <PageHero
-        video={VIDEOS.galleryHero}
         image={IMAGES.hero.gallery}
         alt="Travel Gallery"
         badge="Our Memories"
