@@ -27,6 +27,8 @@ const FAQ = lazy(() => import("@/pages/FAQ"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const SearchPage = lazy(() => import("@/pages/Search"));
 const HimachalBackpackingItinerary = lazy(() => import("@/data/HimachalBackpackingItinerary"));
+const KashmirItinerary = lazy(() => import("@/pages/KashmirItinerary"));
+const LadakhItinerary = lazy(() => import("@/pages/LadakhItinerary"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
@@ -85,6 +87,8 @@ function Router() {
             <Route path="/contact" component={Contact} />
             <Route path="/search" component={SearchPage} />
             <Route path="/itinerary/himachal-backpacking" component={HimachalBackpackingItinerary} />
+            <Route path="/itinerary/kashmir-tour" component={KashmirItinerary} />
+            <Route path="/itinerary/ladakh-tour" component={LadakhItinerary} />
             <Route component={NotFound} />
           </Switch>
         </PublicLayout>

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useRoute, Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { MapPin, Calendar, Star, Thermometer, Download, ArrowLeft } from "lucide-react";
+import { kashmirItineraryData, generateKashmirItineraryHtmlForPDF } from "@/data/kashmirItineraryData";
 import PackageCard from "@/components/PackageCard";
 import SectionHeading from "@/components/SectionHeading";
 import PageHeader from "@/components/PageHeader";
@@ -14,88 +15,6 @@ export default function DestinationDetail() {
   const id = params?.id ? parseInt(params.id) : 0;
   const destination = getDestinationById(id);
   const related = getPackagesByDestination(id);
-
-  // Kashmir itinerary content (extracted from KashmirItinerary.tsx)
-  const kashmirItineraryContent = {
-    title: "Kashmir",
-    route: "Srinagar - Pahalgam - Gulmarg - Srinagar",
-    durationPrice: "6D/5N at Rs.16500/- ONWARDS",
-    contact: "91-7903639845, 7992433486",
-    days: [
-      {
-        day: "Day 01:",
-        heading: "Arrive - Srinagar",
-        description: "On arrival at the Srinagar airport and transfer to Houseboat. In evening Shikara ride in world famous dal lake. Later return houseboat and overnight stay at the houseboat."
-      },
-      {
-        day: "Day 02:",
-        heading: "Srinagar to Pahalgam (92 kilometers / 2 hrs drive)",
-        description: "After Breakfast, we drive to Pahalgam via Pampore, Avantipura and the village of Bijbehara which remains famous as the bread basket of Kashmir. We switch from the national highway 1A at Khanabal and drive through the second largest city of Anantnag. From here the road turns scenic as we drive parallel on the Lidder River flowing from the opposite direction. In Pahalgam, check-in at the hotel and spend the rest of the day at leisure. Overnight stay at the hotel in Pahalgam."
-      },
-      {
-        day: "Day 03:",
-        heading: "Pahalgam to Gulmarg (135 kilometers / 2.3 hrs drive)",
-        description: "After breakfast in the morning, proceed towards Gulmarg. Enroute you get to see the beautiful Tangmarg town and drive ahead on a scenic drive of 14 kilometers to Gulmarg. Arrive in Gulmarg early in the afternoon and check in at the hotel. Later, begin a short tour, boarding the Gondola cable car system ( at your own cost)( (the 08 minutes ropeway). Descend back to Gulmarg after an hour and later indulge in some horse-riding. Stay overnight at the hotel in Gulmarg."
-      },
-      {
-        day: "Day 04:",
-        heading: "Gulmarg to Srinagar",
-        description: "After Breakfast take some sightseeing of Gulmarg and later proceed to Srinagar , check in the hotel & after refresh take some sightseeing of Srinagar half day tour of world famous Mughal Gardens visiting the Nishat Bagh (The garden of pleasure) and Shalimar Bagh (Adobe of love) , Shankaracharya Temple , Pari Mahal , Hazratbal Shrine. Evening back to Srinagar. Overnight Stay in the Hotel."
-      },
-      {
-        day: "Day 05:",
-        heading: "Srinagar - Sonamarg - Srinagar",
-        description: "After breakfasts proceed to full day excursion of Sonamarg which is one of the most beautiful drives from Srinagar. Sonamarg also called Meadows of Gold is located at a height of 2692 meters. You may take a pony ride (at your own cost) to Thajiwas Glacier where snow remains round the year. Evening Back to Srinagar. Overnight Stay in the hotel."
-      },
-      {
-        day: "Day 06:",
-        heading: "Srinagar Airport Drop",
-        description: "After your breakfast, we will assist you with transfers to Srinagar Airport. However, on your way, you can make a brief stopover for Shopping and then for your onward flight."
-      }
-    ],
-    pricing: [
-      { pax: "Min. 2 Pax per person", standard: "13100", deluxe: "16500", superDeluxe: "21900" },
-      { pax: "Min. 4 Pax per person", standard: "17300", deluxe: "14200", superDeluxe: "18500" },
-      { pax: "Min. 6 Pax per person", standard: "21350", deluxe: "24850", superDeluxe: "22350" }
-    ],
-    extraPersonPricing: {
-      standard: "8200",
-      deluxe: "11200",
-      superDeluxe: "13600"
-    }
-  };
-
-  const generateKashmirItineraryHtml = () => {
-    const itineraryHtml = kashmirItineraryContent.days.map((day, index) => `
-      <div class="itinerary-day">
-        <h4 class="itinerary-day-title"><span class="itinerary-day-num">${day.day}</span> ${day.heading}</h4>
-        <p class="itinerary-day-desc">${day.description}</p>
-      </div>
-    `).join("");
-
-    const pricingHtml = `
-      <div class="pricing-table">
-        <div class="pricing-row header"><span>Pax</span><span>Standard</span><span>Deluxe</span><span>Super Deluxe</span></div>
-        ${kashmirItineraryContent.pricing.map(p => `
-          <div class="pricing-row"><span>${p.pax}</span><span>₹${p.standard}</span><span>₹${p.deluxe}</span><span>₹${p.superDeluxe}</span></div>
-        `).join("")}
-        <div class="pricing-row extra-person"><span>Extra Person</span><span>₹${kashmirItineraryContent.extraPersonPricing.standard}</span><span>₹${kashmirItineraryContent.extraPersonPricing.deluxe}</span><span>₹${kashmirItineraryContent.extraPersonPricing.superDeluxe}</span></div>
-      </div>
-      <p class="pricing-note">* Prices mentioned are estimates. Contact support for exact quote based on travel dates.</p>
-    `;
-
-    return `
-      <div class="section">
-        <div class="section-title">Detailed 6D/5N Itinerary</div>
-        <p class="itinerary-meta">${kashmirItineraryContent.route}</p>
-        <p class="itinerary-price-overview">${kashmirItineraryContent.durationPrice}</p>
-        <p class="itinerary-contact">Contact us: ${kashmirItineraryContent.contact}</p>
-        <div class="itinerary-days-container">${itineraryHtml}</div>
-        <div class="section-title mt-8">Plan Rates & Pricing</div>
-        ${pricingHtml}
-      </div>
-    `;
-  };
 
   const scrollToItinerary = () => {
     document.getElementById("itinerary-section")?.scrollIntoView({ behavior: "smooth" });
@@ -409,7 +328,7 @@ export default function DestinationDetail() {
             <p class="about-text">${destination.description}</p>
           </div>
 
-          ${destination.id === 3 ? generateKashmirItineraryHtml() : ''}
+          ${destination.id === 3 ? generateKashmirItineraryHtmlForPDF() : ''}
 
 
 
@@ -543,33 +462,6 @@ export default function DestinationDetail() {
             </div>
 
             {/* If Kashmir, render the detailed itinerary on the page */}
-            {destination.id === 3 && (
-              <div id="itinerary-section" className="mt-12 space-y-8 bg-muted/30 p-6 rounded-3xl border border-border">
-                <div>
-                  <h3 className="text-2xl font-serif font-bold text-foreground">Detailed Itinerary</h3>
-                  <p className="text-primary font-semibold mt-1">{kashmirItineraryContent.route}</p>
-                  <p className="text-muted-foreground text-sm">{kashmirItineraryContent.durationPrice}</p>
-                </div>
-                
-                <div className="space-y-6">
-                  {kashmirItineraryContent.days.map((day, idx) => (
-                    <div key={idx} className="flex gap-4">
-                      <div className="flex flex-col items-center">
-                        <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">
-                          {idx + 1}
-                        </div>
-                        {idx < kashmirItineraryContent.days.length - 1 && <div className="w-0.5 h-full bg-border mt-2" />}
-                      </div>
-                      <div className="pb-4">
-                        <h4 className="font-bold text-foreground">{day.heading}</h4>
-                        <p className="text-muted-foreground text-sm mt-1 leading-relaxed">{day.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-8">
               <div className="bg-muted rounded-2xl p-4">
                 <Calendar className="w-5 h-5 text-primary mb-2" />
@@ -624,12 +516,26 @@ export default function DestinationDetail() {
               >
                 View Himachal Backpacking Details
               </Link>
+            ) : destination.name === "Kashmir" ? (
+              <Link
+                href="/itinerary/kashmir-tour"
+                className="block w-full border border-primary/20 text-center font-semibold py-3 rounded-xl hover:bg-primary/10 transition-colors mt-3 text-sm text-primary"
+              >
+                View Kashmir Tour Details
+              </Link>
+            ) : destination.name === "Leh Ladakh" ? (
+              <Link
+                href="/itinerary/ladakh-tour"
+                className="block w-full border border-primary/20 text-center font-semibold py-3 rounded-xl hover:bg-primary/10 transition-colors mt-3 text-sm text-primary"
+              >
+                View Ladakh Tour Details
+              </Link>
             ) : (
               <button
                 onClick={scrollToItinerary}
                 className="block w-full border border-primary/20 text-center font-semibold py-3 rounded-xl hover:bg-primary/10 transition-colors mt-3 text-sm text-primary"
               >
-                View Detailed Itineraries
+                View Available Packages
               </button>
             )}
 
@@ -638,10 +544,10 @@ export default function DestinationDetail() {
             </Link>
           </div>
         </div>
-
-        {related.length > 0 && (
-          <motion.div 
-            id={destination.id === 3 ? "packages-list" : "itinerary-section"} 
+        
+        {related.length > 0 && ( // This section will now always be "itinerary-section" for scrolling to packages
+          <motion.div
+            id="itinerary-section"
             initial={{ opacity: 0, y: 20 }} 
             whileInView={{ opacity: 1, y: 0 }} 
             viewport={{ once: true }} 

@@ -1,14 +1,14 @@
-// /Users/mac/Documents/wanderly-trails/src/pages/KashmirItinerary.tsx
+// /Users/mac/Documents/wanderly-trails/src/pages/LadakhItinerary.tsx
 import { Link } from "wouter";
 import { ArrowLeft, Phone, MessageCircle, Download } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { CONTACT_WHATSAPP_NUMBER, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_DIGITS } from "@/lib/contact";
-import { kashmirItineraryData, generateKashmirItineraryHtmlForPDF } from "@/data/kashmirItineraryData";
+import { ladakhItineraryData, generateLadakhItineraryHtmlForPDF } from "@/data/ladakhItineraryData";
 
-export default function KashmirItinerary() {
+export default function LadakhItinerary() {
   const contactPhone = CONTACT_PHONE_DISPLAY;
   const whatsappMsg = encodeURIComponent(
-    `Hi! I'm interested in the Kashmir Tour package (${kashmirItineraryData.durationPrice}). Can you please share more details or help me book?`
+    `Hi! I'm interested in the Ladakh Tour package (${ladakhItineraryData.durationPrice}). Can you please share more details or help me book?`
   );
   const whatsappUrl = `https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${whatsappMsg}`;
 
@@ -19,7 +19,7 @@ export default function KashmirItinerary() {
     printWindow.document.write(`
       <html>
         <head>
-          <title>${kashmirItineraryData.title} - Itinerary | Wanderly Trails</title>
+          <title>${ladakhItineraryData.title} - Itinerary | Wanderly Trails</title>
           <style>
             body {
               font-family: system-ui, -apple-system, sans-serif;
@@ -105,28 +105,28 @@ export default function KashmirItinerary() {
               color: #4b5563;
               line-height: 1.6;
             }
-            .included-list, .excluded-list {
+            .included-list, .excluded-list, .notes-list, .precautions-list, .terms-list {
               list-style: none;
               padding: 0;
               margin: 0;
             }
-            .included-item, .excluded-item {
+            .included-item, .excluded-item, .note-item, .precaution-item, .term-item {
               display: flex;
-              align-items: flex-start; /* Changed to flex-start for multi-line items */
+              align-items: flex-start;
               gap: 8px;
               font-size: 14px;
               color: #4b5563;
               margin-bottom: 8px;
             }
             .check-icon {
-              color: #22c55e; /* green-500 */
+              color: #22c55e;
               font-weight: bold;
-              flex-shrink: 0; /* Prevent icon from shrinking */
+              flex-shrink: 0;
             }
             .x-icon {
-              color: #ef4444; /* red-500 */
+              color: #ef4444;
               font-weight: bold;
-              flex-shrink: 0; /* Prevent icon from shrinking */
+              flex-shrink: 0;
             }
             .contact-info {
               margin-top: 30px;
@@ -207,13 +207,13 @@ export default function KashmirItinerary() {
           <div class="header">
             <img src="${window.location.origin}/logo.png" class="pdf-logo" alt="Logo" />
             <div class="logo">WANDERLY TRAILS</div>
-            <div class="title">${kashmirItineraryData.title} Tour</div>
-            <div class="meta">${kashmirItineraryData.route}</div>
+            <div class="title">${ladakhItineraryData.title} Tour</div>
+            <div class="meta">${ladakhItineraryData.route}</div>
           </div>
 
-          <img src="${window.location.origin}/kashmir.png" class="hero-img" alt="${kashmirItineraryData.title}" />
+          <img src="${window.location.origin}/ladakh.png" class="hero-img" alt="${ladakhItineraryData.title}" />
 
-          ${generateKashmirItineraryHtmlForPDF()}
+          ${generateLadakhItineraryHtmlForPDF()}
 
           <div class="contact-info">
             <p>For bookings and inquiries, contact us:</p>
@@ -242,24 +242,24 @@ export default function KashmirItinerary() {
     <div className="pt-20 bg-background min-h-screen">
       <div className="relative h-[250px] overflow-hidden">
         <img
-          src="/kashmir.png" // Using the image from content.json for Kashmir
-          alt="Kashmir Tour"
+          src="/ladakh.png" // Using the image from content.json for Ladakh
+          alt="Ladakh Tour"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/60" />
         <div className="absolute top-0 left-0 right-0 z-20 pt-6">
           <PageHeader
-            backHref="/destinations/3" // Link back to Kashmir destination detail
-            breadcrumbs={[{ label: "Home", href: "/" }, { label: "Destinations", href: "/destinations" }, { label: "Kashmir", href: "/destinations/3" }]}
-            currentTitle="Kashmir Tour"
+            backHref="/destinations/4" // Link back to Ladakh destination detail (ID 4)
+            breadcrumbs={[{ label: "Home", href: "/" }, { label: "Destinations", href: "/destinations" }, { label: "Leh Ladakh", href: "/destinations/4" }]}
+            currentTitle="Ladakh Tour"
           />
         </div>
         <div className="absolute inset-0 flex flex-col justify-end p-8 z-20">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-white leading-tight drop-shadow-md">
-            {kashmirItineraryData.title.toUpperCase()} TOUR
+            {ladakhItineraryData.title.toUpperCase()} TOUR
           </h1>
           <p className="text-white/80 text-sm md:text-base mt-2">
-            {kashmirItineraryData.route}
+            {ladakhItineraryData.route}
           </p>
         </div>
       </div>
@@ -279,14 +279,20 @@ export default function KashmirItinerary() {
               </p>
             </div>
 
+            {/* About Ladakh */}
+            <div className="bg-card border border-border rounded-2xl p-6">
+              <h2 className="text-xl font-serif font-bold mb-4">About Ladakh</h2>
+              <p className="text-muted-foreground leading-relaxed">{ladakhItineraryData.about}</p>
+            </div>
+
             {/* Timeline Summary */}
             <div className="bg-card border border-border rounded-2xl p-6">
               <h2 className="text-xl font-serif font-bold mb-4">Your Timeline Summary</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-center">
-                {kashmirItineraryData.days.map((day, idx) => (
+                {ladakhItineraryData.days.map((day, idx) => (
                   <div key={idx} className="bg-muted p-3 rounded-lg">
-                    <p className="font-semibold text-sm">DAY {idx + 1}</p>
-                    <p className="text-xs text-muted-foreground">{day.heading.split(' - ')[1] || day.heading}</p>
+                    <p className="font-semibold text-sm">{day.day.replace('Day ', 'DAY ')}</p>
+                    <p className="text-xs text-muted-foreground">{day.heading.split(' | ')[0]}</p>
                   </div>
                 ))}
               </div>
@@ -296,7 +302,7 @@ export default function KashmirItinerary() {
             <div className="bg-card border border-border rounded-2xl p-6">
               <h2 className="text-xl font-serif font-bold mb-4">Detailed Itinerary</h2>
               <div className="space-y-6">
-                {kashmirItineraryData.days.map((day, idx) => (
+                {ladakhItineraryData.days.map((day, idx) => (
                   <div key={idx}>
                     <h3 className="font-semibold text-lg text-primary">{day.day} {day.heading}</h3>
                     <p className="text-muted-foreground mt-1">{day.description}</p>
@@ -312,27 +318,17 @@ export default function KashmirItinerary() {
                 <table className="min-w-full divide-y divide-border">
                   <thead>
                     <tr className="bg-muted">
-                      <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Pax</th>
-                      <th className="px-4 py-2 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">Standard</th>
-                      <th className="px-4 py-2 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">Deluxe</th>
-                      <th className="px-4 py-2 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">Super Deluxe</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Option</th>
+                      <th className="px-4 py-2 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider">Price per person</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {kashmirItineraryData.pricing.map((p, idx) => (
+                    {ladakhItineraryData.pricing.map((p, idx) => (
                       <tr key={idx}>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-foreground">{p.pax}</td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-center text-muted-foreground">₹{p.standard}</td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-center text-muted-foreground">₹{p.deluxe}</td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-center text-muted-foreground">₹{p.superDeluxe}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-foreground">{p.type}</td>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-center text-muted-foreground">₹{p.price}/-</td>
                       </tr>
                     ))}
-                    <tr className="bg-muted/50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-foreground">Extra Person</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-center font-bold text-primary">₹{kashmirItineraryData.extraPersonPricing.standard}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-center font-bold text-primary">₹{kashmirItineraryData.extraPersonPricing.deluxe}</td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-center font-bold text-primary">₹{kashmirItineraryData.extraPersonPricing.superDeluxe}</td>
-                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -343,7 +339,7 @@ export default function KashmirItinerary() {
             <div className="bg-card border border-border rounded-2xl p-6">
               <h2 className="text-xl font-serif font-bold mb-4">Inclusions</h2>
               <ul className="space-y-2 text-muted-foreground text-sm">
-                {kashmirItineraryData.inclusions.map((item, idx) => (
+                {ladakhItineraryData.inclusions.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2"><span className="text-green-600">✔</span> {item}</li>
                 ))}
               </ul>
@@ -353,11 +349,42 @@ export default function KashmirItinerary() {
             <div className="bg-card border border-border rounded-2xl p-6">
               <h2 className="text-xl font-serif font-bold mb-4">Exclusions</h2>
               <ul className="space-y-2 text-muted-foreground text-sm">
-                {kashmirItineraryData.exclusions.map((item, idx) => (
+                {ladakhItineraryData.exclusions.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2"><span className="text-red-500">✖</span> {item}</li>
                 ))}
               </ul>
             </div>
+
+            {/* Notes */}
+            <div className="bg-card border border-border rounded-2xl p-6">
+              <h2 className="text-xl font-serif font-bold mb-4">Important Notes</h2>
+              <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
+                {ladakhItineraryData.notes.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Precautions & Safety */}
+            <div className="bg-card border border-border rounded-2xl p-6">
+              <h2 className="text-xl font-serif font-bold mb-4">Precautions & Safety</h2>
+              <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
+                {ladakhItineraryData.precautionsSafety.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Terms & Conditions */}
+            <div className="bg-card border border-border rounded-2xl p-6">
+              <h2 className="text-xl font-serif font-bold mb-4">Terms & Conditions</h2>
+              <ul className="list-disc list-inside space-y-2 text-muted-foreground text-sm">
+                {ladakhItineraryData.termsAndConditions.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+
           </div>
 
           {/* Right Sidebar - Book Now */}
@@ -365,7 +392,7 @@ export default function KashmirItinerary() {
             <div className="bg-card border border-border rounded-2xl p-6 sticky top-24">
               <h3 className="font-serif font-bold text-xl mb-2">Book This Trip</h3>
               <p className="text-muted-foreground text-sm mb-5">Get in touch with our experts for booking.</p>
-              <div className="text-3xl font-serif font-bold text-primary mb-6">₹16,500/- <span className="text-sm text-muted-foreground font-normal">/ person (starting)</span></div>
+              <div className="text-3xl font-serif font-bold text-primary mb-6">₹{ladakhItineraryData.pricing[0].price}/- <span className="text-sm text-muted-foreground font-normal">/ person (starting)</span></div>
               <a
                 href={whatsappUrl}
                 target="_blank"
