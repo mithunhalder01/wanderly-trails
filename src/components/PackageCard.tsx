@@ -121,7 +121,13 @@ export default function PackageCard({ pkg, index = 0 }: Props) {
         </div>
 
         <div className="mt-auto flex items-center gap-1.5 sm:gap-2">
-          <span className="inline-flex h-7 flex-1 items-center justify-center rounded-full border border-zinc-300 px-2 text-[10px] font-semibold text-blue-700 whitespace-nowrap sm:h-9 sm:px-3 sm:text-xs">Deals</span>
+          <Link
+            href={`/booking?package=${pkg.id}`}
+            data-testid={`btn-enquire-package-${pkg.id}`}
+            className="inline-flex h-7 flex-1 items-center justify-center rounded-md border border-primary/30 bg-primary/5 px-2 text-[10px] font-semibold whitespace-nowrap text-primary transition-colors shadow-sm hover:bg-primary/10 sm:h-9 sm:rounded-lg sm:px-3 sm:text-xs"
+          >
+            Enquire
+          </Link>
           <Link
             href={`/packages/${pkg.id}`}
             data-testid={`btn-view-package-${pkg.id}`}

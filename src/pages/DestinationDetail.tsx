@@ -1,20 +1,103 @@
-import { useRoute, Link } from "wouter";
-import { motion } from "framer-motion";
 import { useMemo } from "react";
-import { MapPin, Calendar, Star, Thermometer, Download } from "lucide-react";
+import { useRoute, Link, useLocation } from "wouter";
+import { motion } from "framer-motion";
+import { MapPin, Calendar, Star, Thermometer, Download, ArrowLeft } from "lucide-react";
 import PackageCard from "@/components/PackageCard";
 import SectionHeading from "@/components/SectionHeading";
 import PageHeader from "@/components/PageHeader";
 import { useContent } from "@/context/content";
 
 export default function DestinationDetail() {
+  const [, setLocation] = useLocation();
   const { getDestinationById, getPackagesByDestination } = useContent();
   const [, params] = useRoute("/destinations/:id");
   const id = params?.id ? parseInt(params.id) : 0;
   const destination = getDestinationById(id);
   const related = getPackagesByDestination(id);
 
-  const heroImage = useMemo(() => {
+  // Kashmir itinerary content (extracted from KashmirItinerary.tsx)
+  const kashmirItineraryContent = {
+    title: "Kashmir",
+    route: "Srinagar - Pahalgam - Gulmarg - Srinagar",
+    durationPrice: "6D/5N at Rs.16500/- ONWARDS",
+    contact: "91-7903639845, 7992433486",
+    days: [
+      {
+        day: "Day 01:",
+        heading: "Arrive - Srinagar",
+        description: "On arrival at the Srinagar airport and transfer to Houseboat. In evening Shikara ride in world famous dal lake. Later return houseboat and overnight stay at the houseboat."
+      },
+      {
+        day: "Day 02:",
+        heading: "Srinagar to Pahalgam (92 kilometers / 2 hrs drive)",
+        description: "After Breakfast, we drive to Pahalgam via Pampore, Avantipura and the village of Bijbehara which remains famous as the bread basket of Kashmir. We switch from the national highway 1A at Khanabal and drive through the second largest city of Anantnag. From here the road turns scenic as we drive parallel on the Lidder River flowing from the opposite direction. In Pahalgam, check-in at the hotel and spend the rest of the day at leisure. Overnight stay at the hotel in Pahalgam."
+      },
+      {
+        day: "Day 03:",
+        heading: "Pahalgam to Gulmarg (135 kilometers / 2.3 hrs drive)",
+        description: "After breakfast in the morning, proceed towards Gulmarg. Enroute you get to see the beautiful Tangmarg town and drive ahead on a scenic drive of 14 kilometers to Gulmarg. Arrive in Gulmarg early in the afternoon and check in at the hotel. Later, begin a short tour, boarding the Gondola cable car system ( at your own cost)( (the 08 minutes ropeway). Descend back to Gulmarg after an hour and later indulge in some horse-riding. Stay overnight at the hotel in Gulmarg."
+      },
+      {
+        day: "Day 04:",
+        heading: "Gulmarg to Srinagar",
+        description: "After Breakfast take some sightseeing of Gulmarg and later proceed to Srinagar , check in the hotel & after refresh take some sightseeing of Srinagar half day tour of world famous Mughal Gardens visiting the Nishat Bagh (The garden of pleasure) and Shalimar Bagh (Adobe of love) , Shankaracharya Temple , Pari Mahal , Hazratbal Shrine. Evening back to Srinagar. Overnight Stay in the Hotel."
+      },
+      {
+        day: "Day 05:",
+        heading: "Srinagar - Sonamarg - Srinagar",
+        description: "After breakfasts proceed to full day excursion of Sonamarg which is one of the most beautiful drives from Srinagar. Sonamarg also called Meadows of Gold is located at a height of 2692 meters. You may take a pony ride (at your own cost) to Thajiwas Glacier where snow remains round the year. Evening Back to Srinagar. Overnight Stay in the hotel."
+      },
+      {
+        day: "Day 06:",
+        heading: "Srinagar Airport Drop",
+        description: "After your breakfast, we will assist you with transfers to Srinagar Airport. However, on your way, you can make a brief stopover for Shopping and then for your onward flight."
+      }
+    ],
+    pricing: [
+      { pax: "Min. 2 Pax per person", standard: "13100", deluxe: "16500", superDeluxe: "21900" },
+      { pax: "Min. 4 Pax per person", standard: "17300", deluxe: "14200", superDeluxe: "18500" },
+      { pax: "Min. 6 Pax per person", standard: "21350", deluxe: "24850", superDeluxe: "22350" }
+    ],
+    extraPersonPricing: {
+      standard: "8200",
+      deluxe: "11200",
+      superDeluxe: "13600"
+    }
+  };
+
+  const generateKashmirItineraryHtml = () => {
+    const itineraryHtml = kashmirItineraryContent.days.map((day, index) => `
+      <div class="itinerary-day">
+        <h4 class="itinerary-day-title"><span class="itinerary-day-num">${day.day}</span> ${day.heading}</h4>
+        <p class="itinerary-day-desc">${day.description}</p>
+      </div>
+    `).join("");
+
+    const pricingHtml = `
+      <div class="pricing-table">
+        <div class="pricing-row header"><span>Pax</span><span>Standard</span><span>Deluxe</span><span>Super Deluxe</span></div>
+        ${kashmirItineraryContent.pricing.map(p => `
+          <div class="pricing-row"><span>${p.pax}</span><span>₹${p.standard}</span><span>₹${p.deluxe}</span><span>₹${p.superDeluxe}</span></div>
+        `).join("")}
+        <div class="pricing-row extra-person"><span>Extra Person</span><span>₹${kashmirItineraryContent.extraPersonPricing.standard}</span><span>₹${kashmirItineraryContent.extraPersonPricing.deluxe}</span><span>₹${kashmirItineraryContent.extraPersonPricing.superDeluxe}</span></div>
+      </div>
+      <p class="pricing-note">* Prices mentioned are estimates. Contact support for exact quote based on travel dates.</p>
+    `;
+
+    return `
+      <div class="section">
+        <div class="section-title">Detailed 6D/5N Itinerary</div>
+        <p class="itinerary-meta">${kashmirItineraryContent.route}</p>
+        <p class="itinerary-price-overview">${kashmirItineraryContent.durationPrice}</p>
+        <p class="itinerary-contact">Contact us: ${kashmirItineraryContent.contact}</p>
+        <div class="itinerary-days-container">${itineraryHtml}</div>
+        <div class="section-title mt-8">Plan Rates & Pricing</div>
+        ${pricingHtml}
+      </div>
+    `;
+  };
+
+  const heroImage = useMemo(() => { // This line was causing the error
     const name = (destination?.name ?? "").toLowerCase();
 
     const heroByName: Array<[RegExp, string]> = [
@@ -65,12 +148,20 @@ export default function DestinationDetail() {
           <style>
             body {
               font-family: system-ui, -apple-system, sans-serif;
-              padding: 40px;
+              padding: 50px;
               color: #1f2937;
               line-height: 1.6;
               max-width: 800px;
-              margin: 0 auto;
+              margin: 20px auto;
               background-color: #ffffff;
+              border: 10px double #AA771C;
+              position: relative;
+            }
+            .pdf-logo {
+              width: 80px;
+              height: 80px;
+              object-fit: contain;
+              margin-bottom: 10px;
             }
             .header {
               text-align: center;
@@ -97,6 +188,14 @@ export default function DestinationDetail() {
               text-transform: uppercase;
               letter-spacing: 1px;
               font-weight: 600;
+            }
+            .hero-img {
+              width: 100%;
+              height: 350px;
+              object-fit: cover;
+              border-radius: 15px;
+              margin-bottom: 30px;
+              border: 1px solid #f0e6d2;
             }
             .grid {
               display: grid;
@@ -179,6 +278,78 @@ export default function DestinationDetail() {
               border-top: 1px solid #e5e7eb;
               padding-top: 20px;
             }
+            /* Itinerary Specific Styles */
+            .itinerary-meta {
+              font-size: 14px;
+              color: #4b5563;
+              margin-bottom: 10px;
+              font-weight: 600;
+            }
+            .itinerary-price-overview {
+              font-size: 16px;
+              color: #1f2937;
+              font-weight: 700;
+              margin-bottom: 10px;
+            }
+            .itinerary-contact {
+              font-size: 14px;
+              color: #4b5563;
+              margin-bottom: 20px;
+            }
+            .itinerary-day {
+              margin-bottom: 20px;
+              padding-left: 15px;
+              border-left: 3px solid #BF953F;
+            }
+            .itinerary-day-title {
+              font-size: 16px;
+              font-weight: 700;
+              color: #111827;
+              margin-bottom: 5px;
+            }
+            .itinerary-day-num {
+              color: #AA771C;
+              margin-right: 5px;
+            }
+            .itinerary-day-desc {
+              font-size: 14px;
+              color: #4b5563;
+              line-height: 1.6;
+            }
+            .pricing-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+            }
+            .pricing-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 10px 15px;
+              border-bottom: 1px solid #e5e7eb;
+            }
+            .pricing-row:last-child {
+              border-bottom: none;
+            }
+            .pricing-row.header {
+              background-color: #f0f0f0;
+              font-weight: 700;
+              color: #111827;
+            }
+            .pricing-row span {
+              flex: 1;
+              text-align: center;
+              font-size: 13px;
+              color: #4b5563;
+            }
+            .pricing-row.header span {
+              color: #111827;
+            }
+            .pricing-note {
+              font-size: 11px;
+              color: #6b7280;
+              text-align: center;
+              margin-top: 15px;
+            }
             @media print {
               .no-print { display: none; }
             }
@@ -186,10 +357,13 @@ export default function DestinationDetail() {
         </head>
         <body>
           <div class="header">
+            <img src="/logo.png" class="pdf-logo" alt="Logo" />
             <div class="logo">WANDERLY TRAILS</div>
             <div class="title">${destination.name} Brochure</div>
             <div class="meta">${destination.country} • ${destination.category}</div>
           </div>
+
+          <img src="${heroImage}" class="hero-img" alt="${destination.name}" />
 
           <div class="grid">
             <div class="grid-item">
@@ -214,6 +388,10 @@ export default function DestinationDetail() {
             <div class="section-title">About the Destination</div>
             <p class="about-text">${destination.description}</p>
           </div>
+
+          ${destination.id === 3 ? generateKashmirItineraryHtml() : ''}
+
+
 
           <!-- Remove related package section from PDF to avoid wrong/TripZada content -->
           <!-- ${related.length > 0 ? `
@@ -389,7 +567,7 @@ export default function DestinationDetail() {
             >
               <Download className="w-4 h-4" /> Download PDF Brochure
             </button>
-            <Link href="/booking" className="block mt-3 bg-accent text-white text-center font-semibold py-3 rounded-xl hover:bg-accent/90 transition-colors">
+            <Link href="/booking" className="block mt-3 bg-green-600 text-white text-center font-semibold py-3 rounded-xl hover:bg-green-700 transition-colors">
               Book Now
             </Link>
           </div>

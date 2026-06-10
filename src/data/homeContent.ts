@@ -56,9 +56,8 @@ export const availableTours = [
     id: 401,
     title: "Meghalaya Tour",
     price: 19999,
-    description:
-      "Famous for its high rainfall, subtropical forests and biodiversity, it is abutted by Assam.",
-    image: "/meghalya.png",
+    description: "Famous for its high rainfall, subtropical forests and biodiversity, it is abutted by Assam.",
+    image: "https://images.unsplash.com/photo-1616128414437-97b1981108c7?w=800&q=80",
   },
   {
     id: 302,
@@ -112,16 +111,16 @@ export const availableTours = [
   {
     id: 601,
     title: "Jaipur",
-    price: 20999,
-    description: "Discover the Pink City's royal heritage, majestic forts, and vibrant culture.",
-    image: "/jaipur.png",
+    price: 20999, 
+    description: "Discover the Pink City's royal heritage, majestic forts, and vibrant culture.", 
+    image: "https://images.unsplash.com/photo-1599661046289-e31897846e41?w=800&q=80",
   },
   {
     id: 701,
     title: "Kashmir",
-    price: 6999,
-    description: "Experience the paradise on earth with serene lakes, snow-capped mountains and beautiful valleys.",
-    image: "/kashmir.png",
+    price: 6999, 
+    description: "Experience the paradise on earth with serene lakes, snow-capped mountains and beautiful valleys.", 
+    image: "https://images.unsplash.com/photo-1618501701948-e70c538419c8?w=800&q=80",
   },
 ];
 
@@ -129,17 +128,16 @@ export const indiaTrips = {
   title: "India Trips",
   subtitle: "A Journey Through Time, Colour And Culture",
   cta: "Explore",
-  bannerImage:
-    "/meghalya.png",
+  bannerImage: "https://images.unsplash.com/photo-1616128414437-97b1981108c7?w=1400&q=80",
   destinations: [
     { name: "Leh Ladakh", price: 15800, image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=600&q=80", slug: "ladakh" },
     { name: "Spiti", price: 17999, image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600&q=80", slug: "spiti" },
-    { name: "Kashmir", price: 24499, image: "/kashmir.png", slug: "kashmir" },
-    { name: "Meghalaya", price: 21499, image: "/meghalya.png", slug: "meghalaya" },
+    { name: "Kashmir", price: 24499, image: "https://images.unsplash.com/photo-1618501701948-e70c538419c8?w=600&q=80", slug: "kashmir" },
+    { name: "Meghalaya", price: 21499, image: "https://images.unsplash.com/photo-1616128414437-97b1981108c7?w=600&q=80", slug: "meghalaya" },
     { name: "Himachal", price: 7499, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80", slug: "himachal" },
     { name: "Goa", price: 10499, image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600&q=80", slug: "goa" },
     { name: "Kerala", price: 14000, image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&q=80", slug: "kerala" },
-    { name: "Rajasthan", price: 15999, image: "/rajisthan.png", slug: "rajasthan" },
+    { name: "Rajasthan", price: 15999, image: "https://images.unsplash.com/photo-1524492412937-430c6b6f9a55?w=600&q=80", slug: "rajasthan" },
   ],
 };
 
@@ -154,7 +152,7 @@ export const weekendGetaways = {
     { name: "Mussoorie", price: 6999, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80" },
     { name: "Kasol", price: 5499, image: "https://images.unsplash.com/photo-1544085311-11a028465b03?w=600&q=80" },
     { name: "Nainital", price: 7499, image: "https://images.unsplash.com/photo-1615551043360-33de8b5f410c?w=600&q=80" },
-    { name: "Udaipur", price: 8999, image: "/udaipur.png" },
+    { name: "Udaipur", price: 8999, image: "https://images.unsplash.com/photo-1615551043360-33de8b5f410c?w=600&q=80" },
     { name: "Pushkar", price: 4599, image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=500&q=70" },
   ],
 };

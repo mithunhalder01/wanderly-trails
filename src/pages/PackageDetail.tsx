@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRoute, Link } from "wouter";
 import { motion } from "framer-motion";
-import { Star, Clock, Hotel, Utensils, Bus, Check, X, MapPin } from "lucide-react";
+import { Star, Clock, Hotel, Utensils, Bus, Check, X, MapPin, Download, Phone, MessageCircle } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import PackageCard from "@/components/PackageCard";
 import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
@@ -34,6 +34,226 @@ export default function PackageDetail() {
     `Hi! I would like to book the "${pkg.title}" package.\n\nDestination: ${pkg.destinationName}\nDuration: ${pkg.duration} Days / ${pkg.nights} Nights\nPrice: ₹${pkg.price.toLocaleString()} per person\n\nPlease share the booking details. Thank you!`
   );
   const whatsappUrl = `https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${whatsappMsg}`;
+
+  const handleDownloadItineraryPDF = () => {
+    if (!pkg) return;
+
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const itineraryHtml = pkg.itinerary.split("\n").map((day, index) => `
+      <div class="itinerary-day">
+        <h4 class="itinerary-day-title"><span class="itinerary-day-num">Day ${index + 1}:</span></h4>
+        <p class="itinerary-day-desc">${day}</p>
+      </div>
+    `).join("");
+
+    const includedHtml = included.map(item => `
+      <li class="included-item"><span class="check-icon">✔</span> ${item}</li>
+    `).join("");
+
+    const excludedHtml = excluded.map(item => `
+      <li class="excluded-item"><span class="x-icon">✖</span> ${item}</li>
+    `).join("");
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>${pkg.title} - Itinerary | Wanderly Trails</title>
+          <style>
+            body {
+              font-family: system-ui, -apple-system, sans-serif;
+              padding: 50px;
+              color: #1f2937;
+              line-height: 1.6;
+              max-width: 800px;
+              margin: 20px auto;
+              background-color: #ffffff;
+              border: 10px double #AA771C;
+              position: relative;
+            }
+            .pdf-logo {
+              width: 80px;
+              height: 80px;
+              object-fit: contain;
+              margin-bottom: 10px;
+            }
+            .header {
+              text-align: center;
+              border-bottom: 2px solid #BF953F;
+              padding-bottom: 20px;
+              margin-bottom: 30px;
+            }
+            .logo {
+              font-size: 26px;
+              font-weight: 800;
+              letter-spacing: 2px;
+              color: #AA771C;
+            }
+            .title {
+              font-size: 36px;
+              font-weight: 700;
+              margin-top: 10px;
+              margin-bottom: 5px;
+              color: #111827;
+            }
+            .meta {
+              font-size: 14px;
+              color: #4b5563;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+              font-weight: 600;
+            }
+            .hero-img {
+              width: 100%;
+              height: 350px;
+              object-fit: cover;
+              border-radius: 15px;
+              margin-bottom: 30px;
+              border: 1px solid #f0e6d2;
+            }
+            .section {
+              margin-bottom: 35px;
+            }
+            .section-title {
+              font-size: 20px;
+              font-weight: 700;
+              border-left: 4px solid #BF953F;
+              padding-left: 12px;
+              margin-bottom: 15px;
+              color: #AA771C;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .itinerary-day {
+              margin-bottom: 20px;
+              padding-left: 15px;
+              border-left: 3px solid #BF953F;
+            }
+            .itinerary-day-title {
+              font-size: 16px;
+              font-weight: 700;
+              color: #111827;
+              margin-bottom: 5px;
+            }
+            .itinerary-day-num {
+              color: #AA771C;
+              margin-right: 5px;
+            }
+            .itinerary-day-desc {
+              font-size: 14px;
+              color: #4b5563;
+              line-height: 1.6;
+            }
+            .included-list, .excluded-list {
+              list-style: none;
+              padding: 0;
+              margin: 0;
+            }
+            .included-item, .excluded-item {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 14px;
+              color: #4b5563;
+              margin-bottom: 8px;
+            }
+            .check-icon {
+              color: #22c55e; /* green-500 */
+              font-weight: bold;
+            }
+            .x-icon {
+              color: #ef4444; /* red-500 */
+              font-weight: bold;
+            }
+            .contact-info {
+              margin-top: 30px;
+              padding-top: 20px;
+              border-top: 1px solid #e5e7eb;
+              text-align: center;
+            }
+            .contact-info p {
+              margin-bottom: 5px;
+              font-size: 14px;
+              color: #4b5563;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 50px;
+              font-size: 12px;
+              color: #9ca3af;
+              border-top: 1px solid #e5e7eb;
+              padding-top: 20px;
+            }
+            @media print {
+              .no-print { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <img src="/logo.png" class="pdf-logo" alt="Logo" />
+            <div class="logo">WANDERLY TRAILS</div>
+            <div class="title">${pkg.title}</div>
+            <div class="meta">${pkg.destinationName} • ${pkg.duration}D/${pkg.nights}N</div>
+          </div>
+
+          <img src="${pkg.imageUrl}" class="hero-img" alt="${pkg.title}" />
+
+          <div class="section">
+            <div class="section-title">About This Package</div>
+            <p class="itinerary-day-desc">${pkg.description}</p>
+            <ul class="included-list" style="margin-top: 15px;">
+              <li class="included-item"><span class="check-icon">✔</span> ${pkg.duration} Days / ${pkg.nights} Nights</li>
+              <li class="included-item"><span class="check-icon">✔</span> ${pkg.hotelStars} Star Hotel</li>
+              <li class="included-item"><span class="check-icon">✔</span> Meals: ${pkg.mealsIncluded ? "Included" : "Not Included"}</li>
+              <li class="included-item"><span class="check-icon">✔</span> Transport: ${pkg.transportIncluded ? "Included" : "Not Included"}</li>
+              <li class="included-item"><span class="check-icon">✔</span> Rating: ${pkg.rating.toFixed(1)}/5.0</li>
+              <li class="included-item"><span class="check-icon">✔</span> Price: ₹${pkg.price.toLocaleString()} per person</li>
+            </ul>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Detailed Itinerary</div>
+            <div class="itinerary-days-container">${itineraryHtml}</div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">What's Included & Excluded</div>
+            <div style="display: flex; gap: 30px;">
+              <div style="flex: 1;">
+                <h4 style="color: #22c55e; margin-bottom: 10px;">Included</h4>
+                <ul class="included-list">${includedHtml}</ul>
+              </div>
+              <div style="flex: 1;">
+                <h4 style="color: #ef4444; margin-bottom: 10px;">Excluded</h4>
+                <ul class="excluded-list">${excludedHtml}</ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact-info">
+            <p>For bookings and inquiries, contact us:</p>
+            <p>Phone: ${CONTACT_PHONE_DISPLAY}</p>
+            <p>WhatsApp: ${CONTACT_WHATSAPP_NUMBER}</p>
+          </div>
+
+          <div class="footer">
+            <p>Generated by Wanderly Trails. Book online at wanderly-trails.com or contact us on WhatsApp.</p>
+            <p>&copy; ${new Date().getFullYear()} Wanderly Trails. All rights reserved.</p>
+          </div>
+
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(function() { window.close(); }, 500);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
 
   return (
     <div className="pt-20">
@@ -188,6 +408,14 @@ export default function PackageDetail() {
                 </svg>
                 Book on WhatsApp
               </a>
+              {pkg.itinerary && (
+                <button
+                  onClick={handleDownloadItineraryPDF}
+                  className="flex items-center justify-center gap-2 w-full bg-primary/10 hover:bg-primary/20 text-primary text-center font-semibold py-3 rounded-xl transition-all border border-primary/20 shadow-sm mt-3 text-sm"
+                >
+                  <Download className="w-4 h-4" /> Download Itinerary
+                </button>
+              )}
               <Link href="/contact" className="block w-full border border-border text-center font-semibold py-3 rounded-xl hover:bg-muted transition-colors mt-3 text-sm">
                 Have Questions? Ask Us
               </Link>
