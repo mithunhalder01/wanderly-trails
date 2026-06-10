@@ -148,43 +148,57 @@ export default function DestinationDetail() {
           <style>
             body {
               font-family: system-ui, -apple-system, sans-serif;
-              padding: 50px;
+              padding: 40px;
               color: #1f2937;
               line-height: 1.6;
               max-width: 800px;
               margin: 20px auto;
-              background-color: #ffffff;
-              border: 10px double #AA771C;
+              background-color: #fdfcf7;
+              background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+              background-size: 30px 30px; /* Map Grid Look */
+              border: 4px solid #1e3a1e;
               position: relative;
             }
-            .pdf-logo {
-              width: 80px;
-              height: 80px;
-              object-fit: contain;
-              margin-bottom: 10px;
+            body::before {
+              content: "";
+              position: absolute;
+              top: 0; left: 0; right: 0; bottom: 0;
+              border: 1px solid #1e3a1e;
+              margin: 10px;
+              pointer-events: none;
             }
             .header {
               text-align: center;
-              border-bottom: 2px solid #BF953F;
+              background: #1e3a1e;
+              color: #ffffff;
               padding-bottom: 20px;
               margin-bottom: 30px;
+              padding-top: 20px;
+              border-radius: 4px;
+            }
+            .pdf-logo {
+              width: 60px;
+              height: 60px;
+              object-fit: contain;
+              filter: brightness(0) invert(1);
+              margin-bottom: 5px;
             }
             .logo {
               font-size: 26px;
               font-weight: 800;
               letter-spacing: 2px;
-              color: #AA771C;
+              color: #f59e0b; /* Adventure Orange */
             }
             .title {
               font-size: 36px;
               font-weight: 700;
               margin-top: 10px;
               margin-bottom: 5px;
-              color: #111827;
+              color: #ffffff;
             }
             .meta {
               font-size: 14px;
-              color: #4b5563;
+              color: #d1d5db;
               text-transform: uppercase;
               letter-spacing: 1px;
               font-weight: 600;
@@ -195,17 +209,18 @@ export default function DestinationDetail() {
               object-fit: cover;
               border-radius: 15px;
               margin-bottom: 30px;
-              border: 1px solid #f0e6d2;
+              border: 3px solid #ffffff;
+              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
             }
             .grid {
               display: grid;
               grid-template-columns: repeat(2, 1fr);
               gap: 20px;
               margin-bottom: 30px;
-              background: #fdfbf7;
+              background: #ffffff;
               padding: 20px;
-              border-radius: 12px;
-              border: 1px solid #f0e6d2;
+              border-radius: 8px;
+              border: 1px dashed #1e3a1e;
             }
             .grid-item {
               display: flex;
@@ -229,12 +244,13 @@ export default function DestinationDetail() {
             .section-title {
               font-size: 20px;
               font-weight: 700;
-              border-left: 4px solid #BF953F;
-              padding-left: 12px;
+              background: #fef3c7;
+              padding: 5px 15px;
               margin-bottom: 15px;
-              color: #AA771C;
+              color: #1e3a1e;
               text-transform: uppercase;
               letter-spacing: 0.5px;
+              border-radius: 4px;
             }
             .about-text {
               color: #4b5563;

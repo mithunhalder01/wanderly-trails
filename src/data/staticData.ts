@@ -428,7 +428,7 @@ export const packages: Package[] = [
     "destinationId": 14,
     "destinationName": "Goa, India",
     "title": "Goa Chill & Coastal Lights (3D/2N)",
-    "description": "Beach hopping, sunset cruise, and a laid-back itinerary with curated stops.",
+    "description": "Experience vibrant beaches, Portuguese heritage, and exciting nightlife. This short getaway is perfect for couples and families looking to unwind by the Arabian Sea.",
     "imageUrl": "https://images.unsplash.com/photo-1493558103817-58b2924bce98?w=600&q=75&auto=format",
     "price": 12999,
     "duration": 3,
@@ -438,9 +438,9 @@ export const packages: Package[] = [
     "hotelStars": 3,
     "mealsIncluded": true,
     "transportIncluded": true,
-    "includedItems": "Airport pick-up, 2 breakfasts, sunset cruise, local sightseeing",
-    "excludedItems": "Flights, personal expenses, tips",
-    "itinerary": "Day 1: Check-in & beach walk. Day 2: North Goa sightseeing + cruise. Day 3: Transfer & departure.",
+    "includedItems": "2 Nights in 3★ Hotel, Daily breakfast, Airport/Railway Station transfers, North Goa sightseeing, South Goa sightseeing, All transfers by AC vehicle, Assistance during the trip",
+    "excludedItems": "Airfare / Train Tickets, Lunch & Dinner, Personal expenses, Water sports activities, Entry fees to monuments, Travel insurance",
+    "itinerary": "Arrival & North Goa Exploration. Meet and greet at Airport/Station, transfer to hotel. Afternoon visit Calangute, Baga, and Sinquerim beaches plus Fort Aguada. Evening at beachside cafes.\nFull Day South Goa Sightseeing. Visit Old Goa Churches (Basilica of Bom Jesus), Panjim City Latin Quarter, Miramar Beach, and Dona Paula. Optional evening Mandovi River cruise.\nLeisure Time & Departure. Enjoy a morning beach walk or shopping. Hotel check-out and transfer to Airport/Railway Station for departure.",
     "featured": true
   },
   {
@@ -458,9 +458,9 @@ export const packages: Package[] = [
     "hotelStars": 3,
     "mealsIncluded": true,
     "transportIncluded": true,
-    "includedItems": "Breakfasts, scooter/vehicle support, guided fort walk",
-    "excludedItems": "Flights, optional activities",
-    "itinerary": "Day 1: Arrival & evening markets. Day 2: Forts + beaches. Day 3: Water sport session. Day 4: Culture tour. Day 5: Departure.",
+    "includedItems": "4 Nights in 3★ Hotel, Daily breakfast, Airport/Railway Station transfers, AC Private Vehicle for sightseeing, Water sports package (5 activities), Mandovi River Cruise tickets",
+    "excludedItems": "Airfare / Train Tickets, Lunch & Dinner, Personal expenses, Entry fees to monuments, Travel insurance",
+    "itinerary": "Arrival & Evening Market Vibe. Meet and greet at Airport/Railway Station and transfer to your North Goa hotel. In the evening, explore the vibrant Anjuna or Vagator flea markets for local crafts and food.\nForts & Scenic Beaches. Visit the historic Aguada Fort and Chapora Fort (Dil Chahta Hai point). Spend the afternoon at the scenic Vagator and Anjuna beaches.\nThrilling Water Sports Day. Head to Calangute/Baga for an action-packed day. Enjoy Parasailing, Jet Ski, Banana Boat rides, and Bumper rides under expert supervision.\nCultural & Panjim Exploration. Walk through the colorful streets of Fontainhas (Latin Quarter), visit the Immaculate Conception Church, and enjoy a cruise on the Mandovi River.\nLocal Shopping & Farewell. Final morning for souvenir shopping at Mapusa or Panjim markets. Transfer to Airport/Railway Station for your journey back.",
     "featured": true
   },
   {
@@ -478,9 +478,9 @@ export const packages: Package[] = [
     "hotelStars": 5,
     "mealsIncluded": true,
     "transportIncluded": true,
-    "includedItems": "Heritage stay, South Goa tour, Traditional meals",
-    "excludedItems": "Water sports, Bar bills",
-    "itinerary": "Day 1: Arrival & check-in. Day 2: Heritage walk. Day 3: Palolem beach. Day 4: Departure.",
+    "includedItems": "3 Nights in Heritage Boutique Stay, Daily breakfast, All transfers by AC vehicle, Guided Heritage Walk in Old Goa, South Goa Sightseeing",
+    "excludedItems": "Airfare / Train Tickets, Lunch & Dinner, Personal expenses, Water sports, Boat trips to Butterfly beach",
+    "itinerary": "Arrival & Heritage Welcome. Transfer to a beautifully restored Portuguese-era heritage stay in South Goa. Spend the day relaxing by the pool or taking a quiet walk in the village.\nOld Goa Spiritual & History Walk. Detailed visit to the UNESCO World Heritage sites: Basilica of Bom Jesus and Se Cathedral. Explore the Museum of Christian Art.\nSouthern Beach Bliss. Full day at the crescent-shaped Palolem beach. Options for a boat trip to Butterfly Beach or simply relaxing at a beach shack for the sunset.\nAncestral Goa & Departure. Visit Big Foot (Ancestral Goa) to see traditional Goan life. Transfer to Airport/Railway Station for departure.",
     "featured": true
   },
   {

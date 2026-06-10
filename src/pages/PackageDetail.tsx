@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { Star, Clock, Hotel, Utensils, Bus, Check, X, MapPin, Download, Phone, MessageCircle } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import PackageCard from "@/components/PackageCard";
-import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
+import { CONTACT_WHATSAPP_NUMBER, CONTACT_PHONE_DISPLAY } from "@/lib/contact";
 import { useContent } from "@/context/content";
 const tabs = ["Overview", "Itinerary", "Included", "Related"];
 
@@ -192,13 +192,13 @@ export default function PackageDetail() {
         </head>
         <body>
           <div class="header">
-            <img src="/logo.png" class="pdf-logo" alt="Logo" />
+            <img src="${window.location.origin}/logo.png" class="pdf-logo" alt="Logo" />
             <div class="logo">WANDERLY TRAILS</div>
             <div class="title">${pkg.title}</div>
             <div class="meta">${pkg.destinationName} • ${pkg.duration}D/${pkg.nights}N</div>
           </div>
 
-          <img src="${pkg.imageUrl}" class="hero-img" alt="${pkg.title}" />
+          <img src="${pkg.imageUrl.startsWith('http') ? pkg.imageUrl : window.location.origin + pkg.imageUrl}" class="hero-img" alt="${pkg.title}" />
 
           <div class="section">
             <div class="section-title">About This Package</div>
