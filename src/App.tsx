@@ -26,6 +26,7 @@ const Booking = lazy(() => import("@/pages/Booking"));
 const FAQ = lazy(() => import("@/pages/FAQ"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const SearchPage = lazy(() => import("@/pages/Search"));
+const HimachalBackpackingItinerary = lazy(() => import("@/data/HimachalBackpackingItinerary"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
@@ -83,6 +84,7 @@ function Router() {
             <Route path="/faq" component={FAQ} />
             <Route path="/contact" component={Contact} />
             <Route path="/search" component={SearchPage} />
+            <Route path="/itinerary/himachal-backpacking" component={HimachalBackpackingItinerary} />
             <Route component={NotFound} />
           </Switch>
         </PublicLayout>

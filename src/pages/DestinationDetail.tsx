@@ -97,6 +97,10 @@ export default function DestinationDetail() {
     `;
   };
 
+  const scrollToItinerary = () => {
+    document.getElementById("itinerary-section")?.scrollIntoView({ behavior: "smooth" });
+  };
+
   const heroImage = useMemo(() => { // This line was causing the error
     const name = (destination?.name ?? "").toLowerCase();
 
@@ -409,7 +413,7 @@ export default function DestinationDetail() {
 
 
 
-          <!-- Remove related package section from PDF to avoid wrong/TripZada content -->
+          <!-- Remove related package section from PDF to avoid wrong/Wanderly Trails content -->
           <!-- ${related.length > 0 ? `
             <div class="section">
               <div class="section-title">Available Tour Packages</div>
@@ -538,6 +542,34 @@ export default function DestinationDetail() {
               </div>
             </div>
 
+            {/* If Kashmir, render the detailed itinerary on the page */}
+            {destination.id === 3 && (
+              <div id="itinerary-section" className="mt-12 space-y-8 bg-muted/30 p-6 rounded-3xl border border-border">
+                <div>
+                  <h3 className="text-2xl font-serif font-bold text-foreground">Detailed Itinerary</h3>
+                  <p className="text-primary font-semibold mt-1">{kashmirItineraryContent.route}</p>
+                  <p className="text-muted-foreground text-sm">{kashmirItineraryContent.durationPrice}</p>
+                </div>
+                
+                <div className="space-y-6">
+                  {kashmirItineraryContent.days.map((day, idx) => (
+                    <div key={idx} className="flex gap-4">
+                      <div className="flex flex-col items-center">
+                        <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold shrink-0">
+                          {idx + 1}
+                        </div>
+                        {idx < kashmirItineraryContent.days.length - 1 && <div className="w-0.5 h-full bg-border mt-2" />}
+                      </div>
+                      <div className="pb-4">
+                        <h4 className="font-bold text-foreground">{day.heading}</h4>
+                        <p className="text-muted-foreground text-sm mt-1 leading-relaxed">{day.description}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-8">
               <div className="bg-muted rounded-2xl p-4">
                 <Calendar className="w-5 h-5 text-primary mb-2" />
@@ -583,6 +615,24 @@ export default function DestinationDetail() {
             >
               <Download className="w-4 h-4" /> Download PDF Brochure
             </button>
+            
+            {/* Standardized "View Details/Itinerary" Button for all destinations */}
+            {destination.name === "Himachal" ? (
+              <Link
+                href="/itinerary/himachal-backpacking"
+                className="block w-full border border-primary/20 text-center font-semibold py-3 rounded-xl hover:bg-primary/10 transition-colors mt-3 text-sm text-primary"
+              >
+                View Himachal Backpacking Details
+              </Link>
+            ) : (
+              <button
+                onClick={scrollToItinerary}
+                className="block w-full border border-primary/20 text-center font-semibold py-3 rounded-xl hover:bg-primary/10 transition-colors mt-3 text-sm text-primary"
+              >
+                View Detailed Itineraries
+              </button>
+            )}
+
             <Link href="/booking" className="block mt-3 bg-green-600 text-white text-center font-semibold py-3 rounded-xl hover:bg-green-700 transition-colors">
               Book Now
             </Link>
@@ -590,7 +640,13 @@ export default function DestinationDetail() {
         </div>
 
         {related.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-16">
+          <motion.div 
+            id={destination.id === 3 ? "packages-list" : "itinerary-section"} 
+            initial={{ opacity: 0, y: 20 }} 
+            whileInView={{ opacity: 1, y: 0 }} 
+            viewport={{ once: true }} 
+            className="mt-16"
+          >
             <SectionHeading badge="Available" title={`Packages for ${destination.name}`} subtitle="Choose from our curated packages" center={false} />
             <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 mt-8">
               {related.map((p, i) => <PackageCard key={p.id} pkg={p} index={i} />)}
