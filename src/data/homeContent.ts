@@ -4,7 +4,7 @@ export const homeHero = {
   title: "Find The",
   titleHighlight: "Perfect Place",
   description:
-    "From the sand dunes of Rajasthan to the backwaters of Kerala, and the Himalayan heights to the beaches of Goa. Wanderly Trails brings India closer to you, one unforgettable journey at a time.",
+    "A list of the top 75 Best Tourist Places to See in world for a perfect holiday or a trip.",
   ctaPrimary: "Explore Packages",
   ctaSecondary: "Plan on WhatsApp",
   image:
