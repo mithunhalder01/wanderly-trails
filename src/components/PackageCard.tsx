@@ -1,7 +1,7 @@
 import { Link } from "wouter";
-import { Star, Clock, Hotel, Utensils, Bus, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Clock, Hotel, Utensils, Bus } from "lucide-react";
 import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 interface Package {
   id: number;
@@ -27,34 +27,6 @@ interface Props {
 export default function PackageCard({ pkg, index = 0 }: Props) {
   const discountPercent = Math.max(15, Math.min(55, Math.round((pkg.nights / pkg.duration) * 100)));
   const originalPrice = Math.round(pkg.price / (1 - discountPercent / 100));
-  const imageGallery = useMemo(() => {
-    const fallbackByCategory: Record<string, string> = {
-      Beaches: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-      Adventure: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
-      Family: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80",
-      Luxury: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
-      Honeymoon: "https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=1200&q=80",
-    };
-    const categoryFallback =
-      fallbackByCategory[pkg.category] ||
-      "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80";
-    return [
-      pkg.imageUrl,
-      "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
-      `https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=80`,
-      categoryFallback,
-    ];
-  }, [pkg.category, pkg.imageUrl]);
-  const [activeImage, setActiveImage] = useState(0);
-
-  const onPrev = () => {
-    setActiveImage((prev) => (prev - 1 + imageGallery.length) % imageGallery.length);
-  };
-
-  const onNext = () => {
-    setActiveImage((prev) => (prev + 1) % imageGallery.length);
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
@@ -66,20 +38,11 @@ export default function PackageCard({ pkg, index = 0 }: Props) {
     >
       <div className="relative overflow-hidden h-28 sm:h-36">
         <img
-          src={imageGallery[activeImage]}
+          src={pkg.imageUrl}
           alt={pkg.title}
-          onError={() => {
-            setActiveImage((prev) => (prev + 1) % imageGallery.length);
-          }}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-        <button type="button" onClick={onPrev} className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white/90 sm:left-3 sm:p-2">
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        <button type="button" onClick={onNext} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/40 p-1.5 text-white/90 sm:right-3 sm:p-2">
-          <ChevronRight className="h-4 w-4" />
-        </button>
         <div className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-zinc-700/85 px-2 py-0.5 text-white backdrop-blur-sm sm:right-3 sm:top-3 sm:px-2.5 sm:py-1">
           <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 sm:h-3.5 sm:w-3.5" />
           <span className="text-[11px] font-semibold sm:text-xs">{pkg.rating.toFixed(1)}</span>
