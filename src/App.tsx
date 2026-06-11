@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SeoManager from "@/components/SeoManager";
 import { ContentProvider } from "@/context/content";
+import Home from "@/pages/Home";
 const Navbar = lazy(() => import("@/components/Navbar"));
 const MobileBottomNav = lazy(() =>
   import("@/components/Navbar").then((module) => ({ default: module.MobileBottomNav })),
@@ -12,7 +13,6 @@ const MobileBottomNav = lazy(() =>
 const Footer = lazy(() => import("@/components/Footer"));
 const FloatingWidgets = lazy(() => import("@/components/FloatingWidgets"));
 const NotFound = lazy(() => import("@/pages/not-found"));
-const Home = lazy(() => import("@/pages/Home"));
 const About = lazy(() => import("@/pages/About"));
 const Destinations = lazy(() => import("@/pages/Destinations"));
 const DestinationDetail = lazy(() => import("@/pages/DestinationDetail"));

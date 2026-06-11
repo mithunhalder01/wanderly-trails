@@ -48,11 +48,11 @@ export default function PackageCard({ pkg, index = 0 }: Props) {
           <span className="text-[11px] font-semibold sm:text-xs">{pkg.rating.toFixed(1)}</span>
         </div>
       </div>
-      <div className="flex h-[210px] flex-col p-2.5 sm:h-[240px] sm:p-3.5">
+      <div className="flex h-[225px] flex-col p-2.5 sm:h-[260px] sm:p-3.5">
         <span className="mb-1 text-[10px] font-extrabold uppercase tracking-widest text-primary sm:mb-1.5 sm:text-xs">
           {pkg.destinationName}
         </span>
-        <h3 className="mb-2 line-clamp-2 text-sm font-bold leading-snug text-foreground sm:mb-3 sm:text-base">
+        <h3 className="mb-2 line-clamp-2 text-sm font-bold leading-normal text-foreground sm:mb-3 sm:text-base min-h-[2.8em]">
           {pkg.title}
         </h3>
 

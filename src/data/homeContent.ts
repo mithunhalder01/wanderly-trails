@@ -1,8 +1,8 @@
 /** Homepage copy & structured data — edit here to update the landing page */
 export const homeHero = {
   brandLine: "Wanderly Trails",
-  title: "Explore India, Discover New",
-  titleHighlight: "Adventures",
+  title: "Find The",
+  titleHighlight: "Perfect Place",
   description:
     "From the sand dunes of Rajasthan to the backwaters of Kerala, and the Himalayan heights to the beaches of Goa. Wanderly Trails brings India closer to you, one unforgettable journey at a time.",
   ctaPrimary: "Explore Packages",
