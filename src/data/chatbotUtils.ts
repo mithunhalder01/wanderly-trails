@@ -121,14 +121,23 @@ export function getCategoryInfo(category: 'indiaTrips' | 'weekendGetaways'): str
 export function getFAQAnswer(query: string): string {
   const lowerCaseQuery = query.toLowerCase();
 
-  // Intent: Booking/Contact
-  if (lowerCaseQuery.includes("book") || lowerCaseQuery.includes("contact") || lowerCaseQuery.includes("call")) {
-    return `Booking is easy! You can click the 'Book Now' button, or reach our experts directly at ${CONTACT_PHONE_DISPLAY}. We also support bookings via WhatsApp! 📞`;
+  // Advanced Intent: Booking & Payments
+  const bookingKeywords = ["book", "reserve", "confirm", "slot", "pay", "payment"];
+  if (bookingKeywords.some(k => lowerCaseQuery.includes(k))) {
+    return `Booking your dream trip is simple! ✈️\n\n1️⃣ Select a package and click 'Book Now'.\n2️⃣ Chat with us on WhatsApp for instant confirmation.\n3️⃣ Or call our experts at ${CONTACT_PHONE_DISPLAY}.\n\nWhich destination are you looking at?`;
   }
 
-  // Smart check for specific topics
-  if (lowerCaseQuery.includes("price") || lowerCaseQuery.includes("cheap")) {
-    return "Our packages start from ₹6,999 (Kashmir/Himachal). You can check the 'Packages' page for a full list sorted by price!";
+  // Intent: Contact & Support
+  const contactKeywords = ["contact", "call", "phone", "number", "email", "address", "office", "support"];
+  if (contactKeywords.some(k => lowerCaseQuery.includes(k))) {
+    return `We're here to help! 📞\n\n• Phone: ${CONTACT_PHONE_DISPLAY}\n• WhatsApp: +${CONTACT_WHATSAPP_NUMBER}\n• Email: Support is available 24/7. Shall I have a travel expert call you back?`;
+  }
+
+  // Smart check for pricing
+  if (lowerCaseQuery.includes("price") || lowerCaseQuery.includes("cost") || lowerCaseQuery.includes("how much") || lowerCaseQuery.includes("cheap")) {
+    if (lowerCaseQuery.includes("bali")) return "Bali packages start at ₹32,999/- per person (including stays & tours). 🏝️";
+    if (lowerCaseQuery.includes("goa")) return "Goa escapes start as low as ₹10,499/-. 🏖️";
+    return "Our curated trips start from just ₹6,999 (Kashmir/Himachal). You can check the 'Packages' page for the full price list!";
   }
 
   const foundFaq = homeFaqs.find(faq =>

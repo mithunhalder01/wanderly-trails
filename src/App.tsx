@@ -7,11 +7,9 @@ import SeoManager from "@/components/SeoManager";
 import { ContentProvider } from "@/context/content";
 import Home from "@/pages/Home";
 import Navbar from "@/components/Navbar";
-const MobileBottomNav = lazy(() =>
-  import("@/components/Navbar").then((module) => ({ default: module.MobileBottomNav })),
-);
+import { MobileBottomNav } from "@/components/Navbar";
+import FloatingWidgets from "@/components/FloatingWidgets";
 const Footer = lazy(() => import("@/components/Footer"));
-const FloatingWidgets = lazy(() => import("@/components/FloatingWidgets"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 const About = lazy(() => import("@/pages/About"));
 const Destinations = lazy(() => import("@/pages/Destinations"));

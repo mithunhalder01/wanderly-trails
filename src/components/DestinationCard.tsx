@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, memo } from "react";
 import { Link } from "wouter";
 import { Star, MapPin, Calendar, ArrowRight } from "lucide-react";
 import { useContent } from "@/context/content";
@@ -21,7 +21,7 @@ interface Props {
   index?: number;
 }
 
-export default function DestinationCard({ destination }: Props) {
+const DestinationCard = memo(function DestinationCard({ destination }: Props) {
   const { getPackagesByDestination } = useContent();
   
   const relatedPackages = useMemo(() => 
@@ -46,6 +46,8 @@ export default function DestinationCard({ destination }: Props) {
       <img
         src={destination.imageUrl}
         alt={destination.name}
+        loading="lazy"
+        decoding="async"
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
       />
       {/* Dark high-contrast overlay */}
@@ -119,4 +121,6 @@ export default function DestinationCard({ destination }: Props) {
       </div>
     </div>
   );
-}
+});
+
+export default DestinationCard;
