@@ -37,6 +37,11 @@ const DestinationCard = memo(function DestinationCard({ destination }: Props) {
   // Keep unique + limit to 3 badges (as per UI space)
   const uniqueBadges = Array.from(new Set(durationBadges)).slice(0, 3);
 
+  // Optimize Unsplash images dynamically
+  const optimizedImageUrl = destination.imageUrl.includes("unsplash.com") 
+    ? destination.imageUrl.replace(/w=\d+/, "w=600").replace(/q=\d+/, "q=75")
+    : destination.imageUrl;
+
   return (
     <div
       data-testid={`card-destination-${destination.id}`}
@@ -44,7 +49,7 @@ const DestinationCard = memo(function DestinationCard({ destination }: Props) {
     >
       {/* Full Card Image */}
       <img
-        src={destination.imageUrl}
+        src={optimizedImageUrl}
         alt={destination.name}
         loading="lazy"
         decoding="async"

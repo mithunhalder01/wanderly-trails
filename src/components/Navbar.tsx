@@ -53,6 +53,9 @@ export default function Navbar() {
 
   // Precompute suggestion pool only when data changes to avoid expensive re-mapping on every keystroke
   const suggestionPool = useMemo(() => {
+    // If search is not open, don't waste CPU cycles computing the pool
+    if (!searchOpen) return [];
+
     const safeDestinations = Array.isArray(destinations) ? destinations : [];
     const safePackages = Array.isArray(packages) ? packages : [];
     const safeBlogs = Array.isArray(blogPosts) ? blogPosts : [];
@@ -62,7 +65,7 @@ export default function Navbar() {
       ...safeBlogs.map((b) => ({ title: b.title, subtitle: `${b.category} • ${b.readTime} min read` })),
     ];
     return Array.from(new Map(pool.map((item) => [item.title.toLowerCase(), item])).values());
-  }, [destinations, packages, blogPosts]);
+  }, [destinations, packages, blogPosts, searchOpen]);
 
   // Filter suggestions based on input from the precomputed pool
   const suggestions = useMemo(() => {

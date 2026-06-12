@@ -16,8 +16,8 @@ export default function ToursSection() {
   const [isMobile, setIsMobile] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Duplicate tours for infinite loop (only on mobile)
-  const displayTours = isMobile ? [...tours, ...tours, ...tours] : tours;
+  // Simplified tours for performance (removed triple duplication)
+  const displayTours = tours;
 
   const [pageStep, setPageStep] = useState<number>(0);
 
@@ -39,14 +39,7 @@ export default function ToursSection() {
       const step = cardRect.width + gap;
 
       setPageStep(step);
-
-      // Initialize to the middle set to fake infinite scroll.
-      if (window.innerWidth < 768) {
-        const singleSetWidth = step * tours.length;
-        el.scrollLeft = singleSetWidth;
-      } else {
-        el.scrollLeft = 0;
-      }
+      el.scrollLeft = 0;
 
       // Avoid layout surprises
       el.scrollLeft = el.scrollLeft;

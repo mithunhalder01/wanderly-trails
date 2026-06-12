@@ -2,14 +2,14 @@
 export const IMAGES = {
   hero: {
     home: "/hero-video.mp4",
-    about: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80",
+gf    about: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1280&q=75",
     booking: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=75&auto=format",
-    contact: "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=1920&q=80",
-    packages: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1920&q=80",
-    destinations: "https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80",
-    gallery: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80",
-    testimonials: "https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=1920&q=80",
-    faq: "https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1920&q=80",
+    contact: "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=1280&q=75",
+    packages: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1280&q=75",
+    destinations: "https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1280&q=75",
+    gallery: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1280&q=75",
+    testimonials: "https://images.unsplash.com/photo-1530789253388-582c481c54b0?w=1280&q=75",
+    faq: "https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1280&q=75",
   },
   videos: {
     homeHero: "/hero-video.mp4",
