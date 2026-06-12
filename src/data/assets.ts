@@ -2,7 +2,7 @@
 export const IMAGES = {
   hero: {
     home: "/hero-video.mp4",
-gf    about: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1280&q=75",
+    about: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1280&q=75",
     booking: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1280&q=75&auto=format",
     contact: "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?w=1280&q=75",
     packages: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1280&q=75",
