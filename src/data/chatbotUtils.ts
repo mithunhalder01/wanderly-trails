@@ -65,7 +65,7 @@ export function findTourDetails(query: string): string | null {
     return `"${foundWeekendGetaway.name}" in Weekend Getaways: Price: ₹${foundWeekendGetaway.price.toLocaleString()}. Image: ${foundWeekendGetaway.image}`;
   }
 
-  return "I couldn't find details for that specific tour or destination. Can you please be more specific or try a different name?";
+  return "I couldn't find details for that specific tour or destination. Please try being more specific with the name or ID, or ask me to list available tours.";
 }
 
 /**
@@ -97,7 +97,7 @@ export function getFAQAnswer(query: string): string {
     faq.q.toLowerCase().includes(lowerCaseQuery)
   );
 
-  if (foundFaiq) {
+  if (foundFaq) {
     return `Question: "${foundFaq.q}" Answer: "${foundFaq.a}"`;
   }
 
