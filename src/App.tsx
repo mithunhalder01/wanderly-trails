@@ -134,7 +134,8 @@ function App() {
         .lenis.lenis-smooth {
           scroll-behavior: auto !important;
         }
-        .lenis.lenis-smooth [data-lenis-prevent] {
+        .lenis.lenis-smooth 
+        [data-lenis-prevent] {
           overscroll-behavior: contain;
         }
         .lenis.lenis-stopped { overflow: hidden; }
