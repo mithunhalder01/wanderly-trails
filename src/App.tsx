@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import SeoManager from "@/components/SeoManager";
 import { ContentProvider } from "@/context/content";
 import Home from "@/pages/Home";
-const Navbar = lazy(() => import("@/components/Navbar"));
+import Navbar from "@/components/Navbar";
 const MobileBottomNav = lazy(() =>
   import("@/components/Navbar").then((module) => ({ default: module.MobileBottomNav })),
 );

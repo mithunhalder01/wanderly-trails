@@ -1,4 +1,5 @@
 import { availableTours, indiaTrips, weekendGetaways, servicesHome, whyChooseHome, homeFaqs } from '@/data/homeContent';
+import { destinations, packages } from '@/data/staticData';
 
 /**
  * Generates a time-aware greeting for the chatbot.
@@ -43,7 +44,27 @@ export function findTourDetails(query: string): string | null {
   );
 
   if (foundTour) {
-    return `"${foundTour.title}" (ID: ${foundTour.id}): ${foundTour.description} Price: ₹${foundTour.price.toLocaleString()}. Image: ${foundTour.image}`;
+    return `"${foundTour.title}" (ID: ${foundTour.id}): ${foundTour.description} Price: ₹${foundTour.price.toLocaleString()}.`;
+  }
+
+  // Search in high-quality staticData packages
+  const foundPackage = packages.find(pkg => 
+    pkg.title.toLowerCase().includes(lowerCaseQuery) || 
+    pkg.destinationName.toLowerCase().includes(lowerCaseQuery)
+  );
+
+  if (foundPackage) {
+    return `Package: "${foundPackage.title}" for ${foundPackage.destinationName}. Duration: ${foundPackage.duration} Days. Price: ₹${foundPackage.price.toLocaleString()}. Itinerary: ${foundPackage.description}`;
+  }
+
+  // Search in staticData destinations
+  const foundDest = destinations.find(d => d.name.toLowerCase().includes(lowerCaseQuery));
+  if (foundDest) {
+    return `${foundDest.name} is a beautiful destination in ${foundDest.country}. 
+            Rating: ${foundDest.rating}/5. 
+            Best Season: ${foundDest.bestSeason}. 
+            Starting Price: ₹${foundDest.startingPrice.toLocaleString()}. 
+            Description: ${foundDest.description}`;
   }
 
   // Search in India Trips destinations
@@ -92,6 +113,11 @@ export function getCategoryInfo(category: 'indiaTrips' | 'weekendGetaways'): str
  */
 export function getFAQAnswer(query: string): string {
   const lowerCaseQuery = query.toLowerCase();
+
+  // Smart check for specific topics
+  if (lowerCaseQuery.includes("price") || lowerCaseQuery.includes("cheap")) {
+    return "Our packages start from ₹6,999 (Kashmir/Himachal). You can check the 'Packages' page for a full list sorted by price!";
+  }
 
   const foundFaq = homeFaqs.find(faq =>
     faq.q.toLowerCase().includes(lowerCaseQuery)

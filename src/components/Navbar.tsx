@@ -58,7 +58,7 @@ export default function Navbar() {
     const safeBlogs = Array.isArray(blogPosts) ? blogPosts : [];
     const pool = [
       ...safeDestinations.map((d) => ({ title: d.name, subtitle: `${d.country} • ${d.category}` })),
-      ...safePackages.map((p) => ({ title: p.title, subtitle: `${p.duration} days • ₹${p.price.toLocaleString("en-IN")}` })),
+      ...safePackages.slice(0, 20).map((p) => ({ title: p.title, subtitle: `${p.duration} days • ₹${p.price.toLocaleString("en-IN")}` })),
       ...safeBlogs.map((b) => ({ title: b.title, subtitle: `${b.category} • ${b.readTime} min read` })),
     ];
     return Array.from(new Map(pool.map((item) => [item.title.toLowerCase(), item])).values());
