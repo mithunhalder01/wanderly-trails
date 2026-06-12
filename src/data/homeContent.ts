@@ -148,12 +148,13 @@ export const weekendGetaways = {
   bannerImage:
     "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1400&q=80",
   destinations: [
-    { name: "Rishikesh", price: 4999, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCiDXfTZFWyYLm57FSOXMgkRvcolwUyS8sPw&s" }, 
-    { name: "Mussoorie", price: 6999, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80" }, 
+    { name: "Pushkar", price: 4599, image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=500&q=70" },
+    { name: "Rishikesh", price: 4999, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCiDXfTZFWyYLm57FSOXMgkRvcolwUyS8sPw&s" },
+    { name: "Mussoorie", price: 6999, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80" },
     { name: "Kasol", price: 5499, image: "https://images.unsplash.com/photo-1544085311-11a028465b03?w=600&q=80" },
     { name: "Nainital", price: 7499, image: "https://img.avianexperiences.com/trek/acca8c5e-0708-4d0c-be5d-8df354d4d17e" },
     { name: "Udaipur", price: 8999, image: "https://storage.googleapis.com/stateless-www-justwravel-com/2025/01/b8a866ca-explore-the-best-places-to-visit-in-udaipur.png" },
-    { name: "Pushkar", price: 4599, image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=500&q=70" },
+
   ],
 };
 
