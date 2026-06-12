@@ -70,10 +70,10 @@ export default function Navbar() {
   // Filter suggestions based on input from the precomputed pool
   const suggestions = useMemo(() => {
     const q = searchText.trim().toLowerCase();
-    if (!q) return suggestionPool.slice(0, 8);
+    if (q.length < 2) return suggestionPool.slice(0, 5);
     return suggestionPool
       .filter((item) => item.title.toLowerCase().includes(q) || item.subtitle.toLowerCase().includes(q))
-      .slice(0, 8);
+      .slice(0, 5);
   }, [suggestionPool, searchText]);
 
   useEffect(() => {

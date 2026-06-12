@@ -77,7 +77,9 @@ export default function SearchPage() {
       <section className="relative h-[45vh] flex items-center overflow-hidden">
         <video 
           src="https://videos.pexels.com/video-files/3205584/3205584-hd_1920_1080_25fps.mp4"
-          autoPlay muted loop playsInline
+          autoPlay muted loop playsInline 
+          poster="https://images.unsplash.com/photo-1488085061387-422e29b40080?w=1280&q=75"
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-background" />

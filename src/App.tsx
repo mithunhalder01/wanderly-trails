@@ -1,3 +1,4 @@
+import Lenis from "lenis";
 import { Switch, Route, Redirect, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, lazy, Suspense } from "react";
@@ -93,11 +94,54 @@ function Router() {
 }
 
 function App() {
+  useEffect(() => {
+    // PERFORMANCE BOOST: मोबाइल पर स्मूथ स्क्रॉल डिसेबल रखें ताकि स्कोर 90+ बना रहे।
+    // यह केवल 768px (Desktop) से बड़ी स्क्रीन्स पर काम करेगा।
+    if (typeof window === "undefined" || window.innerWidth < 768) return;
+
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+
+    let rafId: number;
+    const raf = (time: number) => {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    };
+
+    rafId = requestAnimationFrame(raf);
+
+    return () => {
+      lenis.destroy();
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <style dangerouslySetInnerHTML={{ __html: `
         * {
           -webkit-tap-highlight-color: transparent;
+        }
+        html.lenis, html.lenis body {
+          height: auto;
+        }
+        .lenis.lenis-smooth {
+          scroll-behavior: auto !important;
+        }
+        .lenis.lenis-smooth [data-lenis-prevent] {
+          overscroll-behavior: contain;
+        }
+        .lenis.lenis-stopped { overflow: hidden; }
+        .lenis.lenis-scrolling iframe { pointer-events: none; }
+
+        html {
+          font-display: swap;
+        }
+        img {
+          content-visibility: auto;
         }
       ` }} />
       <TooltipProvider>
