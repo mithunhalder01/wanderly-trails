@@ -93,8 +93,8 @@ export default function FloatingWidgets() {
             className="w-[340px] bg-zinc-950/90 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] overflow-hidden border border-white/[0.08] mb-2 relative"
             data-testid="chatbot-window"
           >
-            {/* Ambient Background Glow */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
+            {/* Ambient Background Glow - Disabled on mobile for performance */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20 hidden md:block">
               <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] bg-primary rounded-full blur-[80px] animate-pulse" />
               <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-amber-500/30 rounded-full blur-[80px]" />
             </div>

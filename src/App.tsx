@@ -8,8 +8,6 @@ import SeoManager from "@/components/SeoManager";
 import { ContentProvider } from "@/context/content";
 import Home from "@/pages/Home";
 import Navbar from "@/components/Navbar";
-import { MobileBottomNav } from "@/components/Navbar";
-import FloatingWidgets from "@/components/FloatingWidgets";
 const Footer = lazy(() => import("@/components/Footer"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 const About = lazy(() => import("@/pages/About"));
@@ -28,6 +26,11 @@ const SearchPage = lazy(() => import("@/pages/Search"));
 const HimachalBackpackingItinerary = lazy(() => import("@/data/HimachalBackpackingItinerary"));
 const KashmirItinerary = lazy(() => import("@/pages/KashmirItinerary"));
 const LadakhItinerary = lazy(() => import("@/pages/LadakhItinerary"));
+
+// Separate widgets to reduce main bundle size
+const FloatingWidgets = lazy(() => import("@/components/FloatingWidgets"));
+// We wrap the named export in a default-like structure for lazy loading
+const MobileBottomNav = lazy(() => import("@/components/Navbar").then(module => ({ default: module.MobileBottomNav })));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
