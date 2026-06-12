@@ -19,7 +19,14 @@ export default function HomeTours() {
   
   const featuredDestinations = useMemo(() => {
     const limit = settings?.featuredDestinationCount ?? 50; // Fallback already 50, keeping it.
-    return allFeatured.slice(0, limit);
+    
+    // Ensure Himachal is always first if it exists in the list
+    const sorted = [...allFeatured].sort((a, b) => {
+      if (a.name === "Himachal") return -1;
+      if (b.name === "Himachal") return 1;
+      return 0;
+    });
+    return sorted.slice(0, limit);
   }, [allFeatured, settings?.featuredDestinationCount]);
 
   useGSAP(() => {

@@ -1,10 +1,10 @@
 /** Homepage copy & structured data — edit here to update the landing page */
 export const homeHero = {
-  brandLine: "Wanderly Trails",
-  title: "Find The",
-  titleHighlight: "Perfect Place",
+  brandLine: "WANDERLY TRAILS",
+  title: "Explore India, Discover New",
+  titleHighlight: "Adventures",
   description:
-    "A list of the top 75 Best Tourist Places to See in world for a perfect holiday or a trip.",
+    "Discover unforgettable journeys across India with Wanderly Trails. From the serene Himalayas to vibrant cities, we craft personalized travel experiences that blend culture, nature, and adventure. Your next great story starts here.",
   ctaPrimary: "Explore Packages",
   ctaSecondary: "Plan on WhatsApp",
   image:
@@ -39,18 +39,18 @@ export const aboutHome = {
 
 export const availableTours = [
   {
-    id: 101,
-    title: "Goa Tour",
-    price: 10499,
-    description: "Goa's beaches, culture, and parties all without breaking the bank.",
-    image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800&q=80",
-  },
-  {
     id: 301,
     title: "Memorable Himachal",
     price: 10499,
     description: "Experience the serenity of Kasol and Manikaran before concluding your journey.",
     image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800&q=80",
+  },
+  {
+    id: 101,
+    title: "Goa Tour",
+    price: 10499,
+    description: "Goa's beaches, culture, and parties all without breaking the bank.",
+    image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800&q=80",
   },
   {
     id: 401,
@@ -130,11 +130,11 @@ export const indiaTrips = {
   cta: "Explore",
   bannerImage: "/meghalya.png",
   destinations: [
-    { name: "Leh Ladakh", price: 15800, image: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=600&q=80", slug: "ladakh" },
+    { name: "Himachal", price: 7499, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80", slug: "himachal" },
+    { name: "Leh Ladakh", price: 15800, image: "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcSjx7yZLsj7DYwFG84gtEl_4VJ9VoPMwzuWUOmjZPhOmgDyAU3y0X7lpEtjZZHKO5GYKFNoJWwd0yq3SDcr8LgBvcE&s=19", slug: "ladakh" },
     { name: "Spiti", price: 17999, image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600&q=80", slug: "spiti" },
     { name: "Kashmir", price: 24499, image: "/kashmir.png", slug: "kashmir" },
     { name: "Meghalaya", price: 21499, image: "/meghalya.png", slug: "meghalaya" },
-    { name: "Himachal", price: 7499, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80", slug: "himachal" },
     { name: "Goa", price: 10499, image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600&q=80", slug: "goa" },
     { name: "Kerala", price: 14000, image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&q=80", slug: "kerala" },
     { name: "Rajasthan", price: 15999, image: "/rajisthan.png", slug: "rajasthan" },
@@ -148,11 +148,11 @@ export const weekendGetaways = {
   bannerImage:
     "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1400&q=80",
   destinations: [
-    { name: "Rishikesh", price: 4999, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCiDXfTZFWyYLm57FSOXMgkRvcolwUyS8sPw&s" },
-    { name: "Mussoorie", price: 6999, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80" },
+    { name: "Rishikesh", price: 4999, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCiDXfTZFWyYLm57FSOXMgkRvcolwUyS8sPw&s" }, 
+    { name: "Mussoorie", price: 6999, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80" }, 
     { name: "Kasol", price: 5499, image: "https://images.unsplash.com/photo-1544085311-11a028465b03?w=600&q=80" },
-    { name: "Nainital", price: 7499, image: "https://images.unsplash.com/photo-1615551043360-33de8b5f410c?w=600&q=80" },
-    { name: "Udaipur", price: 8999, image: "https://images.unsplash.com/photo-1615551043360-33de8b5f410c?w=600&q=80" },
+    { name: "Nainital", price: 7499, image: "https://img.avianexperiences.com/trek/acca8c5e-0708-4d0c-be5d-8df354d4d17e" },
+    { name: "Udaipur", price: 8999, image: "https://storage.googleapis.com/stateless-www-justwravel-com/2025/01/b8a866ca-explore-the-best-places-to-visit-in-udaipur.png" },
     { name: "Pushkar", price: 4599, image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=500&q=70" },
   ],
 };

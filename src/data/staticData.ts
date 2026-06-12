@@ -101,7 +101,7 @@ export const destinations: Destination[] = [
     "country": "India",
     "category": "Mountains",
     "description": "High-altitude desert landscapes, monasteries, and breathtaking road trips in Ladakh.",
-    "imageUrl": "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=800&q=75&auto=format",
+    "imageUrl": "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcSjx7yZLsj7DYwFG84gtEl_4VJ9VoPMwzuWUOmjZPhOmgDyAU3y0X7lpEtjZZHKO5GYKFNoJWwd0yq3SDcr8LgBvcE&s=19",
     "rating": 4.8,
     "startingPrice": 15800,
     "bestSeason": "May to Sep",
