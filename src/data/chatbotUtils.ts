@@ -1,6 +1,6 @@
 import { availableTours, indiaTrips, weekendGetaways, servicesHome, whyChooseHome, homeFaqs } from '@/data/homeContent';
 import { destinations, packages } from '@/data/staticData';
-import { CONTACT_PHONE_DISPLAY } from '@/lib/contact';
+import { CONTACT_PHONE_DISPLAY, CONTACT_WHATSAPP_NUMBER } from '@/lib/contact';
 
 /**
  * Generates a time-aware greeting for the chatbot.
@@ -160,7 +160,7 @@ export function handleSmartQuery(query: string): string {
 
   // 3. Check for greetings
   if (["hi", "hello", "hey", "sup"].includes(text)) {
-    return getChatbotGreeting() + " I can help you find the perfect trip to Goa, Himachal, Ladakh, or even Bali!";
+    return `${getChatbotGreeting()} I can help you find the perfect trip to Goa, Himachal, Ladakh, or even Bali! 🏔️🏖️`;
   }
 
   // 4. Check for service list

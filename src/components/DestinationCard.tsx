@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Link } from "wouter";
 import { Star, MapPin, Calendar, ArrowRight } from "lucide-react";
 import { useContent } from "@/context/content";
@@ -22,7 +23,11 @@ interface Props {
 
 export default function DestinationCard({ destination }: Props) {
   const { getPackagesByDestination } = useContent();
-  const relatedPackages = getPackagesByDestination(destination.id);
+  
+  const relatedPackages = useMemo(() => 
+    getPackagesByDestination(destination.id), 
+    [getPackagesByDestination, destination.id]
+  );
 
   const durationBadges = relatedPackages
     .map((p) => ({ nights: p.nights, days: p.duration }))

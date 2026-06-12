@@ -37,9 +37,7 @@ const queryClient = new QueryClient({
 function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <Suspense fallback={<div className="h-20 w-full" aria-hidden="true" />}>
-        <Navbar />
-      </Suspense>
+      <Navbar />
       <main className="pb-20 lg:pb-0">{children}</main>
       <Suspense fallback={null}>
         <Footer />
@@ -67,34 +65,32 @@ function ScrollToTopOnRouteChange() {
 
 function Router() { 
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <Switch>
-        {/* Public Routes with Shared Layout (no admin needed) */}
-        <PublicLayout>
+    <PublicLayout>
+      <Suspense fallback={<div className="min-h-screen bg-background" />}>
+        <Switch>
           <Switch>
-            <Route path="/" component={Home} />
-            <Route path="/about" component={About} />
-            <Route path="/destinations/:id" component={DestinationDetail} />
-            <Route path="/destinations" component={Destinations} />
-            <Route path="/packages/:id" component={PackageDetail} />
-            <Route path="/packages" component={Packages} />
-            <Route path="/gallery" component={Gallery} />
-            <Route path="/blog/:id" component={BlogDetail} />
-            <Route path="/blog" component={Blog} />
-            <Route path="/testimonials" component={Testimonials} />
-            <Route path="/booking" component={Booking} />
-            <Route path="/faq" component={FAQ} />
-            <Route path="/contact" component={Contact} />
-            <Route path="/search" component={SearchPage} />
-            <Route path="/itinerary/himachal-backpacking" component={HimachalBackpackingItinerary} />
-            <Route path="/itinerary/kashmir-tour" component={KashmirItinerary} />
-            <Route path="/itinerary/ladakh-tour" component={LadakhItinerary} />
-            <Route component={NotFound} />
+             <Route path="/" component={Home} />
+             <Route path="/about" component={About} />
+             <Route path="/destinations/:id" component={DestinationDetail} />
+             <Route path="/destinations" component={Destinations} />
+             <Route path="/packages/:id" component={PackageDetail} />
+             <Route path="/packages" component={Packages} />
+             <Route path="/gallery" component={Gallery} />
+             <Route path="/blog/:id" component={BlogDetail} />
+             <Route path="/blog" component={Blog} />
+             <Route path="/testimonials" component={Testimonials} />
+             <Route path="/booking" component={Booking} />
+             <Route path="/faq" component={FAQ} />
+             <Route path="/contact" component={Contact} />
+             <Route path="/search" component={SearchPage} />
+             <Route path="/itinerary/himachal-backpacking" component={HimachalBackpackingItinerary} />
+             <Route path="/itinerary/kashmir-tour" component={KashmirItinerary} />
+             <Route path="/itinerary/ladakh-tour" component={LadakhItinerary} />
+             <Route component={NotFound} />
           </Switch>
-        </PublicLayout>
-
-      </Switch>
-    </Suspense>
+        </Switch>
+      </Suspense>
+    </PublicLayout>
   );
 }
 
