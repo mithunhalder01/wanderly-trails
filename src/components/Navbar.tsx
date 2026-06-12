@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { Menu, X, ChevronDown, House, MapPinned, BriefcaseBusiness, Ticket, Search, Mic, ArrowLeft, Bot } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
 import { useContent } from "@/context/content";
 
@@ -109,8 +108,10 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link href="/" aria-label="Wanderly Trails — Home" className="flex shrink-0 items-center gap-2.5">
           <img
-            src="/logo.png"
+            src="/logo-sm.png"
             alt=""
+            width={80}
+            height={80}
             className={`h-14 w-auto object-contain sm:h-20 ${solid ? "" : "drop-shadow-lg"}`}
           />
           <span
@@ -193,14 +194,8 @@ export default function Navbar() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden border-t border-border/50 glass lg:hidden"
-          >
+      {open && (
+          <div className="overflow-hidden border-t border-border/50 glass lg:hidden animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="space-y-1 px-4 py-4">
               {navLinks.map((link) => (
                 <Link
@@ -233,19 +228,14 @@ export default function Navbar() {
                 Book on WhatsApp
               </a>
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
 
       </header>
 
-      <AnimatePresence>
-        {searchOpen && (
-          <motion.div
-            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
-            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            className="fixed inset-0 z-[80] bg-black/60"
+      {searchOpen && (
+          <div
+            className="fixed inset-0 z-[80] bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
             onClick={() => setSearchOpen(false)}
             onKeyDown={(e) => {
               if (e.key === "Escape") {
@@ -317,9 +307,8 @@ export default function Navbar() {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
     </>
   );
 }

@@ -1,54 +1,93 @@
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Link } from "wouter";
 import { ArrowRight, Instagram, Facebook, Youtube, Sparkles, Compass, Star } from "lucide-react";
 import { homeHero, homeStats } from "@/data/homeContent";
 import { CONTACT_WHATSAPP_NUMBER, SOCIAL_LINKS } from "@/lib/contact";
 import AnimatedCounter from "./AnimatedCounter";
 import { IMAGES, VIDEOS } from "@/data/assets";
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
 
 const WHATSAPP_MSG = encodeURIComponent(
   "Hi! I want to explore India with Wanderly Trails. Please help me plan my trip."
 );
 
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 export default function HomeHero() {
   const container = useRef<HTMLElement>(null);
+  const [showVideo, setShowVideo] = useState(false);
 
-  useGSAP(() => {
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-    
-    tl.fromTo(".hero-left > *", 
-      { y: 30, opacity: 0 }, 
-      { y: 0, opacity: 1, duration: 1, stagger: 0.15, delay: 0.2 }
-    ).fromTo(".hero-right", 
-      { x: 30, opacity: 0 }, 
-      { x: 0, opacity: 1, duration: 1 },
-      "-=0.8"
-    ).fromTo(".hero-bg-vid",
-      { scale: 1.1 },
-      { scale: 1.05, duration: 2.5, ease: "power2.out" },
-      0
-    );
-  }, { scope: container });
+  useEffect(() => {
+    if (prefersReducedMotion() || window.innerWidth < 768) return;
+
+    const enableVideo = () => setShowVideo(true);
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(enableVideo, { timeout: 2500 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const timer = window.setTimeout(enableVideo, 2000);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (prefersReducedMotion() || window.innerWidth < 768) return;
+
+    let cancelled = false;
+    import("gsap").then(({ default: gsap }) => {
+      if (cancelled || !container.current) return;
+
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      tl.fromTo(
+        ".hero-left > *",
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1, stagger: 0.15, delay: 0.2 }
+      )
+        .fromTo(
+          ".hero-right",
+          { x: 30, opacity: 0 },
+          { x: 0, opacity: 1, duration: 1 },
+          "-=0.8"
+        )
+        .fromTo(
+          ".hero-bg-vid",
+          { scale: 1.1 },
+          { scale: 1.05, duration: 2.5, ease: "power2.out" },
+          0
+        );
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <section ref={container} className="relative min-h-[90vh] md:min-h-screen overflow-hidden bg-black text-white flex items-center pt-20">
-      {/* Background Video */}
       <div className="absolute inset-0 overflow-hidden">
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster={IMAGES.hero.home}
-          className="hero-bg-vid h-full w-full object-cover scale-105 will-change-transform"
-        >
-          <source src={VIDEOS.homeHero} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+        <img
+          src={IMAGES.hero.home}
+          alt=""
+          width={1920}
+          height={1080}
+          fetchPriority="high"
+          decoding="async"
+          className={`hero-bg-vid h-full w-full object-cover scale-105 ${showVideo ? "opacity-0" : "opacity-100"} transition-opacity duration-700`}
+        />
+        {showVideo && (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="none"
+            poster={IMAGES.hero.home}
+            className="hero-bg-vid absolute inset-0 h-full w-full object-cover scale-105 will-change-transform"
+          >
+            <source src={VIDEOS.homeHero} type="video/mp4" />
+          </video>
+        )}
 
-        {/* Gradients for readability and blending */}
         <div className="absolute inset-0 bg-black/35" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background/35 via-background/5 to-transparent" />
@@ -56,13 +95,12 @@ export default function HomeHero() {
 
       <div className="relative z-10 w-full mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <div className="grid items-center gap-12 lg:grid-cols-12">
-          {/* Left Content */}
           <div className="hero-left lg:col-span-7">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white/90 backdrop-blur-md mb-6 md:mb-8 shadow-xl">
               <Sparkles className="h-4 w-4 text-amber-400" />
               <span className="text-xs md:text-sm font-bold tracking-[0.2em] uppercase">{homeHero.brandLine}</span>
             </div>
-            
+
             <h1 className="text-5xl font-bold leading-[1.1] md:text-6xl lg:text-7xl text-white drop-shadow-lg">
               {homeHero.title}
               <br />
@@ -70,11 +108,11 @@ export default function HomeHero() {
                 {homeHero.titleHighlight}
               </span>
             </h1>
-            
+
             <p className="mt-4 sm:mt-6 md:mt-8 max-w-xl text-sm sm:text-base md:text-xl leading-snug sm:leading-relaxed text-white/90 font-medium drop-shadow-md">
               {homeHero.description}
             </p>
-            
+
             <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
               <Link
                 href="/packages"
@@ -94,11 +132,8 @@ export default function HomeHero() {
             </div>
           </div>
 
-          {/* Right Stats & Socials */}
           <div className="hero-right hidden lg:flex lg:col-span-5 flex-col items-start gap-6 lg:items-end mt-8 lg:mt-0 w-full">
-            {/* Stats Dashboard Grid */}
             <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 lg:max-w-md text-left">
-              {/* Card 1: Happy Customers (People Join Us) */}
               <div className="sm:col-span-2 bg-white/5 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-4 sm:p-6 relative overflow-hidden group hover:border-white/20 hover:bg-white/10 transition-all duration-500 shadow-2xl flex flex-col justify-between min-h-[160px]">
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
@@ -111,7 +146,7 @@ export default function HomeHero() {
                       Live Community
                     </span>
                   </div>
-                  
+
                   <div className="mt-4 flex flex-wrap items-baseline gap-x-2 gap-y-1">
                     <span className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg leading-none">
                       <AnimatedCounter target={homeStats.customers.value} suffix={homeStats.customers.suffix} />
@@ -128,6 +163,10 @@ export default function HomeHero() {
                         className="inline-block h-8 w-8 rounded-full ring-2 ring-black object-cover"
                         src={src}
                         alt="Explorer profile"
+                        width={32}
+                        height={32}
+                        loading="lazy"
+                        decoding="async"
                       />
                     ))}
                     <div className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-amber-500/20 text-amber-400 text-xs font-bold ring-2 ring-black backdrop-blur-sm">
@@ -138,7 +177,6 @@ export default function HomeHero() {
                 </div>
               </div>
 
-              {/* Card 2: Tours & Experiences */}
               <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-5 relative overflow-hidden group hover:border-white/20 hover:bg-white/10 transition-all duration-500 shadow-2xl flex flex-col justify-between min-h-[140px]">
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10 flex items-center justify-between">
@@ -155,7 +193,6 @@ export default function HomeHero() {
                 </div>
               </div>
 
-              {/* Card 3: Ratings & Trust */}
               <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[1.5rem] p-5 relative overflow-hidden group hover:border-white/20 hover:bg-white/10 transition-all duration-500 shadow-2xl flex flex-col justify-between min-h-[140px]">
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10 flex items-center justify-between">
@@ -176,7 +213,6 @@ export default function HomeHero() {
               </div>
             </div>
 
-            {/* Social Links */}
             <div className="flex items-center gap-3 sm:gap-4 bg-black/40 backdrop-blur-md px-4 sm:px-6 py-3 rounded-full border border-white/10 shadow-lg w-full sm:w-auto justify-center sm:justify-start">
               <span className="text-xs font-bold text-white/60 mr-2 uppercase tracking-widest">Follow us</span>
               {[

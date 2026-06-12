@@ -142,19 +142,26 @@ export default function TripCarouselSection({
       </div>
 
       {/* ── MOBILE ── */}
-      <div className="block md:hidden px-6 relative z-10 w-full overflow-hidden">
-        <div className="relative flex items-end justify-between mb-8 pb-1 pt-6 overflow-hidden">
-          <div className="absolute bottom-[13px] left-0 right-0 h-[1.2px] bg-foreground/15 z-0" />
-          <h2 className="relative text-2xl font-bold tracking-tight text-foreground z-10 bg-background pr-3 pb-[1px] select-none">
-            {firstPart}{" "}
-            <span className="text-transparent bg-clip-text bg-[linear-gradient(to_right,#BF953F,#FCF6BA,#B38728,#FBF5B7,#AA771C)] italic font-semibold">{lastWord}</span>
-          </h2>
-          <div className="relative w-[150px] h-[75px] z-10 bg-background pl-2 -mb-[3px] select-none pointer-events-none">
-            <MountainGraphic />
+      <div className="block md:hidden relative z-10 w-full overflow-hidden pb-6">
+        <div className="relative pt-12 pb-24 px-6 overflow-hidden rounded-b-[2.5rem] shadow-xl mb-6 border-b border-border/20">
+          <img src={bannerImage} alt="" loading="lazy" decoding="async" className="absolute inset-0 h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-background z-10" />
+          
+          <div className="relative z-20 flex flex-col items-center text-center">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white w-fit mb-4 shadow-xl">
+              <Map className="h-3 w-3" />
+              <span className="text-xs font-semibold tracking-widest uppercase">Explore</span>
+            </div>
+            <h2 className="text-3xl font-serif font-bold text-white drop-shadow-md">
+              {firstPart}{" "}
+              <span className="text-transparent bg-clip-text bg-[linear-gradient(to_right,#BF953F,#FCF6BA,#B38728,#FBF5B7,#AA771C)] italic font-semibold">{lastWord}</span>
+            </h2>
+            <p className="mt-3 text-sm text-white/90 font-medium px-4 max-w-sm">{subtitle}</p>
           </div>
         </div>
 
-        {destinations.length > 0 && (
+        <div className="relative z-30 -mt-28 px-4">
+          {destinations.length > 0 && (
           <div className="relative w-full max-w-[260px] mx-auto mb-6 aspect-[3/4.2]">
             <Swiper
               dir="rtl"
@@ -191,6 +198,7 @@ export default function TripCarouselSection({
         <div className="text-center text-[11px] text-muted-foreground/60 mt-4 flex items-center justify-center gap-1.5 select-none pointer-events-none animate-pulse">
           <Compass className="h-3 w-3" />
           <span>Swipe cards left / right to browse</span>
+        </div>
         </div>
       </div>
     </section>

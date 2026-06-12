@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useInView } from "framer-motion";
 
 interface Props {
   target: number;
@@ -10,7 +9,25 @@ interface Props {
 export default function AnimatedCounter({ target, suffix = "", duration = 1500 }: Props) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true });
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!inView) return;

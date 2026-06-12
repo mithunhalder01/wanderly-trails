@@ -7,15 +7,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import {
-  blogPosts as defaultBlogPosts,
-  destinations as defaultDestinations,
-  packages as defaultPackages,
-  testimonials as defaultTestimonials,
-  type BlogPost,
-  type Destination,
-  type Package,
-  type Testimonial,
+import type {
+  BlogPost,
+  Destination,
+  Package,
+  Testimonial,
 } from "@/data/staticData";
 
 
@@ -76,15 +72,23 @@ const defaultSettings: SiteSettings = {
   showTrustBar: true,
 };
 
-// Avoid expensive deep-clone on every cold start.
-// Defaults are treated as immutable; we only replace snapshot state when remote data arrives.
-const buildDefaultSnapshot = (): SiteContentSnapshot => ({
-  destinations: defaultDestinations,
-  packages: defaultPackages,
-  blogPosts: defaultBlogPosts,
-  testimonials: defaultTestimonials,
-  settings: defaultSettings,
-});
+// Defaults load asynchronously so staticData stays out of the initial bundle.
+const buildDefaultSnapshot = async (): Promise<SiteContentSnapshot> => {
+  const {
+    blogPosts,
+    destinations,
+    packages,
+    testimonials,
+  } = await import("@/data/staticData");
+
+  return {
+    destinations,
+    packages,
+    blogPosts,
+    testimonials,
+    settings: defaultSettings,
+  };
+};
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 const normalizeCount = (value: unknown, fallback: number) => {
@@ -131,9 +135,7 @@ const sanitizeSettings = (rawSettings: unknown): SiteSettings => {
 const ensureArray = <T,>(value: unknown, fallback: T[]): T[] =>
   Array.isArray(value) ? (value as T[]) : fallback;
 
-const sanitizeSnapshot = (rawValue: unknown): SiteContentSnapshot => {
-  const fallback = buildDefaultSnapshot();
-
+const sanitizeSnapshot = (rawValue: unknown, fallback: SiteContentSnapshot): SiteContentSnapshot => {
   if (!rawValue || typeof rawValue !== "object") {
     return fallback;
   }
@@ -150,24 +152,30 @@ const sanitizeSnapshot = (rawValue: unknown): SiteContentSnapshot => {
 };
 
 const SESSION_INIT_KEY = "wanderly_session_initialized";
+export const SITE_CONTENT_STORAGE_KEY = "wanderly_site_content_v1";
+
+const emptySnapshot = (): SiteContentSnapshot => ({
+  destinations: [],
+  packages: [],
+  blogPosts: [],
+  testimonials: [],
+  settings: defaultSettings,
+});
 
 const loadInitialSnapshot = (): SiteContentSnapshot => {
-  // Agar naya browser session hai, toh localStorage saaf karein taaki purana data interfere na kare
   if (typeof window !== "undefined") {
     try {
       if (!sessionStorage.getItem(SESSION_INIT_KEY)) {
-        // console.log("New session detected. Clearing old storage for sync..."); // Debugging log removed
         localStorage.removeItem(SITE_CONTENT_STORAGE_KEY);
-        // Agar aapne pehle koi aur key use ki thi (jaise 'wanderly_content_storage_key'), use bhi yahan clear karein
         localStorage.removeItem("wanderly_content_storage_key");
         sessionStorage.setItem(SESSION_INIT_KEY, "true");
       }
-    } catch (e) {
-      // console.error("Storage reset failed", e); // Error log removed
+    } catch {
+      // ignore storage errors
     }
   }
 
-  return buildDefaultSnapshot();
+  return emptySnapshot();
 };
 
 async function fetchSiteContentSnapshot(): Promise<SiteContentSnapshot | null> {
@@ -184,7 +192,7 @@ async function fetchSiteContentSnapshot(): Promise<SiteContentSnapshot | null> {
       (json as { ok?: unknown }).ok === true &&
       "data" in json
     ) {
-      return sanitizeSnapshot((json as { data: unknown }).data);
+      return sanitizeSnapshot((json as { data: unknown }).data, emptySnapshot());
     }
 
     return null;
@@ -214,10 +222,18 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let cancelled = false;
 
-    fetchSiteContentSnapshot().then((remote) => {
+    (async () => {
+      const remote = await fetchSiteContentSnapshot();
       if (cancelled) return;
-      if (remote) setSnapshot(remote);
-    });
+
+      if (remote) {
+        setSnapshot(remote);
+        return;
+      }
+
+      const defaults = await buildDefaultSnapshot();
+      if (!cancelled) setSnapshot(defaults);
+    })();
 
     return () => {
       cancelled = true;
@@ -372,7 +388,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const resetToDefaults = useCallback(() => {
-    setSnapshot(buildDefaultSnapshot());
+    void buildDefaultSnapshot().then(setSnapshot);
   }, []);
 
   const exportData = useCallback(() => JSON.stringify(snapshot, null, 2), [snapshot]);
@@ -380,7 +396,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const importData = useCallback((jsonPayload: string) => {
     try {
       const parsed = JSON.parse(jsonPayload);
-      const sanitized = sanitizeSnapshot(parsed);
+      const sanitized = sanitizeSnapshot(parsed, emptySnapshot());
       setSnapshot(sanitized);
       return { ok: true } as const;
     } catch {

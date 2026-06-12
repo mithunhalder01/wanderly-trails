@@ -46,11 +46,17 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    modulePreload: {
+      polyfill: false,
+    },
     rollupOptions: {
       output: {
         manualChunks: {
           "vendor-react": ["react", "react-dom", "wouter"],
           "vendor-gsap": ["gsap", "@gsap/react"],
+          "vendor-framer": ["framer-motion"],
+          "vendor-swiper": ["swiper"],
+          "vendor-lenis": ["lenis"],
           "vendor-radix": [
             "@radix-ui/react-dialog",
             "@radix-ui/react-dropdown-menu",

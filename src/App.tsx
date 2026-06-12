@@ -1,4 +1,3 @@
-import Lenis from "lenis";
 import { Switch, Route, Redirect, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, lazy, Suspense } from "react";
@@ -6,8 +5,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SeoManager from "@/components/SeoManager";
 import { ContentProvider } from "@/context/content";
-import Home from "@/pages/Home";
 import Navbar from "@/components/Navbar";
+const Home = lazy(() => import("@/pages/Home"));
 const Footer = lazy(() => import("@/components/Footer"));
 const NotFound = lazy(() => import("@/pages/not-found"));
 const About = lazy(() => import("@/pages/About"));
@@ -98,26 +97,47 @@ function Router() {
 
 function App() {
   useEffect(() => {
-    // PERFORMANCE BOOST: मोबाइल पर स्मूथ स्क्रॉल डिसेबल रखें ताकि स्कोर 90+ बना रहे।
-    // यह केवल 768px (Desktop) से बड़ी स्क्रीन्स पर काम करेगा।
     if (typeof window === "undefined" || window.innerWidth < 768) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    });
+    let lenis: { destroy: () => void; raf: (time: number) => void } | null = null;
+    let rafId = 0;
+    let cancelled = false;
 
-    let rafId: number;
-    const raf = (time: number) => {
-      lenis.raf(time);
-      rafId = requestAnimationFrame(raf);
+    const boot = () => {
+      import("lenis").then(({ default: Lenis }) => {
+        if (cancelled) return;
+
+        lenis = new Lenis({
+          duration: 1.2,
+          easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          smoothWheel: true,
+        });
+
+        const raf = (time: number) => {
+          lenis?.raf(time);
+          rafId = requestAnimationFrame(raf);
+        };
+
+        rafId = requestAnimationFrame(raf);
+      });
     };
 
-    rafId = requestAnimationFrame(raf);
+    if (typeof window.requestIdleCallback === "function") {
+      const idleId = window.requestIdleCallback(boot, { timeout: 3000 });
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(idleId);
+        lenis?.destroy();
+        cancelAnimationFrame(rafId);
+      };
+    }
 
+    const timer = window.setTimeout(boot, 1500);
     return () => {
-      lenis.destroy();
+      cancelled = true;
+      window.clearTimeout(timer);
+      lenis?.destroy();
       cancelAnimationFrame(rafId);
     };
   }, []);
