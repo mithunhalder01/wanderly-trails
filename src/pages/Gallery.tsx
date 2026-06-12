@@ -76,7 +76,7 @@ export default function Gallery() {
               className={`${photo.span} relative group cursor-pointer overflow-hidden rounded-2xl h-48 md:h-56 will-change-transform`}
             >
               {photo.type === "image" ? (
-                <img src={photo.src} alt={photo.alt} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                <img src={photo.src} alt={photo.alt} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
               ) : (
                 <video
                   src={photo.video}

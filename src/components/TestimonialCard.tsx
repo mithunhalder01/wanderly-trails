@@ -37,6 +37,8 @@ export default function TestimonialCard({ testimonial }: Props) {
         <img
           src={testimonial.avatarUrl}
           alt={testimonial.name}
+          loading="lazy"
+          decoding="async"
           className="w-10 h-10 rounded-full object-cover"
         />
         <div>

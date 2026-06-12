@@ -90,7 +90,7 @@ export default function TripCarouselSection({
         <div className="relative">
           <div className="carousel-banner relative overflow-hidden rounded-[2rem] shadow-2xl border border-border/50">
             <div className="absolute inset-0 bg-black/20 z-10" />
-            <img src={bannerImage} alt="" className="h-[280px] w-full object-cover md:h-[350px] lg:h-[400px]" />
+            <img src={bannerImage} alt="" loading="lazy" decoding="async" className="h-[280px] w-full object-cover md:h-[350px] lg:h-[400px]" />
             <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent z-10" />
             <div className="absolute inset-0 z-20 flex flex-col justify-center px-6 md:px-12 lg:px-16 max-w-2xl">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white w-fit mb-4 shadow-xl">
@@ -121,7 +121,7 @@ export default function TripCarouselSection({
                   <Link href="/packages" className="group block relative w-[180px] overflow-hidden rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-border/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgb(0,0,0,0.2)] sm:w-[200px] md:w-[230px]">
                     <div className="relative aspect-[3/4]">
                       <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors duration-500 z-10" />
-                      <img src={dest.image} alt={dest.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <img src={dest.image} alt={dest.name} loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10" />
                       <div className="absolute bottom-0 left-0 right-0 p-4 z-20">
                         <div className="transform transition-transform duration-500 group-hover:-translate-y-1">
@@ -173,7 +173,7 @@ export default function TripCarouselSection({
                 <SwiperSlide key={dest.slug ?? dest.name} className="h-full">
                   <Link href={exploreHref} className="block relative h-full w-full rounded-[28px] overflow-hidden shadow-2xl border border-border/40 bg-card">
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent z-10" />
-                    <img src={dest.image} alt={dest.name} className="h-full w-full object-cover" draggable="false" />
+                    <img src={dest.image} alt={dest.name} loading="lazy" decoding="async" className="h-full w-full object-cover" draggable="false" />
                     <div className="absolute bottom-0 left-0 right-0 p-5 z-20">
                       <h3 className="font-sans text-xl font-bold text-white mb-1.5 drop-shadow-md">{dest.name}</h3>
                       <div className="flex flex-col gap-0.5 opacity-95">

@@ -64,6 +64,8 @@ export default function HomeAbout() {
               <img
                 src={aboutHome.imageMain}
                 alt="Travelers on an adventure"
+                loading="lazy"
+                decoding="async"
                 className="aspect-[4/5] w-full object-cover transition-transform duration-700 hover:scale-105"
               />
             </div>
@@ -105,6 +107,8 @@ export default function HomeAbout() {
               <img
                 src={aboutHome.imageSide}
                 alt="Group travel experience"
+                loading="lazy"
+                decoding="async"
                 className="aspect-[3/4] w-full object-cover transition-transform duration-700 hover:scale-110"
               />
             </div>

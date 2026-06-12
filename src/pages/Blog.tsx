@@ -59,7 +59,7 @@ export default function Blog() {
                 className="group bg-card rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all hover:-translate-y-1"
               >
                 <div className="relative h-52 overflow-hidden">
-                  <img src={post.imageUrl} alt={post.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img src={post.imageUrl} alt={post.title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute top-3 left-3">
                     <span className="bg-white/10 backdrop-blur-md text-white/85 text-xs font-bold px-3 py-1 rounded-full border border-white/15 shadow-sm">
                       {post.category}

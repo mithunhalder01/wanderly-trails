@@ -49,7 +49,7 @@ export default function About() {
             </p>
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative">
-            <img src={IMAGES.placeholders.team} alt="Team" className="rounded-3xl shadow-xl w-full object-cover h-96" />
+            <img src={IMAGES.placeholders.team} alt="Team" loading="lazy" decoding="async" className="rounded-3xl shadow-xl w-full object-cover h-96" />
             <div className="absolute -bottom-4 -left-4 sm:-bottom-6 sm:-left-6 bg-primary text-white rounded-2xl p-4 sm:p-6 shadow-xl">
               <p className="text-3xl sm:text-4xl font-serif font-bold">10+</p>
               <p className="text-white/80 text-sm">Years of Excellence</p>
@@ -120,7 +120,7 @@ export default function About() {
               className="group text-center"
             >
               <div className="relative w-48 h-48 mx-auto mb-5 rounded-full overflow-hidden border-2 border-primary/20">
-                <img src={member.img} alt={member.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img src={member.img} alt={member.name} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/20 transition-colors" />
               </div>
               <h3 className="font-serif font-bold text-lg">{member.name}</h3>

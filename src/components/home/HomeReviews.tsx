@@ -94,7 +94,7 @@ export default function HomeReviews() {
               <div className="mt-8 flex items-center justify-center gap-4">
                 <div className="relative h-14 w-14">
                   <div className="absolute inset-0 rounded-full bg-primary/20 blur-sm animate-pulse" />
-                  <img src={t.avatarUrl} alt={t.name} className="relative h-14 w-14 rounded-full object-cover border-2 border-white/20" />
+                  <img src={t.avatarUrl} alt={t.name} loading="lazy" decoding="async" className="relative h-14 w-14 rounded-full object-cover border-2 border-white/20" />
                 </div>
                 <div className="text-left">
                   <p className="text-base font-bold text-white">{t.name}</p>

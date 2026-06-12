@@ -259,7 +259,7 @@ export default function PackageDetail() {
   return (
     <div className="pt-20">
       <div className="relative h-[350px] sm:h-[450px] md:h-[500px] overflow-hidden">
-        <img src={pkg.imageUrl} alt={pkg.title} className="w-full h-full object-cover" />
+        <img src={pkg.imageUrl} alt={pkg.title} fetchpriority="high" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-black/40" />
 
         <div className="absolute top-0 left-0 right-0 z-20 pt-6">

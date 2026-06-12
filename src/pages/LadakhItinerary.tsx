@@ -244,6 +244,7 @@ export default function LadakhItinerary() {
         <img
           src="/ladakh.png" // Using the image from content.json for Ladakh
           alt="Ladakh Tour"
+          fetchpriority="high"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/60" />

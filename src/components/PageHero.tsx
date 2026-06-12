@@ -37,7 +37,7 @@ export default function PageHero({
           className="absolute inset-0 h-full w-full object-cover"
         />
       ) : (
-        <img src={image} alt={alt} className="absolute inset-0 h-full w-full object-cover" />
+        <img src={image} alt={alt} fetchpriority="high" className="absolute inset-0 h-full w-full object-cover" />
       )}
       <div className="absolute inset-0 bg-black/50" />
 
