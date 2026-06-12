@@ -6,30 +6,9 @@ import {
   CONTACT_PHONE_DISPLAY,
   CONTACT_WHATSAPP_NUMBER,
 } from "@/lib/contact";
+import { handleSmartQuery, getChatbotGreeting } from "@/data/chatbotUtils";
+
 const WHATSAPP_MSG = encodeURIComponent("Hi! I'm interested in booking a travel package with Wanderly Trails.");
-
-const chatResponses: Record<string, string> = {
-  default: "Hi there! I'm WanderBot 🌍 I can help you with destinations, packages, bookings, and travel tips. What are you looking for?",
-  goa: "Goa is perfect year-round but best from October–March! We have packages starting at ₹8,999. Check out our Goa Beach Paradise package 🏖️",
-  bali: "Bali is magical! Our Bali Honeymoon Special (7 days) starts at ₹49,999 with a private villa included 🌺",
-  kashmir: "Kashmir — Paradise on Earth! Our Kashmir Valley Romance (7 days) starts at ₹22,999 🏔️",
-  honeymoon: "We have amazing honeymoon packages! Bali, Maldives, and Kashmir are our top picks. Prices start at ₹22,999 💑",
-  budget: "We have packages for every budget, starting from just ₹8,999! Check our Packages page for full details 💰",
-  booking: `To book a trip, visit our Booking page or call us at ${CONTACT_PHONE_DISPLAY}. We're available 24/7! 📞`,
-  help: "I can help with:\n• Destination info\n• Package details\n• Booking queries\n• Visa guidance\n• Travel tips\n\nJust ask away! 😊",
-};
-
-function getResponse(input: string): string {
-  const lower = input.toLowerCase();
-  if (lower.includes("goa")) return chatResponses.goa;
-  if (lower.includes("bali")) return chatResponses.bali;
-  if (lower.includes("kashmir")) return chatResponses.kashmir;
-  if (lower.includes("honeymoon") || lower.includes("couple")) return chatResponses.honeymoon;
-  if (lower.includes("budget") || lower.includes("cheap") || lower.includes("price") || lower.includes("cost")) return chatResponses.budget;
-  if (lower.includes("book") || lower.includes("reserve") || lower.includes("confirm")) return chatResponses.booking;
-  if (lower.includes("help") || lower.includes("hi") || lower.includes("hello") || lower.includes("hey")) return chatResponses.help;
-  return `That's a great question! For detailed help, our travel experts are just a call away at ${CONTACT_PHONE_DISPLAY}, or you can WhatsApp us for a quick reply 😊`;
-}
 
 interface Message {
   from: "bot" | "user";
@@ -43,7 +22,7 @@ export default function FloatingWidgets() {
   const [chatOpen, setChatOpen] = useState(false);
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([
-    { from: "bot", text: chatResponses.default, time: now() },
+    { from: "bot", text: getChatbotGreeting(), time: now() },
   ]);
   const [isTyping, setIsTyping] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -89,7 +68,9 @@ export default function FloatingWidgets() {
     // Simulate bot thinking
     setIsTyping(true);
     setTimeout(() => {
-      const botReply: Message = { from: "bot", text: getResponse(text), time: now() };
+      const response = handleSmartQuery(text);
+
+      const botReply: Message = { from: "bot", text: response, time: now() };
       setMessages((m) => [...m, botReply]);
       setIsTyping(false);
     }, 1200);

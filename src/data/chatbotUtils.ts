@@ -34,8 +34,18 @@ export function getAllTourTitles(): string[] {
  * @param query - The search query (e.g., "Goa Tour", "101", "Himachal").
  * @returns A formatted string of tour details or a "not found" message.
  */
-export function findTourDetails(query: string): string | null {
+export function findTourDetails(query: string): string {
   const lowerCaseQuery = query.toLowerCase();
+
+  // Check for Itinerary specific requests
+  if (lowerCaseQuery.includes("itinerary") || lowerCaseQuery.includes("plan")) {
+    if (lowerCaseQuery.includes("ladakh")) {
+      return "We have a legendary 9D/8N Ladakh circuit: Delhi-Manali-Leh-Pangong. It starts at ₹31,999/-. Would you like me to show you the full day-by-day itinerary?";
+    }
+    if (lowerCaseQuery.includes("himachal")) {
+      return "Our Himachal Backpacking covers Shimla, Manali, Kasol, and Dalhousie (8D/7N) for just ₹12,999/-. It includes stays, meals, and a bonfire party!";
+    }
+  }
 
   // Search in availableTours
   const foundTour = availableTours.find(tour =>
@@ -44,7 +54,7 @@ export function findTourDetails(query: string): string | null {
   );
 
   if (foundTour) {
-    return `"${foundTour.title}" (ID: ${foundTour.id}): ${foundTour.description} Price: ₹${foundTour.price.toLocaleString()}.`;
+    return `🌟 *${foundTour.title}*\n💰 Price: ₹${foundTour.price.toLocaleString()}\n📝 ${foundTour.description}\n\nWould you like to book this?`;
   }
 
   // Search in high-quality staticData packages
@@ -54,17 +64,13 @@ export function findTourDetails(query: string): string | null {
   );
 
   if (foundPackage) {
-    return `Package: "${foundPackage.title}" for ${foundPackage.destinationName}. Duration: ${foundPackage.duration} Days. Price: ₹${foundPackage.price.toLocaleString()}. Itinerary: ${foundPackage.description}`;
+    return `📦 *${foundPackage.title}*\n📍 Location: ${foundPackage.destinationName}\n⏳ Duration: ${foundPackage.duration} Days / ${foundPackage.nights} Nights\n💵 Price: ₹${foundPackage.price.toLocaleString()}\n✨ Includes: ${foundPackage.hotelStars}★ Hotel, Meals & Transport.`;
   }
 
   // Search in staticData destinations
   const foundDest = destinations.find(d => d.name.toLowerCase().includes(lowerCaseQuery));
   if (foundDest) {
-    return `${foundDest.name} is a beautiful destination in ${foundDest.country}. 
-            Rating: ${foundDest.rating}/5. 
-            Best Season: ${foundDest.bestSeason}. 
-            Starting Price: ₹${foundDest.startingPrice.toLocaleString()}. 
-            Description: ${foundDest.description}`;
+    return `📍 *${foundDest.name}, ${foundDest.country}*\n⭐ Rating: ${foundDest.rating}/5\n🌤️ Best Season: ${foundDest.bestSeason}\n📉 Starts from: ₹${foundDest.startingPrice.toLocaleString()}\n\n${foundDest.description}`;
   }
 
   // Search in India Trips destinations
@@ -86,7 +92,7 @@ export function findTourDetails(query: string): string | null {
     return `"${foundWeekendGetaway.name}" in Weekend Getaways: Price: ₹${foundWeekendGetaway.price.toLocaleString()}. Image: ${foundWeekendGetaway.image}`;
   }
 
-  return "I couldn't find details for that specific tour or destination. Please try being more specific with the name or ID, or ask me to list available tours.";
+  return ""; // Return empty if nothing found to let other handlers try
 }
 
 /**
@@ -114,6 +120,11 @@ export function getCategoryInfo(category: 'indiaTrips' | 'weekendGetaways'): str
 export function getFAQAnswer(query: string): string {
   const lowerCaseQuery = query.toLowerCase();
 
+  // Intent: Booking/Contact
+  if (lowerCaseQuery.includes("book") || lowerCaseQuery.includes("contact") || lowerCaseQuery.includes("call")) {
+    return `Booking is easy! You can click the 'Book Now' button, or reach our experts directly at ${CONTACT_PHONE_DISPLAY}. We also support bookings via WhatsApp! 📞`;
+  }
+
   // Smart check for specific topics
   if (lowerCaseQuery.includes("price") || lowerCaseQuery.includes("cheap")) {
     return "Our packages start from ₹6,999 (Kashmir/Himachal). You can check the 'Packages' page for a full list sorted by price!";
@@ -127,7 +138,38 @@ export function getFAQAnswer(query: string): string {
     return `Question: "${foundFaq.q}" Answer: "${foundFaq.a}"`;
   }
 
-  return "I couldn't find an answer to that specific question in my FAQs. Could you please rephrase or ask about a different topic?";
+  return "";
+}
+
+/**
+ * Master function to handle all queries smartly.
+ */
+export function handleSmartQuery(query: string): string {
+  const text = query.trim().toLowerCase();
+  
+  if (text.length < 2) return "I'm listening! Please type a destination or a question (e.g., 'Bali' or 'How to book?').";
+
+  // 1. Try FAQ/Intents
+  const faq = getFAQAnswer(text);
+  if (faq) return faq;
+
+  // 2. Try Tour/Destination Search
+  const tour = findTourDetails(text);
+  if (tour) return tour;
+
+  // 3. Check for greetings
+  if (["hi", "hello", "hey", "sup"].includes(text)) {
+    return getChatbotGreeting() + " I can help you find the perfect trip to Goa, Himachal, Ladakh, or even Bali!";
+  }
+
+  // 4. Check for service list
+  if (text.includes("service") || text.includes("offer")) {
+    return listAllServices();
+  }
+
+  // 5. Ultimate Fallback
+  const topDestinations = destinations.slice(0, 3).map(d => d.name).join(", ");
+  return `I'm not quite sure about "${query}". Would you like to explore our top destinations like ${topDestinations}? Or you can speak to our expert at ${CONTACT_PHONE_DISPLAY}! 😊`;
 }
 
 /**
