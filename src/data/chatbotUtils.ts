@@ -1,5 +1,6 @@
 import { availableTours, indiaTrips, weekendGetaways, servicesHome, whyChooseHome, homeFaqs } from '@/data/homeContent';
 import { destinations, packages } from '@/data/staticData';
+import { CONTACT_PHONE_DISPLAY } from '@/lib/contact';
 
 /**
  * Generates a time-aware greeting for the chatbot.
