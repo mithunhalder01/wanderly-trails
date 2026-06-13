@@ -19,13 +19,13 @@ export default function HomeHero() {
   const [showVideo, setShowVideo] = useState(false);
 
   useEffect(() => {
-    if (prefersReducedMotion() || window.innerWidth < 768) return;
+    if (prefersReducedMotion()) return;
 
     setShowVideo(true);
   }, []);
 
   useEffect(() => {
-    if (prefersReducedMotion() || window.innerWidth < 768) return;
+    if (prefersReducedMotion()) return;
 
     let cancelled = false;
     import("gsap").then(({ default: gsap }) => {
