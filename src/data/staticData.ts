@@ -81,7 +81,7 @@ export const destinations: Destination[] = [
     "bestSeason": "April to October",
     "weather": "Tropical, 26–30°C",
     "featured": true
-  },
+  }, 
   {
     "id": 3,
     "name": "Kashmir",
@@ -1349,7 +1349,7 @@ export const packages: Package[] = [
     "destinationName": "Bali, Indonesia",
     "title": "Bali Honeymoon Special (5D/4N)",
     "description": "A romantic escape featuring flower baths, sunset dinners, and scenic temple tours in the heart of Bali, perfect for honeymooners.",
-    "imageUrl": "https://nicetourbali.com/wp-content/uploads/2022/12/Bali-Honeymoon-Package-for-7-days.jpg",
+    "imageUrl": "https://static.justwravel.com/images/cgnfe1hd/production/6df64b9fedc38a38d05c6b632dfa18253809570e-1768x728.jpg?fm=webp",
     "price": 38999,
     "duration": 5,
     "nights": 4,

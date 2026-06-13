@@ -21,13 +21,7 @@ export default function HomeHero() {
   useEffect(() => {
     if (prefersReducedMotion() || window.innerWidth < 768) return;
 
-    const enableVideo = () => setShowVideo(true);
-    if (typeof window.requestIdleCallback === "function") {
-      const id = window.requestIdleCallback(enableVideo, { timeout: 2500 });
-      return () => window.cancelIdleCallback(id);
-    }
-    const timer = window.setTimeout(enableVideo, 2000);
-    return () => window.clearTimeout(timer);
+    setShowVideo(true);
   }, []);
 
   useEffect(() => {
@@ -80,7 +74,7 @@ export default function HomeHero() {
             muted
             loop
             playsInline
-            preload="none"
+            preload="auto"
             poster={IMAGES.hero.home}
             className="hero-bg-vid absolute inset-0 h-full w-full object-cover scale-105 will-change-transform"
           >
