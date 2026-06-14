@@ -135,24 +135,26 @@ function Router() {
           transition={{ duration: isMobile ? 0.3 : 0.4, ease: [0.23, 1, 0.32, 1] }}
         >
           <Suspense fallback={<div className="min-h-screen bg-background" />}>
-             <Route path="/" component={Home} />
-             <Route path="/about" component={About} />
-             <Route path="/destinations/:id" component={DestinationDetail} />
-             <Route path="/destinations" component={Destinations} />
-             <Route path="/packages/:id" component={PackageDetail} />
-             <Route path="/packages" component={Packages} />
-             <Route path="/gallery" component={Gallery} />
-             <Route path="/blog/:id" component={BlogDetail} />
-             <Route path="/blog" component={Blog} />
-             <Route path="/testimonials" component={Testimonials} />
-             <Route path="/booking" component={Booking} />
-             <Route path="/faq" component={FAQ} />
-             <Route path="/contact" component={Contact} />
-             <Route path="/search" component={SearchPage} />
-             <Route path="/itinerary/himachal-backpacking" component={HimachalBackpackingItinerary} />
-             <Route path="/itinerary/kashmir-tour" component={KashmirItinerary} />
-             <Route path="/itinerary/ladakh-tour" component={LadakhItinerary} />
-             <Route component={NotFound} />
+            <Switch>
+               <Route path="/" component={Home} />
+               <Route path="/about" component={About} />
+               <Route path="/destinations/:id" component={DestinationDetail} />
+               <Route path="/destinations" component={Destinations} />
+               <Route path="/packages/:id" component={PackageDetail} />
+               <Route path="/packages" component={Packages} />
+               <Route path="/gallery" component={Gallery} />
+               <Route path="/blog/:id" component={BlogDetail} />
+               <Route path="/blog" component={Blog} />
+               <Route path="/testimonials" component={Testimonials} />
+               <Route path="/booking" component={Booking} />
+               <Route path="/faq" component={FAQ} />
+               <Route path="/contact" component={Contact} />
+               <Route path="/search" component={SearchPage} />
+               <Route path="/itinerary/himachal-backpacking" component={HimachalBackpackingItinerary} />
+               <Route path="/itinerary/kashmir-tour" component={KashmirItinerary} />
+               <Route path="/itinerary/ladakh-tour" component={LadakhItinerary} />
+               <Route component={NotFound} />
+            </Switch>
           </Suspense>
         </motion.div>
       </AnimatePresence>
