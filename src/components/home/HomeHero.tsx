@@ -31,11 +31,12 @@ export default function HomeHero() {
     import("gsap").then(({ default: gsap }) => {
       if (cancelled || !container.current) return;
 
+      const isMobile = window.innerWidth < 768;
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
       tl.fromTo(
         ".hero-left > *",
         { y: 30, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, stagger: 0.15, delay: 0.2 }
+        { y: 0, opacity: 1, duration: isMobile ? 0.6 : 1, stagger: 0.1, delay: 0.2 }
       )
         .fromTo(
           ".hero-right",
@@ -74,7 +75,7 @@ export default function HomeHero() {
             muted
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
             poster={IMAGES.hero.home}
             className="hero-bg-vid absolute inset-0 h-full w-full object-cover scale-105 will-change-transform"
           >

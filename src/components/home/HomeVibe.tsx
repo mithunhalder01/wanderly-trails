@@ -93,7 +93,7 @@ export default function HomeVibe() {
                 muted
                 loop
                 playsInline
-                preload="none"
+                preload="metadata"
                 poster={card.poster}
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
               />

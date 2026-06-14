@@ -204,7 +204,7 @@ export default function Navbar() {
                   onClick={(e) => {
                     e.preventDefault(); // Prevent immediate navigation
                     setOpen(false); // Close the menu immediately
-                    setTimeout(() => setLocation(link.href), 300); // Navigate after a short delay
+                    setTimeout(() => setLocation(link.href), 150); // Reduced delay for mobile snappiness
                   }}
                   className={`flex items-center justify-between rounded-xl px-4 py-3 text-sm font-medium ${
                     location === link.href ? "bg-foreground/5 text-foreground" : "text-foreground/75 hover:bg-foreground/5"
@@ -221,7 +221,7 @@ export default function Navbar() {
                 onClick={(e) => {
                   e.preventDefault(); // Prevent immediate navigation
                   setOpen(false); // Close the menu immediately
-                  setTimeout(() => window.open(`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`, "_blank"), 300); // Open WhatsApp after a short delay
+                  setTimeout(() => window.open(`https://wa.me/${CONTACT_WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`, "_blank"), 150); 
                 }}
                 className="wa-btn mt-2 w-full justify-center py-3.5"
               >
@@ -315,25 +315,32 @@ export default function Navbar() {
 
 export function MobileBottomNav() {
   const [location] = useLocation();
-  const activeIndex = Math.max(
-    0,
-    bottomNavLinks.findIndex((item) => location === item.href)
-  );
+  const [chatOpen, setChatOpen] = useState(false);
+
+  useEffect(() => {
+    const handleChatState = (e: any) => setChatOpen(e.detail.open);
+    window.addEventListener("chatbot-state-change", handleChatState);
+    return () => window.removeEventListener("chatbot-state-change", handleChatState);
+  }, []);
+
+  const activeIndex = useMemo(() => {
+    if (chatOpen) return 4;
+    return bottomNavLinks.findIndex((item) => location === item.href);
+  }, [location, chatOpen]);
 
   return (
-    <nav className="fixed bottom-4 left-1/2 z-50 w-[min(26rem,calc(100vw-1.5rem))] -translate-x-1/2 rounded-[2.5rem] border border-zinc-800 bg-zinc-950 px-2 py-3 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] lg:hidden">
+    <nav className="fixed bottom-4 left-1/2 z-50 w-[min(26rem,calc(100vw-1.5rem))] -translate-x-1/2 rounded-[2.5rem] border border-white/10 bg-zinc-950/90 backdrop-blur-xl px-2 py-3 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] lg:hidden will-change-gpu">
       <div className="relative mx-auto grid max-w-md grid-cols-5 items-center">
-        <span
-          className="pointer-events-none absolute bottom-0 top-0 w-1/5 rounded-full bg-zinc-800/50 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
+        <div
+          className="pointer-events-none absolute bottom-0 top-0 w-1/5 bg-white/20 rounded-full transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]"
           style={{
-            transform: `translateX(${activeIndex * 100}%)`,
-            opacity: activeIndex === 2 ? 0 : 1
+            transform: `translateX(${(activeIndex === -1 ? 0 : activeIndex) * 100}%) scale(0.85)`,
+            opacity: activeIndex === -1 || activeIndex === 2 ? 0 : 1
           }}
-        >
-          <span className="absolute -bottom-1 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-primary" />
-        </span>
+        />
         {bottomNavLinks.map(({ label, href, Icon }, idx) => {
-          const active = location === href;
+          const isChat = label === "Chat";
+          const active = isChat ? chatOpen : (location === href && !chatOpen);
           const isCenter = idx === 2;
 
           return (
@@ -346,7 +353,7 @@ export function MobileBottomNav() {
                   window.dispatchEvent(new CustomEvent("toggle-chatbot")); // Chatbot open karein
                 }
               }}
-              className={`relative z-10 flex flex-col items-center justify-center transition-all duration-300 ${
+              className={`relative z-10 flex flex-col items-center justify-center transition-all duration-300 active:scale-95 ${
                 active ? "text-white" : "text-white/40 hover:text-white/70"
               }`}
             >
@@ -361,7 +368,7 @@ export function MobileBottomNav() {
                 </div>
               ) : (
                 <>
-                  <Icon className={`mb-1 transition-all duration-500 ${active ? "h-5 w-5 scale-110 text-primary drop-shadow-[0_0_8px_rgba(191,149,63,0.3)]" : "h-5 w-5"}`} />
+                  <Icon className={`mb-1 transition-all duration-500 ${active ? "h-5 w-5 scale-110 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.6)]" : "h-5 w-5"}`} />
                   <span className={`text-[9px] font-bold tracking-wide transition-all duration-300 ${active ? "opacity-100 translate-y-0" : "opacity-40 translate-y-0.5"}`}>
                     {label}
                   </span>

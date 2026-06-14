@@ -1,8 +1,9 @@
 import { Switch, Route, Redirect, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, lazy, Suspense, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion, AnimatePresence } from "framer-motion";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SeoManager from "@/components/SeoManager";
@@ -68,12 +69,72 @@ function ScrollToTopOnRouteChange() {
   return null;
 }
 
+function CustomCursor() {
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const followerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || window.innerWidth < 768) return;
+
+    const moveCursor = (e: MouseEvent) => {
+      gsap.to(cursorRef.current, { x: e.clientX, y: e.clientY, duration: 0.1, ease: "power2.out" });
+      gsap.to(followerRef.current, { x: e.clientX, y: e.clientY, duration: 0.6, ease: "power3.out" });
+    };
+
+    const handleHover = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const isInteractive = target.closest('a') || target.closest('button') || target.closest('.cursor-pointer');
+      
+      if (isInteractive) {
+        gsap.to(cursorRef.current, { scale: 3.5, opacity: 0.4, duration: 0.3 });
+        gsap.to(followerRef.current, { 
+          scale: 1.6, 
+          backgroundColor: "rgba(191, 149, 63, 0.12)", 
+          borderColor: "rgba(191, 149, 63, 0.6)", 
+          duration: 0.3 
+        });
+      } else {
+        gsap.to(cursorRef.current, { scale: 1, opacity: 1, duration: 0.3 });
+        gsap.to(followerRef.current, { 
+          scale: 1, 
+          backgroundColor: "rgba(191, 149, 63, 0.05)", 
+          borderColor: "rgba(191, 149, 63, 0.4)", 
+          duration: 0.3 
+        });
+      }
+    };
+
+    window.addEventListener("mousemove", moveCursor);
+    window.addEventListener("mouseover", handleHover);
+    return () => {
+      window.removeEventListener("mousemove", moveCursor);
+      window.removeEventListener("mouseover", handleHover);
+    };
+  }, []);
+
+  return (
+    <>
+      <div ref={cursorRef} className="pointer-events-none fixed top-0 left-0 z-[9999] h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary hidden md:block" />
+      <div ref={followerRef} className="pointer-events-none fixed top-0 left-0 z-[9998] h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/40 bg-primary/5 hidden md:block" />
+    </>
+  );
+}
+
 function Router() { 
+  const [location] = useLocation();
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
   return (
     <PublicLayout>
-      <Suspense fallback={<div className="min-h-screen bg-background" />}>
-        <Switch>
-          <Switch>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={location}
+          initial={isMobile ? { opacity: 0 } : { x: 30, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={isMobile ? { opacity: 0 } : { x: -30, opacity: 0 }}
+          transition={{ duration: isMobile ? 0.3 : 0.4, ease: [0.23, 1, 0.32, 1] }}
+        >
+          <Suspense fallback={<div className="min-h-screen bg-background" />}>
              <Route path="/" component={Home} />
              <Route path="/about" component={About} />
              <Route path="/destinations/:id" component={DestinationDetail} />
@@ -92,9 +153,9 @@ function Router() {
              <Route path="/itinerary/kashmir-tour" component={KashmirItinerary} />
              <Route path="/itinerary/ladakh-tour" component={LadakhItinerary} />
              <Route component={NotFound} />
-          </Switch>
-        </Switch>
-      </Suspense>
+          </Suspense>
+        </motion.div>
+      </AnimatePresence>
     </PublicLayout>
   );
 }
@@ -162,6 +223,10 @@ function App() {
       <style dangerouslySetInnerHTML={{ __html: `
         * {
           -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+        }
+        .will-change-gpu {
+          will-change: transform, opacity;
         }
         html.lenis, html.lenis body {
           height: auto;
