@@ -1,6 +1,8 @@
 import { Switch, Route, Redirect, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, lazy, Suspense } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import SeoManager from "@/components/SeoManager";
@@ -30,6 +32,8 @@ const LadakhItinerary = lazy(() => import("@/pages/LadakhItinerary"));
 const FloatingWidgets = lazy(() => import("@/components/FloatingWidgets"));
 // We wrap the named export in a default-like structure for lazy loading
 const MobileBottomNav = lazy(() => import("@/components/Navbar").then(module => ({ default: module.MobileBottomNav })));
+
+gsap.registerPlugin(ScrollTrigger);
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
@@ -108,18 +112,27 @@ function App() {
       import("lenis").then(({ default: Lenis }) => {
         if (cancelled) return;
 
-        lenis = new Lenis({
-          duration: 1.2,
+        const lenisInstance = new Lenis({
+          duration: 1.5,
           easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
           smoothWheel: true,
+          touchMultiplier: 2,
+          lerp: 0.08,
         });
 
-        const raf = (time: number) => {
-          lenis?.raf(time);
-          rafId = requestAnimationFrame(raf);
-        };
+        lenis = lenisInstance;
 
-        rafId = requestAnimationFrame(raf);
+        // Sync ScrollTrigger with Lenis for premium animations and feel
+        lenisInstance.on('scroll', ScrollTrigger.update);
+
+        const tickerFn = (time: number) => {
+          lenisInstance.raf(time * 1000);
+        };
+        gsap.ticker.add(tickerFn);
+        gsap.ticker.lagSmoothing(0);
+
+        // Save ticker reference for cleanup
+        (lenis as any)._tickerFn = tickerFn;
       });
     };
 
@@ -128,8 +141,10 @@ function App() {
       return () => {
         cancelled = true;
         window.cancelIdleCallback(idleId);
-        lenis?.destroy();
-        cancelAnimationFrame(rafId);
+        if (lenis) {
+          if ((lenis as any)._tickerFn) gsap.ticker.remove((lenis as any)._tickerFn);
+          lenis.destroy();
+        }
       };
     }
 

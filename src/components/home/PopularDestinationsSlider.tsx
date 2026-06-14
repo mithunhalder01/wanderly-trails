@@ -42,6 +42,7 @@ export default function PopularDestinationsSlider() {
         {/* Slider Container: Horizontal scrolling with hidden scrollbar */}
         <div 
           ref={scrollRef}
+          data-lenis-prevent
           className="flex gap-8 md:gap-12 overflow-x-auto pb-4 px-2 scrollbar-hide snap-x snap-mandatory cursor-grab active:cursor-grabbing select-none relative z-10"
           style={{ 
             msOverflowStyle: 'none', 
