@@ -1,32 +1,18 @@
+import { createContext, useContext, type ReactNode } from "react";
 import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from "react";
-import type {
-  BlogPost,
-  Destination,
-  Package,
-  Testimonial,
+  blogPosts,
+  destinations,
+  packages,
+  siteSettings,
+  testimonials,
+  type BlogPost,
+  type Destination,
+  type Package,
+  type SiteSettings,
+  type Testimonial,
 } from "@/data/staticData";
 
-
-export interface SiteSettings {
-  heroTag: string;
-  heroTitle: string;
-  heroHighlight: string;
-  heroSubtitle: string;
-  heroPrimaryCta: string;
-  heroSecondaryCta: string;
-  featuredDestinationCount: number;
-  featuredPackageCount: number;
-  featuredBlogCount: number;
-  showTrustBar: boolean;
-}
+export type { SiteSettings };
 
 export interface SiteContentSnapshot {
   destinations: Destination[];
@@ -44,428 +30,44 @@ interface SiteContentContextValue extends SiteContentSnapshot {
   getBlogPostById: (id: number) => BlogPost | undefined;
   getPackagesByDestination: (destinationId: number) => Package[];
   getRelatedPackages: (packageId: number) => Package[];
-  upsertDestination: (payload: Omit<Destination, "id"> & { id?: number }) => number;
-  upsertPackage: (payload: Omit<Package, "id"> & { id?: number }) => number;
-  upsertBlogPost: (payload: Omit<BlogPost, "id"> & { id?: number }) => number;
-  upsertTestimonial: (payload: Omit<Testimonial, "id"> & { id?: number }) => number;
-  deleteDestination: (id: number) => void;
-  deletePackage: (id: number) => void;
-  deleteBlogPost: (id: number) => void;
-  deleteTestimonial: (id: number) => void;
-  updateSettings: (updates: Partial<SiteSettings>) => void;
-  resetToDefaults: () => void;
-  exportData: () => string;
-  importData: (jsonPayload: string) => { ok: true } | { ok: false; error: string };
 }
 
-const defaultSettings: SiteSettings = {
-  heroTag: "Travel Smart",
-  heroTitle: "Discover Your",
-  heroHighlight: "Dream Destination",
-  heroSubtitle:
-    "Curated packages for every traveler — from Goa beaches to Bali villas.",
-  heroPrimaryCta: "Explore Packages",
-  heroSecondaryCta: "Customize Trip",
-  featuredDestinationCount: 8, 
-  featuredPackageCount: 6,
-  featuredBlogCount: 3,
-  showTrustBar: true,
-};
-
-// Defaults load asynchronously so staticData stays out of the initial bundle.
-const buildDefaultSnapshot = async (): Promise<SiteContentSnapshot> => {
-  const {
-    blogPosts,
-    destinations,
-    packages,
-    testimonials,
-  } = await import("@/data/staticData");
-
-  return {
-    destinations,
-    packages,
-    blogPosts,
-    testimonials,
-    settings: defaultSettings,
-  };
-};
-
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
-const normalizeCount = (value: unknown, fallback: number) => {
-  const numeric = Number(value);
-  if (!Number.isFinite(numeric)) {
-    return fallback;
-  }
-  return clamp(numeric, 1, 100); // Max clamp value already 100, keeping it.
-};
-
-const sanitizeSettings = (rawSettings: unknown): SiteSettings => {
-  if (!rawSettings || typeof rawSettings !== "object") {
-    return defaultSettings;
-  }
-
-
-  const candidate = rawSettings as Partial<SiteSettings>;
-  return {
-    heroTag: candidate.heroTag?.trim() || defaultSettings.heroTag,
-    heroTitle: candidate.heroTitle?.trim() || defaultSettings.heroTitle,
-    heroHighlight: candidate.heroHighlight?.trim() || defaultSettings.heroHighlight,
-    heroSubtitle: candidate.heroSubtitle?.trim() || defaultSettings.heroSubtitle,
-    heroPrimaryCta: candidate.heroPrimaryCta?.trim() || defaultSettings.heroPrimaryCta,
-    heroSecondaryCta: candidate.heroSecondaryCta?.trim() || defaultSettings.heroSecondaryCta,
-    featuredDestinationCount: normalizeCount(
-      candidate.featuredDestinationCount,
-      defaultSettings.featuredDestinationCount
-    ),
-    featuredPackageCount: normalizeCount(
-      candidate.featuredPackageCount,
-      defaultSettings.featuredPackageCount
-    ),
-    featuredBlogCount: normalizeCount(
-      candidate.featuredBlogCount,
-      defaultSettings.featuredBlogCount
-    ),
-    showTrustBar:
-      typeof candidate.showTrustBar === "boolean"
-        ? candidate.showTrustBar
-        : defaultSettings.showTrustBar,
-  };
-};
-
-const ensureArray = <T,>(value: unknown, fallback: T[]): T[] =>
-  Array.isArray(value) ? (value as T[]) : fallback;
-
-const sanitizeSnapshot = (rawValue: unknown, fallback: SiteContentSnapshot): SiteContentSnapshot => {
-  if (!rawValue || typeof rawValue !== "object") {
-    return fallback;
-  }
-
-  const parsed = rawValue as Partial<SiteContentSnapshot>;
-
-  return {
-    destinations: ensureArray(parsed.destinations, fallback.destinations),
-    packages: ensureArray(parsed.packages, fallback.packages),
-    blogPosts: ensureArray(parsed.blogPosts, fallback.blogPosts),
-    testimonials: ensureArray(parsed.testimonials, fallback.testimonials),
-    settings: sanitizeSettings(parsed.settings),
-  };
-};
-
-const SESSION_INIT_KEY = "wanderly_session_initialized";
-export const SITE_CONTENT_STORAGE_KEY = "wanderly_site_content_v1";
-
-const emptySnapshot = (): SiteContentSnapshot => ({
-  destinations: [],
-  packages: [],
-  blogPosts: [],
-  testimonials: [],
-  settings: defaultSettings,
-});
-
-const loadInitialSnapshot = (): SiteContentSnapshot => {
-  if (typeof window !== "undefined") {
-    try {
-      if (!sessionStorage.getItem(SESSION_INIT_KEY)) {
-        localStorage.removeItem(SITE_CONTENT_STORAGE_KEY);
-        localStorage.removeItem("wanderly_content_storage_key");
-        sessionStorage.setItem(SESSION_INIT_KEY, "true");
-      }
-    } catch {
-      // ignore storage errors
+// Content build-time par resolve ho jata hai — koi runtime fetch nahi,
+// isliye pehle hi paint par poora data available hota hai.
+const contentValue: SiteContentContextValue = {
+  destinations,
+  packages,
+  blogPosts,
+  testimonials,
+  settings: siteSettings,
+  featuredDestinations: destinations.filter((item) => item.featured),
+  featuredPackages: packages.filter((item) => item.featured),
+  getDestinationById: (id) => destinations.find((item) => item.id === id),
+  getPackageById: (id) => packages.find((item) => item.id === id),
+  getBlogPostById: (id) => blogPosts.find((item) => item.id === id),
+  getPackagesByDestination: (destinationId) =>
+    packages.filter((item) => item.destinationId === destinationId),
+  getRelatedPackages: (packageId) => {
+    const current = packages.find((item) => item.id === packageId);
+    if (!current) {
+      return [];
     }
-  }
-
-  return emptySnapshot();
+    return packages
+      .filter(
+        (item) =>
+          item.id !== packageId &&
+          (item.destinationId === current.destinationId || item.category === current.category)
+      )
+      .slice(0, 4);
+  },
 };
 
-async function fetchSiteContentSnapshot(): Promise<SiteContentSnapshot | null> {
-  try {
-    // Cache bypass karne ke liye timestamp query parameter add karein
-    const cacheBuster = `t=${Date.now()}`;
-    const res = await fetch(`/api/content?${cacheBuster}`, { cache: "no-cache" });
-    const json: unknown = await res.json();
-
-    if (
-      typeof json === "object" &&
-      json !== null &&
-      "ok" in json &&
-      (json as { ok?: unknown }).ok === true &&
-      "data" in json
-    ) {
-      return sanitizeSnapshot((json as { data: unknown }).data, emptySnapshot());
-    }
-
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-
-
-const SiteContentContext = createContext<SiteContentContextValue | null>(null);
-
-const getNextId = <T extends { id: number }>(rows: T[]): number =>
-  rows.length === 0 ? 1 : Math.max(...rows.map((row) => row.id)) + 1;
+const SiteContentContext = createContext<SiteContentContextValue>(contentValue);
 
 export function ContentProvider({ children }: { children: ReactNode }) {
-  const [snapshot, setSnapshot] = useState<SiteContentSnapshot>(() => loadInitialSnapshot());
-
-  // Function to re-fetch and update snapshot
-  const refreshSnapshot = useCallback(async () => {
-    const remote = await fetchSiteContentSnapshot();
-    if (remote) {
-      setSnapshot(remote);
-    }
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    (async () => {
-      const remote = await fetchSiteContentSnapshot();
-      if (cancelled) return;
-
-      if (remote) {
-        setSnapshot(remote);
-        return;
-      }
-
-      const defaults = await buildDefaultSnapshot();
-      if (!cancelled) setSnapshot(defaults);
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-  
-  // Storage event listener for cross-tab synchronization
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      // Only react to changes in our specific key and if the value actually changed
-      if (e.key === SITE_CONTENT_STORAGE_KEY) {
-        // console.log("Storage event detected, refreshing content..."); // Debugging log removed
-        refreshSnapshot();
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, [refreshSnapshot]);
-  // LocalStorage persistence removed.
-
-
-
-  const upsertDestination = useCallback(
-    (payload: Omit<Destination, "id"> & { id?: number }) => {
-      let targetId = payload.id ?? 0;
-
-      setSnapshot((prev) => {
-        const exists = payload.id ? prev.destinations.some((item) => item.id === payload.id) : false;
-        targetId = exists ? (payload.id as number) : getNextId(prev.destinations);
-
-        const row: Destination = { ...payload, id: targetId };
-        const nextDestinations = exists
-          ? prev.destinations.map((item) => (item.id === targetId ? row : item))
-          : [row, ...prev.destinations];
-
-        return {
-          ...prev,
-          destinations: nextDestinations,
-        };
-      });
-
-      return targetId;
-    },
-    []
-  );
-
-  const upsertPackage = useCallback((payload: Omit<Package, "id"> & { id?: number }) => {
-    let targetId = payload.id ?? 0;
-
-    setSnapshot((prev) => {
-      const exists = payload.id ? prev.packages.some((item) => item.id === payload.id) : false;
-      targetId = exists ? (payload.id as number) : getNextId(prev.packages);
-
-      const row: Package = { ...payload, id: targetId };
-      const nextPackages = exists
-        ? prev.packages.map((item) => (item.id === targetId ? row : item))
-        : [row, ...prev.packages];
-
-      return {
-        ...prev,
-        packages: nextPackages,
-      };
-    });
-
-    return targetId;
-  }, []);
-
-  const upsertBlogPost = useCallback((payload: Omit<BlogPost, "id"> & { id?: number }) => {
-    let targetId = payload.id ?? 0;
-
-    setSnapshot((prev) => {
-      const exists = payload.id ? prev.blogPosts.some((item) => item.id === payload.id) : false;
-      targetId = exists ? (payload.id as number) : getNextId(prev.blogPosts);
-
-      const row: BlogPost = { ...payload, id: targetId };
-      const nextBlogPosts = exists
-        ? prev.blogPosts.map((item) => (item.id === targetId ? row : item))
-        : [row, ...prev.blogPosts];
-
-      return {
-        ...prev,
-        blogPosts: nextBlogPosts,
-      };
-    });
-
-    return targetId;
-  }, []);
-
-  const upsertTestimonial = useCallback(
-    (payload: Omit<Testimonial, "id"> & { id?: number }) => {
-      let targetId = payload.id ?? 0;
-
-      setSnapshot((prev) => {
-        const exists = payload.id ? prev.testimonials.some((item) => item.id === payload.id) : false;
-        targetId = exists ? (payload.id as number) : getNextId(prev.testimonials);
-
-        const row: Testimonial = { ...payload, id: targetId };
-        const nextTestimonials = exists
-          ? prev.testimonials.map((item) => (item.id === targetId ? row : item))
-          : [row, ...prev.testimonials];
-
-        return {
-          ...prev,
-          testimonials: nextTestimonials,
-        };
-      });
-
-      return targetId;
-    },
-    []
-  );
-
-  const deleteDestination = useCallback((id: number) => {
-    setSnapshot((prev) => ({
-      ...prev,
-      destinations: prev.destinations.filter((item) => item.id !== id),
-      packages: prev.packages.filter((item) => item.destinationId !== id),
-    }));
-  }, []);
-
-  const deletePackage = useCallback((id: number) => {
-    setSnapshot((prev) => ({
-      ...prev,
-      packages: prev.packages.filter((item) => item.id !== id),
-    }));
-  }, []);
-
-  const deleteBlogPost = useCallback((id: number) => {
-    setSnapshot((prev) => ({
-      ...prev,
-      blogPosts: prev.blogPosts.filter((item) => item.id !== id),
-    }));
-  }, []);
-
-  const deleteTestimonial = useCallback((id: number) => {
-    setSnapshot((prev) => ({
-      ...prev,
-      testimonials: prev.testimonials.filter((item) => item.id !== id),
-    }));
-  }, []);
-
-  const updateSettings = useCallback((updates: Partial<SiteSettings>) => {
-    setSnapshot((prev) => ({
-      ...prev,
-      settings: sanitizeSettings({
-        ...prev.settings,
-        ...updates,
-      }),
-    }));
-  }, []);
-
-  const resetToDefaults = useCallback(() => {
-    void buildDefaultSnapshot().then(setSnapshot);
-  }, []);
-
-  const exportData = useCallback(() => JSON.stringify(snapshot, null, 2), [snapshot]);
-
-  const importData = useCallback((jsonPayload: string) => {
-    try {
-      const parsed = JSON.parse(jsonPayload);
-      const sanitized = sanitizeSnapshot(parsed, emptySnapshot());
-      setSnapshot(sanitized);
-      return { ok: true } as const;
-    } catch {
-      return { ok: false, error: "Invalid JSON payload. Please paste valid exported JSON." } as const;
-    }
-  }, []);
-
-  const value = useMemo<SiteContentContextValue>(() => {
-    const featuredDestinations = snapshot.destinations.filter((item) => item.featured);
-    const featuredPackages = snapshot.packages.filter((item) => item.featured);
-
-    return {
-      ...snapshot,
-      featuredDestinations,
-      featuredPackages,
-      getDestinationById: (id: number) => snapshot.destinations.find((item) => item.id === id),
-      getPackageById: (id: number) => snapshot.packages.find((item) => item.id === id),
-      getBlogPostById: (id: number) => snapshot.blogPosts.find((item) => item.id === id),
-      getPackagesByDestination: (destinationId: number) =>
-        snapshot.packages.filter((item) => item.destinationId === destinationId),
-      getRelatedPackages: (packageId: number) => {
-        const current = snapshot.packages.find((item) => item.id === packageId);
-        if (!current) {
-          return [];
-        }
-        return snapshot.packages
-          .filter(
-            (item) =>
-              item.id !== packageId &&
-              (item.destinationId === current.destinationId || item.category === current.category)
-          )
-          .slice(0, 4);
-      },
-      upsertDestination,
-      upsertPackage,
-      upsertBlogPost,
-      upsertTestimonial,
-      deleteDestination,
-      deletePackage,
-      deleteBlogPost,
-      deleteTestimonial,
-      updateSettings,
-      resetToDefaults,
-      exportData,
-      importData,
-    };
-  }, [
-    snapshot,
-    upsertDestination,
-    upsertPackage,
-    upsertBlogPost,
-    upsertTestimonial,
-    deleteDestination,
-    deletePackage,
-    deleteBlogPost,
-    deleteTestimonial,
-    updateSettings,
-    resetToDefaults,
-    exportData,
-    importData,
-  ]);
-
-  return <SiteContentContext.Provider value={value}>{children}</SiteContentContext.Provider>;
+  return <SiteContentContext.Provider value={contentValue}>{children}</SiteContentContext.Provider>;
 }
 
 export function useContent() {
-  const context = useContext(SiteContentContext);
-  if (!context) {
-    throw new Error("useContent must be used inside ContentProvider");
-  }
-  return context;
+  return useContext(SiteContentContext);
 }

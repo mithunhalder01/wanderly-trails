@@ -39,7 +39,7 @@ export default function About() {
             <span className="text-xs font-bold tracking-widest uppercase text-accent block mb-3">Our Journey</span>
             <h2 className="text-3xl md:text-4xl font-serif font-bold mb-6">How Wanderly Trails Began</h2>
             <p className="text-muted-foreground leading-relaxed mb-5">
-              Founded in 2020 by Harsh Tiwari, Wanderly Trails started with a simple belief: travel should be accessible, safe, and truly memorable for everyone. What began as a small team of passionate explorers has grown into one of India's most trusted travel agencies.
+              Founded in 2023 by Harsh Tiwari, Wanderly Trails started with a simple belief: travel should be accessible, safe, and truly memorable for everyone. What began as a small team of passionate explorers has grown into one of India's most trusted travel agencies.
             </p>
             <p className="text-muted-foreground leading-relaxed mb-5">
               We've taken thousands of travelers to their dream destinations — from the golden beaches of Goa to the snow-capped peaks of Kashmir, and the serene temples of Bali.
@@ -51,7 +51,7 @@ export default function About() {
           <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="relative">
             <img src={IMAGES.placeholders.team} alt="Team" loading="lazy" decoding="async" className="rounded-3xl shadow-xl w-full object-cover h-96" />
             <div className="absolute -bottom-4 -left-4 sm:-bottom-6 sm:-left-6 bg-primary text-white rounded-2xl p-4 sm:p-6 shadow-xl">
-              <p className="text-3xl sm:text-4xl font-serif font-bold">10+</p>
+              <p className="text-3xl sm:text-4xl font-serif font-bold">5</p>
               <p className="text-white/80 text-sm">Years of Excellence</p>
             </div>
           </motion.div>

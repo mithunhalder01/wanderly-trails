@@ -13,6 +13,7 @@ async function main() {
   const packages = JSON.stringify(json.packages ?? [], null, 2);
   const blogPosts = JSON.stringify(json.blogPosts ?? [], null, 2);
   const testimonials = JSON.stringify(json.testimonials ?? [], null, 2);
+  const settings = JSON.stringify(json.settings ?? {}, null, 2);
 
   const out = `export interface Destination {
   id: number;
@@ -70,6 +71,21 @@ export interface Testimonial {
   avatarUrl: string;
   destination: string;
 }
+
+export interface SiteSettings {
+  heroTag: string;
+  heroTitle: string;
+  heroHighlight: string;
+  heroSubtitle: string;
+  heroPrimaryCta: string;
+  heroSecondaryCta: string;
+  featuredDestinationCount: number;
+  featuredPackageCount: number;
+  featuredBlogCount: number;
+  showTrustBar: boolean;
+}
+
+export const siteSettings: SiteSettings = ${settings};
 
 export const destinations: Destination[] = ${destinations};
 

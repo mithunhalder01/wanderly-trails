@@ -59,8 +59,6 @@ export default defineConfig({
           "vendor-lenis": ["lenis"],
           "vendor-radix": [
             "@radix-ui/react-dialog",
-            "@radix-ui/react-dropdown-menu",
-            "@radix-ui/react-popover",
             "@radix-ui/react-tooltip",
             "@radix-ui/react-toast",
           ],

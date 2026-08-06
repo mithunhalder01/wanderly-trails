@@ -1,6 +1,5 @@
-import { Switch, Route, Redirect, Router as WouterRouter, useLocation } from "wouter";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useEffect, lazy, Suspense, useRef } from "react";
+import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
+import { useEffect, lazy, Suspense } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,10 +35,6 @@ const MobileBottomNav = lazy(() => import("@/components/Navbar").then(module => 
 
 gsap.registerPlugin(ScrollTrigger);
 
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1, staleTime: 30000 } },
-});
-
 function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
@@ -67,57 +62,6 @@ function ScrollToTopOnRouteChange() {
   }, [location]);
 
   return null;
-}
-
-function CustomCursor() {
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const followerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (typeof window === "undefined" || window.innerWidth < 768) return;
-
-    const moveCursor = (e: MouseEvent) => {
-      gsap.to(cursorRef.current, { x: e.clientX, y: e.clientY, duration: 0.1, ease: "power2.out" });
-      gsap.to(followerRef.current, { x: e.clientX, y: e.clientY, duration: 0.6, ease: "power3.out" });
-    };
-
-    const handleHover = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      const isInteractive = target.closest('a') || target.closest('button') || target.closest('.cursor-pointer');
-      
-      if (isInteractive) {
-        gsap.to(cursorRef.current, { scale: 3.5, opacity: 0.4, duration: 0.3 });
-        gsap.to(followerRef.current, { 
-          scale: 1.6, 
-          backgroundColor: "rgba(191, 149, 63, 0.12)", 
-          borderColor: "rgba(191, 149, 63, 0.6)", 
-          duration: 0.3 
-        });
-      } else {
-        gsap.to(cursorRef.current, { scale: 1, opacity: 1, duration: 0.3 });
-        gsap.to(followerRef.current, { 
-          scale: 1, 
-          backgroundColor: "rgba(191, 149, 63, 0.05)", 
-          borderColor: "rgba(191, 149, 63, 0.4)", 
-          duration: 0.3 
-        });
-      }
-    };
-
-    window.addEventListener("mousemove", moveCursor);
-    window.addEventListener("mouseover", handleHover);
-    return () => {
-      window.removeEventListener("mousemove", moveCursor);
-      window.removeEventListener("mouseover", handleHover);
-    };
-  }, []);
-
-  return (
-    <>
-      <div ref={cursorRef} className="pointer-events-none fixed top-0 left-0 z-[9999] h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary hidden md:block" />
-      <div ref={followerRef} className="pointer-events-none fixed top-0 left-0 z-[9998] h-10 w-10 -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary/40 bg-primary/5 hidden md:block" />
-    </>
-  );
 }
 
 function Router() { 
@@ -221,7 +165,7 @@ function App() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <style dangerouslySetInnerHTML={{ __html: `
         * {
           -webkit-tap-highlight-color: transparent;
@@ -260,7 +204,7 @@ function App() {
         </ContentProvider>
         <Toaster />
       </TooltipProvider>
-    </QueryClientProvider>
+    </>
   );
 }
 
