@@ -394,7 +394,7 @@ export default function DestinationDetail() {
           <img
             src={heroImage}
             alt={destination.name}
-            fetchpriority="high"
+            fetchPriority="high"
             className="w-full h-full object-cover"
           />
         )}

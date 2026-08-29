@@ -4,8 +4,13 @@ import { ArrowLeft, Phone, MessageCircle, Download } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import { CONTACT_WHATSAPP_NUMBER, CONTACT_PHONE_DISPLAY, CONTACT_PHONE_DIGITS } from "@/lib/contact";
 import { ladakhItineraryData, generateLadakhItineraryHtmlForPDF } from "@/data/ladakhItineraryData";
+import { useContent } from "@/context/content";
 
 export default function LadakhItinerary() {
+  const { destinations } = useContent();
+  // Pehle /ladakh.png hardcoded tha, lekin wo file exist hi nahi karti thi (404).
+  // Ab image content se aati hai, to client jo set kare wahi dikhta hai.
+  const ladakhImage = destinations.find((d) => /ladakh/i.test(d.name))?.imageUrl ?? "";
   const contactPhone = CONTACT_PHONE_DISPLAY;
   const whatsappMsg = encodeURIComponent(
     `Hi! I'm interested in the Ladakh Tour package (${ladakhItineraryData.durationPrice}). Can you please share more details or help me book?`
@@ -211,7 +216,7 @@ export default function LadakhItinerary() {
             <div class="meta">${ladakhItineraryData.route}</div>
           </div>
 
-          <img src="${window.location.origin}/ladakh.png" class="hero-img" alt="${ladakhItineraryData.title}" />
+          <img src="${ladakhImage}" class="hero-img" alt="${ladakhItineraryData.title}" />
 
           ${generateLadakhItineraryHtmlForPDF()}
 
@@ -242,9 +247,9 @@ export default function LadakhItinerary() {
     <div className="pt-20 bg-background min-h-screen">
       <div className="relative h-[250px] overflow-hidden">
         <img
-          src="/ladakh.png" // Using the image from content.json for Ladakh
+          src={ladakhImage}
           alt="Ladakh Tour"
-          fetchpriority="high"
+          fetchPriority="high"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/60" />

@@ -7,7 +7,7 @@ import { IMAGES, VIDEOS } from "@/data/assets";
 
 type MediaItem = {
   type: "image" | "video";
-  src: string; // For image, or poster for video in the grid view
+  src?: string; // Sirf image items par — video items poster use karte hain
   video?: string; // Actual video URL
   poster?: string; // Video poster
   alt: string;

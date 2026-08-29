@@ -244,7 +244,7 @@ export default function KashmirItinerary() {
         <img
           src="/kashmir.webp" // Using the image from content.json for Kashmir
           alt="Kashmir Tour"
-          fetchpriority="high"
+          fetchPriority="high"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/60" />
