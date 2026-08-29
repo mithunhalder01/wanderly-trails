@@ -108,7 +108,7 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         <Link href="/" aria-label="Wanderly Trails — Home" className="flex shrink-0 items-center gap-2.5">
           <img
-            src="/logo-sm.png"
+            src="/logo-sm.webp"
             alt=""
             width={80}
             height={80}

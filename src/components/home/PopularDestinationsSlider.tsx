@@ -1,7 +1,6 @@
 import { useRef } from "react";
 import { useContent } from "@/context/content";
 import { Link } from "wouter";
-import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { CONTACT_WHATSAPP_NUMBER } from "@/lib/contact";
 
@@ -51,7 +50,7 @@ export default function PopularDestinationsSlider() {
           }}
         >
           {items.map((dest) => (
-            <motion.div key={dest.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: dest.id * 0.05 }}>
+            <div key={dest.id}>
               {(() => {
                 const isInternational = dest.country !== "India";
                 const whatsappMessage = encodeURIComponent(
@@ -90,7 +89,7 @@ export default function PopularDestinationsSlider() {
                   </Link>
                 );
               })()}
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

@@ -120,7 +120,7 @@ export const availableTours = [
     title: "Kashmir",
     price: 6999,
     description: "Experience the paradise on earth with serene lakes, snow-capped mountains and beautiful valleys.",
-    image: "/kashmir.png",
+    image: "/kashmir.webp",
   },
 ];
 
@@ -128,16 +128,16 @@ export const indiaTrips = {
   title: "India Trips",
   subtitle: "A Journey Through Time, Colour And Culture",
   cta: "Explore",
-  bannerImage: "/meghalya-opt.jpg",
+  bannerImage: "/meghalya-opt.webp",
   destinations: [
     { name: "Himachal", price: 7499, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80", slug: "himachal" },
     { name: "Leh Ladakh", price: 15800, image: "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcSjx7yZLsj7DYwFG84gtEl_4VJ9VoPMwzuWUOmjZPhOmgDyAU3y0X7lpEtjZZHKO5GYKFNoJWwd0yq3SDcr8LgBvcE&s=19", slug: "ladakh" },
     { name: "Spiti", price: 17999, image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600&q=80", slug: "spiti" },
-    { name: "Kashmir", price: 24499, image: "/kashmir.png", slug: "kashmir" },
-    { name: "Meghalaya", price: 21499, image: "/meghalya-opt.jpg", slug: "meghalaya" },
+    { name: "Kashmir", price: 24499, image: "/kashmir.webp", slug: "kashmir" },
+    { name: "Meghalaya", price: 21499, image: "/meghalya-opt.webp", slug: "meghalaya" },
     { name: "Goa", price: 10499, image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600&q=80", slug: "goa" },
     { name: "Kerala", price: 14000, image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&q=80", slug: "kerala" },
-    { name: "Rajasthan", price: 15999, image: "/rajisthan.png", slug: "rajasthan" },
+    { name: "Rajasthan", price: 15999, image: "/rajisthan.webp", slug: "rajasthan" },
   ],
 };
 
@@ -153,7 +153,7 @@ export const weekendGetaways = {
     { name: "Mussoorie", price: 6999, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80" },
     { name: "Kasol", price: 5499, image: "https://images.unsplash.com/photo-1544085311-11a028465b03?w=600&q=80" },
     { name: "Nainital", price: 7499, image: "https://img.avianexperiences.com/trek/acca8c5e-0708-4d0c-be5d-8df354d4d17e" },
-    { name: "Udaipur", price: 8999, image: "https://storage.googleapis.com/stateless-www-justwravel-com/2025/01/b8a866ca-explore-the-best-places-to-visit-in-udaipur.png" },
+    { name: "Udaipur", price: 8999, image: "https://storage.googleapis.com/stateless-www-justwravel-com/2025/01/b8a866ca-explore-the-best-places-to-visit-in-udaipur.webp" },
 
   ],
 };

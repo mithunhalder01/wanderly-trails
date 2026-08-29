@@ -9,7 +9,7 @@ import "swiper/css";
 // ── COLORFUL FLOATING BAR ICONS ──
 const FlightsIcon = () => (
   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-950/40">
-    <img src="/instagram.png" alt="" className="w-6 h-6 object-contain" />
+    <img src="/instagram.webp" alt="" className="w-6 h-6 object-contain" />
   </div>
 );
 

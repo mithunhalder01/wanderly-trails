@@ -211,7 +211,7 @@ export default function KashmirItinerary() {
             <div class="meta">${kashmirItineraryData.route}</div>
           </div>
 
-          <img src="${window.location.origin}/kashmir.png" class="hero-img" alt="${kashmirItineraryData.title}" />
+          <img src="${window.location.origin}/kashmir.webp" class="hero-img" alt="${kashmirItineraryData.title}" />
 
           ${generateKashmirItineraryHtmlForPDF()}
 
@@ -242,7 +242,7 @@ export default function KashmirItinerary() {
     <div className="pt-20 bg-background min-h-screen">
       <div className="relative h-[250px] overflow-hidden">
         <img
-          src="/kashmir.png" // Using the image from content.json for Kashmir
+          src="/kashmir.webp" // Using the image from content.json for Kashmir
           alt="Kashmir Tour"
           fetchpriority="high"
           className="w-full h-full object-cover"
