@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { ArrowRight, PlayCircle, Sparkles } from "lucide-react";
-import { vibeHome } from "@/data/homeContent";
+import { vibeHome as staticVibeHome } from "@/data/homeContent";
+import { useContent } from "@/context/content";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -11,6 +12,8 @@ gsap.registerPlugin(ScrollTrigger);
 export default function HomeVibe() {
   const container = useRef<HTMLElement>(null);
   const [shouldLoadVideos, setShouldLoadVideos] = useState(false);
+  const { settings } = useContent();
+  const vibeHome = settings.home?.vibe ?? staticVibeHome;
 
   useGSAP(() => {
     const tl = gsap.timeline({

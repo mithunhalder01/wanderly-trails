@@ -27,6 +27,8 @@ const SearchPage = lazy(() => import("@/pages/Search"));
 const HimachalBackpackingItinerary = lazy(() => import("@/data/HimachalBackpackingItinerary"));
 const KashmirItinerary = lazy(() => import("@/pages/KashmirItinerary"));
 const LadakhItinerary = lazy(() => import("@/pages/LadakhItinerary"));
+const ItineraryDetail = lazy(() => import("@/pages/ItineraryDetail"));
+const AdminApp = lazy(() => import("@/admin/AdminApp"));
 
 // Separate widgets to reduce main bundle size
 const FloatingWidgets = lazy(() => import("@/components/FloatingWidgets"));
@@ -97,6 +99,7 @@ function Router() {
                <Route path="/itinerary/himachal-backpacking" component={HimachalBackpackingItinerary} />
                <Route path="/itinerary/kashmir-tour" component={KashmirItinerary} />
                <Route path="/itinerary/ladakh-tour" component={LadakhItinerary} />
+               <Route path="/itinerary/:slug" component={ItineraryDetail} />
                <Route component={NotFound} />
             </Switch>
           </Suspense>
@@ -107,7 +110,12 @@ function Router() {
 }
 
 function App() {
+  // Admin panel apna poora alag React tree hai — public site ki Lenis/GSAP/Navbar/Footer
+  // yahan load hi nahi hoti, isliye admin route pe sab kuch alag rakh diya.
+  const isAdmin = typeof window !== "undefined" && window.location.pathname.startsWith("/admin");
+
   useEffect(() => {
+    if (isAdmin) return;
     if (typeof window === "undefined" || window.innerWidth < 768) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
@@ -163,6 +171,14 @@ function App() {
       cancelAnimationFrame(rafId);
     };
   }, []);
+
+  if (isAdmin) {
+    return (
+      <Suspense fallback={<div className="min-h-screen bg-background" />}>
+        <AdminApp />
+      </Suspense>
+    );
+  }
 
   return (
     <>

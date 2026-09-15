@@ -1,7 +1,8 @@
 import { lazy, Suspense } from "react";
 import HomeHero from "@/components/home/HomeHero";
 import HomeAbout from "@/components/home/HomeAbout";
-import { indiaTrips, weekendGetaways } from "@/data/homeContent";
+import { indiaTrips as staticIndiaTrips, weekendGetaways as staticWeekendGetaways } from "@/data/homeContent";
+import { useContent } from "@/context/content";
 
 const TripCarouselSection = lazy(() => import("@/components/home/TripCarouselSection"));
 const HomeTours = lazy(() => import("@/components/home/HomeTours"));
@@ -22,6 +23,9 @@ function SectionFallback() {
 }
 
 export default function Home() {
+  const { settings } = useContent();
+  const indiaTrips = settings.home?.indiaTrips ?? staticIndiaTrips;
+  const weekendGetaways = settings.home?.weekendGetaways ?? staticWeekendGetaways;
   return (
     <div className="overflow-x-hidden">
       <HomeHero />

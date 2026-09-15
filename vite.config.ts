@@ -44,6 +44,7 @@ export default defineConfig(async ({ command, mode }) => {
     resolve: {
       alias: {
         "@": path.resolve(rootDir, "src"),
+        "@shared": path.resolve(rootDir, "shared"),
       },
       dedupe: ["react", "react-dom"],
     },
@@ -78,6 +79,11 @@ export default defineConfig(async ({ command, mode }) => {
       allowedHosts: true,
       fs: {
         strict: true,
+      },
+      // Dev me API alag process (tsx) pe chalti hai — same-origin rakhne ke liye proxy
+      proxy: {
+        "/api": { target: `http://localhost:${env.API_PORT ?? "4000"}`, changeOrigin: false },
+        "/uploads": { target: `http://localhost:${env.API_PORT ?? "4000"}`, changeOrigin: false },
       },
     },
     preview: {

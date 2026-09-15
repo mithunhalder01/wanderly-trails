@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { ChevronDown, Sparkles } from "lucide-react";
-import { homeFaqs } from "@/data/homeContent";
+import { homeFaqs as staticHomeFaqs } from "@/data/homeContent";
+import { useContent } from "@/context/content";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -10,6 +11,8 @@ gsap.registerPlugin(ScrollTrigger);
 export default function HomeFaq() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
   const container = useRef<HTMLElement>(null);
+  const { settings } = useContent();
+  const homeFaqs = settings.home?.faqs ?? staticHomeFaqs;
 
   useGSAP(() => {
     const tl = gsap.timeline({

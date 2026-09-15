@@ -1,0 +1,306 @@
+/* Admin panel — site theme se alag, saaf aur neutral. Sab kuch .wt-admin ke andar scoped. */
+.wt-admin {
+  --a-bg: #f6f5f2;
+  --a-surface: #ffffff;
+  --a-border: #e6e3dd;
+  --a-text: #1c1917;
+  --a-muted: #78716c;
+  --a-accent: #0f766e;
+  --a-accent-hover: #115e59;
+  --a-accent-soft: #e6f4f2;
+  --a-danger: #b91c1c;
+  --a-danger-soft: #fee2e2;
+  --a-warn-soft: #fef3c7;
+  --a-warn: #b45309;
+  --a-sidebar: #1c1917;
+  --a-sidebar-text: #d6d3d1;
+  --a-sidebar-active: #292524;
+  color: var(--a-text);
+  background: var(--a-bg);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wt-admin *,
+.wt-admin *::before,
+.wt-admin *::after {
+  box-sizing: border-box;
+}
+
+.wt-admin input,
+.wt-admin textarea,
+.wt-admin select {
+  font: inherit;
+  color: inherit;
+}
+
+.wt-admin .a-input {
+  width: 100%;
+  background: var(--a-surface);
+  border: 1px solid var(--a-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  min-height: 42px;
+}
+.wt-admin .a-input:focus {
+  border-color: var(--a-accent);
+  box-shadow: 0 0 0 3px var(--a-accent-soft);
+}
+.wt-admin .a-input[aria-invalid="true"] {
+  border-color: var(--a-danger);
+}
+.wt-admin textarea.a-input {
+  min-height: 96px;
+  resize: vertical;
+  line-height: 1.55;
+}
+.wt-admin select.a-input {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2378716c' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.wt-admin .a-card {
+  background: var(--a-surface);
+  border: 1px solid var(--a-border);
+  border-radius: 14px;
+}
+
+.wt-admin .a-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 10px;
+  padding: 0 14px;
+  height: 40px;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+  user-select: none;
+}
+.wt-admin .a-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.wt-admin .a-btn-primary {
+  background: var(--a-accent);
+  color: #fff;
+}
+.wt-admin .a-btn-primary:hover:not(:disabled) {
+  background: var(--a-accent-hover);
+}
+.wt-admin .a-btn-secondary {
+  background: var(--a-surface);
+  border-color: var(--a-border);
+  color: var(--a-text);
+}
+.wt-admin .a-btn-secondary:hover:not(:disabled) {
+  background: var(--a-bg);
+}
+.wt-admin .a-btn-ghost {
+  background: transparent;
+  color: var(--a-muted);
+}
+.wt-admin .a-btn-ghost:hover:not(:disabled) {
+  background: var(--a-bg);
+  color: var(--a-text);
+}
+.wt-admin .a-btn-danger {
+  background: var(--a-danger-soft);
+  color: var(--a-danger);
+}
+.wt-admin .a-btn-danger:hover:not(:disabled) {
+  background: #fecaca;
+}
+.wt-admin .a-btn-sm {
+  height: 34px;
+  padding: 0 10px;
+  font-size: 13px;
+  border-radius: 8px;
+}
+.wt-admin .a-btn-icon {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 8px;
+}
+
+.wt-admin .a-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--a-text);
+}
+.wt-admin .a-hint {
+  font-size: 12px;
+  color: var(--a-muted);
+  margin-top: 5px;
+}
+.wt-admin .a-error {
+  font-size: 12px;
+  color: var(--a-danger);
+  margin-top: 5px;
+  font-weight: 500;
+}
+
+.wt-admin .a-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.wt-admin .a-switch {
+  position: relative;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: #d6d3d1;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+  padding: 0;
+}
+.wt-admin .a-switch[aria-checked="true"] {
+  background: var(--a-accent);
+}
+.wt-admin .a-switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.wt-admin .a-switch[aria-checked="true"]::after {
+  transform: translateX(18px);
+}
+
+.wt-admin .a-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+.wt-admin .a-table th {
+  text-align: left;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--a-muted);
+  font-weight: 600;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--a-border);
+  background: #faf9f7;
+}
+.wt-admin .a-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--a-border);
+  vertical-align: middle;
+}
+.wt-admin .a-table tr:last-child td {
+  border-bottom: none;
+}
+.wt-admin .a-table tbody tr:hover {
+  background: #faf9f7;
+}
+
+.wt-admin .a-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--a-sidebar-text);
+  font-weight: 500;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+}
+.wt-admin .a-nav-item:hover {
+  background: var(--a-sidebar-active);
+  color: #fff;
+}
+.wt-admin .a-nav-item[data-active="true"] {
+  background: var(--a-sidebar-active);
+  color: #fff;
+}
+.wt-admin .a-nav-item[data-active="true"] svg {
+  color: #5eead4;
+}
+
+.wt-admin .a-tab {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--a-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.wt-admin .a-tab[data-active="true"] {
+  background: var(--a-surface);
+  color: var(--a-text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.wt-admin .a-spin {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--a-border);
+  border-top-color: var(--a-accent);
+  border-radius: 50%;
+  animation: a-spin 0.7s linear infinite;
+}
+@keyframes a-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.wt-admin .a-fade-in {
+  animation: a-fade 0.2s ease-out;
+}
+@keyframes a-fade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.wt-admin ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.wt-admin ::-webkit-scrollbar-thumb {
+  background: #d6d3d1;
+  border-radius: 8px;
+}

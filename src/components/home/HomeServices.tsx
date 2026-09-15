@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { servicesHome } from "@/data/homeContent";
+import { servicesHome as staticServicesHome } from "@/data/homeContent";
+import { useContent } from "@/context/content";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -10,6 +11,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function HomeServices() {
   const container = useRef<HTMLElement>(null);
+  const { settings } = useContent();
+  const servicesHome = settings.home?.services ?? staticServicesHome;
 
   useGSAP(() => {
     const tl = gsap.timeline({

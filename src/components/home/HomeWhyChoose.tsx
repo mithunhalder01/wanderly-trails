@@ -1,11 +1,14 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight, Headphones, Heart, Map, Sparkles } from "lucide-react";
-import { whyChooseHome } from "@/data/homeContent";
+import { whyChooseHome as staticWhyChooseHome } from "@/data/homeContent";
+import { useContent } from "@/context/content";
 
 const icons = [Headphones, Heart, Map];
 
 export default function HomeWhyChoose() {
+  const { settings } = useContent();
+  const whyChooseHome = settings.home?.whyChoose ?? staticWhyChooseHome;
   return (
     <section className="relative py-24 md:py-32 bg-secondary text-secondary-foreground overflow-hidden">
       {/* Background decorations */}

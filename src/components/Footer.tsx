@@ -11,8 +11,9 @@ import {
   CONTACT_PHONE_DISPLAY,
   SOCIAL_LINKS,
 } from "@/lib/contact";
-import { footerDestinations } from "@/data/homeContent";
+import { footerDestinations as staticFooterDestinations } from "@/data/homeContent";
 import { useToast } from "@/hooks/use-toast";
+import { useContent } from "@/context/content";
 
 const quickLinks = [
   { label: "Home", href: "/" },
@@ -26,6 +27,8 @@ const emailSchema = z.object({ email: z.string().email("Enter a valid email") })
 
 export default function Footer() {
   const { toast } = useToast();
+  const { settings } = useContent();
+  const footerDestinations = settings.home?.footerDestinations ?? staticFooterDestinations;
   const form = useForm({ resolver: zodResolver(emailSchema), defaultValues: { email: "" } });
 
   const onNewsletter = (data: z.infer<typeof emailSchema>) => {

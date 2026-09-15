@@ -38,6 +38,19 @@ export default function PackageDetail() {
   const handleDownloadItineraryPDF = () => {
     if (!pkg) return;
 
+    // Admin-uploaded PDF ho to wahi download hoti hai; warna neeche wala print-generated PDF.
+    if (pkg.pdfUrl) {
+      const a = document.createElement("a");
+      a.href = pkg.pdfUrl;
+      a.download = "";
+      a.target = "_blank";
+      a.rel = "noreferrer";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      return;
+    }
+
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 

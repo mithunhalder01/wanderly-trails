@@ -1,8 +1,9 @@
 import { useRef, useEffect, useState } from "react";
 import { Link } from "wouter";
 import { ArrowRight, Instagram, Facebook, Youtube, Sparkles, Compass, Star } from "lucide-react";
-import { homeHero, homeStats } from "@/data/homeContent";
+import { homeHero as staticHomeHero, homeStats as staticHomeStats } from "@/data/homeContent";
 import { CONTACT_WHATSAPP_NUMBER, SOCIAL_LINKS } from "@/lib/contact";
+import { useContent } from "@/context/content";
 import AnimatedCounter from "./AnimatedCounter";
 import { IMAGES, VIDEOS } from "@/data/assets";
 
@@ -17,6 +18,9 @@ const prefersReducedMotion = () =>
 export default function HomeHero() {
   const container = useRef<HTMLElement>(null);
   const [showVideo, setShowVideo] = useState(false);
+  const { settings } = useContent();
+  const homeHero = settings.home?.hero ?? staticHomeHero;
+  const homeStats = settings.home?.stats ?? staticHomeStats;
 
   useEffect(() => {
     if (prefersReducedMotion()) return;

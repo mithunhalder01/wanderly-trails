@@ -28,3 +28,6 @@ pnpm-debug.log*
 
 # Optional tooling
 coverage/
+
+# Uploaded media (admin panel)
+uploads/

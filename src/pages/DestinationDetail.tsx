@@ -64,6 +64,19 @@ export default function DestinationDetail() {
 
   const handleDownloadPDF = () => {
     if (!destination) return;
+    // Admin ne PDF manually upload kiya ho to wahi asli file download hoti hai —
+    // niche wala auto-generated print-PDF sirf tab chalta hai jab koi PDF attach na ho.
+    if (destination.pdfUrl) {
+      const a = document.createElement("a");
+      a.href = destination.pdfUrl;
+      a.download = "";
+      a.target = "_blank";
+      a.rel = "noreferrer";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      return;
+    }
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
