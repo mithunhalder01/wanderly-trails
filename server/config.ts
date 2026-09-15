@@ -12,7 +12,11 @@ export const config = {
   rootDir,
   env: process.env.NODE_ENV ?? "development",
   isProd: process.env.NODE_ENV === "production",
-  port: Number(process.env.API_PORT ?? 4000),
+  /** Vercel serverless function ke andar chal rahe hain? (cold start / connection pooling ke liye) */
+  isServerless: Boolean(process.env.VERCEL),
+  // Local dev me PORT=5173 Vite ke liye hota hai (isi .env me), isliye API_PORT explicit
+  // rehta hai. Render/Railway pe hum API_PORT set hi nahi karte, to unka PORT use hota hai.
+  port: Number(process.env.API_PORT ?? process.env.PORT ?? 4000),
   mongoUri: process.env.MONGODB_URI ?? "",
   /** Sirf dev me: MONGODB_URI na ho to in-memory Mongo chala do. */
   allowMemoryDb: bool(process.env.ALLOW_MEMORY_DB, process.env.NODE_ENV !== "production"),
@@ -29,6 +33,12 @@ export const config = {
     .filter(Boolean),
   uploadDir: path.resolve(rootDir, process.env.UPLOAD_DIR ?? "uploads"),
   maxUploadMb: Number(process.env.MAX_UPLOAD_MB ?? 25),
+  /**
+   * Vercel Blob token — Vercel dashboard me Storage → Blob enable karte hi yeh
+   * apne aap project ke env vars me add ho jata hai. Set ho to uploads Blob pe
+   * jaate hain (serverless-safe, permanent); warna local disk (dev ke liye).
+   */
+  blobToken: process.env.BLOB_READ_WRITE_TOKEN ?? "",
   /** Production me built site (dist/public) bhi isi server se serve hoti hai. */
   staticDir: path.resolve(rootDir, "dist/public"),
 };
