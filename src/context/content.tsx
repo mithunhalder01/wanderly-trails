@@ -91,7 +91,7 @@ const fallbackSettings: SiteSettings = {
 const fallbackValue = buildSnapshot({
   destinations: staticDestinations as unknown as Destination[],
   packages: staticPackages as unknown as Package[],
-  blogPosts: staticBlogPosts,
+  blogPosts: staticBlogPosts.map((b) => ({ ...b, slug: String(b.id), published: true })),
   testimonials: staticTestimonials as unknown as Testimonial[],
   itineraries: [],
   settings: fallbackSettings,
