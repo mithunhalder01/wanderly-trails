@@ -1,6 +1,6 @@
 {
   "extends": "../tsconfig.base.json",
-  "include": ["./**/*", "../api/**/*", "../shared/**/*", "../src/data/**/*", "../src/lib/contact.ts"],
+  "include": ["./**/*", "../shared/**/*", "../src/data/**/*", "../src/lib/contact.ts"],
   "compilerOptions": {
     "noEmit": true,
     "module": "ESNext",
