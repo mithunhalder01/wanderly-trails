@@ -1,0 +1,3588 @@
+import { createRequire as __wtCreateRequire } from 'module';
+const require = __wtCreateRequire(import.meta.url);
+var __defProp = Object.defineProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
+
+// server/app.ts
+import express from "express";
+import path3 from "path";
+import fs2 from "fs";
+import helmet from "helmet";
+import cors from "cors";
+import compression from "compression";
+import cookieParser from "cookie-parser";
+
+// server/config.ts
+import "dotenv/config";
+import path from "path";
+var rootDir = path.resolve(import.meta.dirname, "..");
+function bool(v, fallback) {
+  if (v === void 0 || v === "") return fallback;
+  return ["1", "true", "on", "yes"].includes(v.toLowerCase());
+}
+var config = {
+  rootDir,
+  env: process.env.NODE_ENV ?? "development",
+  isProd: process.env.NODE_ENV === "production",
+  /** Vercel serverless function ke andar chal rahe hain? (cold start / connection pooling ke liye) */
+  isServerless: Boolean(process.env.VERCEL),
+  // Local dev me PORT=5173 Vite ke liye hota hai (isi .env me), isliye API_PORT explicit
+  // rehta hai. Render/Railway pe hum API_PORT set hi nahi karte, to unka PORT use hota hai.
+  port: Number(process.env.API_PORT ?? process.env.PORT ?? 4e3),
+  mongoUri: process.env.MONGODB_URI ?? "",
+  /** Sirf dev me: MONGODB_URI na ho to in-memory Mongo chala do. */
+  allowMemoryDb: bool(process.env.ALLOW_MEMORY_DB, process.env.NODE_ENV !== "production"),
+  /**
+   * Admin auth abhi off hai (user ne bola pehle panel banao). Jab on karoge
+   * to ADMIN_AUTH=on aur JWT_SECRET set karna hoga — middleware ready hai.
+   */
+  adminAuth: bool(process.env.ADMIN_AUTH, false),
+  jwtSecret: process.env.JWT_SECRET ?? "",
+  /** Comma-separated origins jo API call kar sakte hain. Khali = same-origin only. */
+  corsOrigins: (process.env.CORS_ORIGINS ?? "").split(",").map((s) => s.trim()).filter(Boolean),
+  uploadDir: path.resolve(rootDir, process.env.UPLOAD_DIR ?? "uploads"),
+  maxUploadMb: Number(process.env.MAX_UPLOAD_MB ?? 25),
+  /**
+   * Vercel Blob token — Vercel dashboard me Storage → Blob enable karte hi yeh
+   * apne aap project ke env vars me add ho jata hai. Set ho to uploads Blob pe
+   * jaate hain (serverless-safe, permanent); warna local disk (dev ke liye).
+   */
+  blobToken: process.env.BLOB_READ_WRITE_TOKEN ?? "",
+  /** Production me built site (dist/public) bhi isi server se serve hoti hai. */
+  staticDir: path.resolve(rootDir, "dist/public")
+};
+if (config.isProd) {
+  if (!config.mongoUri) throw new Error("MONGODB_URI is required in production");
+  if (config.adminAuth && config.jwtSecret.length < 32) {
+    throw new Error("JWT_SECRET (min 32 chars) is required when ADMIN_AUTH=on");
+  }
+}
+
+// server/middleware/security.ts
+import rateLimit from "express-rate-limit";
+function stripUnsafeKeys(value, depth = 0) {
+  if (depth > 20) return void 0;
+  if (Array.isArray(value)) return value.map((v) => stripUnsafeKeys(v, depth + 1));
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) {
+      if (k.startsWith("$") || k.includes(".") || k === "__proto__" || k === "constructor") continue;
+      out[k] = stripUnsafeKeys(v, depth + 1);
+    }
+    return out;
+  }
+  return value;
+}
+function sanitizeInput(req, _res, next) {
+  if (req.body && typeof req.body === "object") {
+    req.body = stripUnsafeKeys(req.body);
+  }
+  for (const k of Object.keys(req.params)) {
+    if (k.startsWith("$")) delete req.params[k];
+  }
+  next();
+}
+var publicLimiter = rateLimit({
+  windowMs: 15 * 60 * 1e3,
+  limit: 300,
+  standardHeaders: "draft-7",
+  legacyHeaders: false
+});
+var formLimiter = rateLimit({
+  windowMs: 15 * 60 * 1e3,
+  limit: 10,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "Too many submissions. Please try again later." }
+});
+var adminLimiter = rateLimit({
+  windowMs: 15 * 60 * 1e3,
+  limit: 1e3,
+  standardHeaders: "draft-7",
+  legacyHeaders: false
+});
+var loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1e3,
+  limit: 10,
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+  message: { error: "Too many login attempts. Try again in 15 minutes." }
+});
+var uploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1e3,
+  limit: 200,
+  standardHeaders: "draft-7",
+  legacyHeaders: false
+});
+
+// server/middleware/validate.ts
+var HttpError = class extends Error {
+  constructor(status, message, details) {
+    super(message);
+    this.status = status;
+    this.details = details;
+  }
+  status;
+  details;
+};
+function validateBody(schema) {
+  return (req, _res, next) => {
+    const result = schema.safeParse(req.body);
+    if (!result.success) {
+      const fields = {};
+      for (const issue of result.error.issues) {
+        const key = issue.path.join(".") || "_";
+        if (!fields[key]) fields[key] = issue.message;
+      }
+      return next(new HttpError(400, "Validation failed", fields));
+    }
+    req.body = result.data;
+    next();
+  };
+}
+function parseNumericId(req, _res, next) {
+  const raw = req.params.id;
+  const id = Number(raw);
+  if (!Number.isInteger(id) || id <= 0) {
+    return next(new HttpError(400, "Invalid id"));
+  }
+  res_locals(req).id = id;
+  next();
+}
+function res_locals(req) {
+  return req.locals ??= {};
+}
+function getId(req) {
+  return res_locals(req).id;
+}
+function asyncHandler(fn) {
+  return (req, res, next) => {
+    fn(req, res, next).catch(next);
+  };
+}
+function errorHandler(err, _req, res, _next) {
+  if (err instanceof HttpError) {
+    return res.status(err.status).json({ error: err.message, details: err.details });
+  }
+  const e = err;
+  if (e?.code === "LIMIT_FILE_SIZE") {
+    return res.status(413).json({ error: "File too large" });
+  }
+  if (e?.type === "entity.too.large") {
+    return res.status(413).json({ error: "Request body too large" });
+  }
+  if (e?.type === "entity.parse.failed") {
+    return res.status(400).json({ error: "Invalid JSON" });
+  }
+  if (err.code === 11e3) {
+    const keys = Object.keys(err.keyValue ?? {});
+    return res.status(409).json({
+      error: `Duplicate value for ${keys.join(", ") || "unique field"}`,
+      details: Object.fromEntries(keys.map((k) => [k, "Already exists"]))
+    });
+  }
+  console.error("[api] unhandled error:", err);
+  res.status(500).json({ error: "Internal server error" });
+}
+
+// server/routes/admin.ts
+import { Router as Router3 } from "express";
+import bcrypt2 from "bcryptjs";
+import { z as z2 } from "zod";
+
+// shared/schemas.ts
+import { z } from "zod";
+var short = (max = 200) => z.string().trim().max(max);
+var long = (max = 2e4) => z.string().trim().max(max);
+var url = z.string().trim().max(2e3);
+var slug = z.string().trim().min(1).max(120).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug me sirf chhote akshar, number aur hyphen (-) chalega");
+var strList = z.array(z.string().trim().max(2e3)).max(200);
+var destinationSchema = z.object({
+  name: short(120).min(1, "Naam zaroori hai"),
+  slug: slug.optional().or(z.literal("")),
+  country: short(80).default("India"),
+  category: short(80).default("India"),
+  description: long(5e3).default(""),
+  imageUrl: url.default(""),
+  gallery: z.array(url).max(30).default([]),
+  rating: z.coerce.number().min(0).max(5).default(4.5),
+  startingPrice: z.coerce.number().min(0).max(1e7).default(0),
+  bestSeason: short(120).default(""),
+  weather: short(120).default(""),
+  featured: z.coerce.boolean().default(false),
+  published: z.coerce.boolean().default(true),
+  itinerarySlug: short(120).optional().or(z.literal("")),
+  pdfUrl: url.optional().or(z.literal("")),
+  sortOrder: z.coerce.number().int().default(0)
+});
+var packageSchema = z.object({
+  destinationId: z.coerce.number().int().min(0).default(0),
+  destinationName: short(120).default(""),
+  title: short(160).min(1, "Title zaroori hai"),
+  slug: slug.optional().or(z.literal("")),
+  description: long(5e3).default(""),
+  imageUrl: url.default(""),
+  gallery: z.array(url).max(30).default([]),
+  price: z.coerce.number().min(0).max(1e7).default(0),
+  duration: z.coerce.number().int().min(0).max(365).default(1),
+  nights: z.coerce.number().int().min(0).max(365).default(0),
+  category: short(80).default(""),
+  rating: z.coerce.number().min(0).max(5).default(4.5),
+  hotelStars: z.coerce.number().int().min(0).max(7).default(3),
+  mealsIncluded: z.coerce.boolean().default(false),
+  transportIncluded: z.coerce.boolean().default(false),
+  includedItems: long(5e3).default(""),
+  excludedItems: long(5e3).default(""),
+  itinerary: long(2e4).default(""),
+  itinerarySlug: short(120).optional().or(z.literal("")),
+  pdfUrl: url.optional().or(z.literal("")),
+  featured: z.coerce.boolean().default(false),
+  published: z.coerce.boolean().default(true),
+  sortOrder: z.coerce.number().int().default(0)
+});
+var blogPostSchema = z.object({
+  title: short(200).min(1, "Title zaroori hai"),
+  slug: slug.optional().or(z.literal("")),
+  excerpt: long(1e3).default(""),
+  content: long(1e5).default(""),
+  imageUrl: url.default(""),
+  category: short(80).default("Travel"),
+  author: short(80).default("Wanderly Trails"),
+  readTime: z.coerce.number().int().min(1).max(120).default(5),
+  publishedAt: short(40).default(() => (/* @__PURE__ */ new Date()).toISOString().slice(0, 10)),
+  published: z.coerce.boolean().default(true)
+});
+var testimonialSchema = z.object({
+  name: short(120).min(1, "Naam zaroori hai"),
+  location: short(120).default(""),
+  rating: z.coerce.number().min(1).max(5).default(5),
+  review: long(3e3).min(1, "Review zaroori hai"),
+  avatarUrl: url.default(""),
+  destination: short(120).default(""),
+  published: z.coerce.boolean().default(true),
+  sortOrder: z.coerce.number().int().default(0)
+});
+var itineraryDaySchema = z.object({
+  day: short(40).default(""),
+  heading: short(300).default(""),
+  description: long(5e3).default("")
+});
+var itineraryPricingSchema = z.object({
+  type: short(120).default(""),
+  price: short(60).default("")
+});
+var itinerarySchema = z.object({
+  title: short(160).min(1, "Title zaroori hai"),
+  slug: slug.optional().or(z.literal("")),
+  subtitle: short(300).default(""),
+  route: short(500).default(""),
+  durationPrice: short(200).default(""),
+  contact: short(200).default(""),
+  about: long(1e4).default(""),
+  heroImage: url.default(""),
+  destinationId: z.coerce.number().int().min(0).optional(),
+  days: z.array(itineraryDaySchema).max(60).default([]),
+  pricing: z.array(itineraryPricingSchema).max(20).default([]),
+  inclusions: strList.default([]),
+  exclusions: strList.default([]),
+  notes: strList.default([]),
+  precautionsSafety: strList.default([]),
+  termsAndConditions: strList.default([]),
+  paymentPolicy: strList.default([]),
+  cancellationPolicy: strList.default([]),
+  pdfUrl: url.optional().or(z.literal("")),
+  published: z.coerce.boolean().default(true)
+});
+var leadStatusSchema = z.enum(["new", "contacted", "converted", "closed"]);
+var publicLeadSchema = z.object({
+  type: z.enum(["booking", "contact", "newsletter"]),
+  name: short(120).default(""),
+  email: z.string().trim().max(200).email().or(z.literal("")).default(""),
+  phone: short(30).default(""),
+  subject: short(200).default(""),
+  message: long(3e3).default(""),
+  destination: short(160).default(""),
+  travelDate: short(40).default(""),
+  travelers: z.coerce.number().int().min(0).max(500).default(0),
+  // Honeypot — bots isko bhar dete hain, insaan nahi
+  website: z.string().max(0).optional()
+});
+var leadUpdateSchema = z.object({
+  status: leadStatusSchema.optional(),
+  notes: long(5e3).optional()
+});
+var contactInfoSchema = z.object({
+  phoneDigits: short(20),
+  phoneDisplay: short(120),
+  email: short(120),
+  whatsappNumber: short(20),
+  officeAddress: short(300),
+  mapsUrl: url,
+  mapsEmbedUrl: url,
+  instagram: url,
+  facebook: url,
+  x: url,
+  youtube: url
+});
+var seoSchema = z.object({
+  siteName: short(120),
+  defaultTitle: short(200),
+  defaultDescription: short(400),
+  ogImage: url
+});
+var tripCardSchema = z.object({
+  name: short(120),
+  price: z.coerce.number().min(0),
+  image: url,
+  slug: short(120).optional().or(z.literal(""))
+});
+var tripCarouselSchema = z.object({
+  title: short(120),
+  subtitle: short(300),
+  cta: short(60),
+  bannerImage: url,
+  destinations: z.array(tripCardSchema).max(30)
+});
+var statSchema = z.object({ value: z.coerce.number(), suffix: short(10), label: short(120) });
+var homeContentSchema = z.object({
+  hero: z.object({
+    brandLine: short(80),
+    title: short(160),
+    titleHighlight: short(80),
+    description: long(1e3),
+    ctaPrimary: short(60),
+    ctaSecondary: short(60),
+    video: url,
+    image: url
+  }),
+  stats: z.object({
+    tours: statSchema,
+    rating: statSchema.extend({ display: short(20) }),
+    customers: statSchema
+  }),
+  about: z.object({
+    badge: short(60),
+    title: short(160),
+    titleHighlight: short(80),
+    paragraph1: long(1500),
+    paragraph2: long(1500),
+    cta: short(60),
+    imageMain: url,
+    imageSide: url,
+    stats: z.array(z.object({ value: short(30), label: short(120) })).max(6)
+  }),
+  indiaTrips: tripCarouselSchema,
+  weekendGetaways: tripCarouselSchema,
+  services: z.array(z.object({ num: short(10), title: short(120), description: long(1e3) })).max(12),
+  whyChoose: z.array(z.object({ title: short(120), description: long(1e3) })).max(12),
+  vibe: z.object({
+    badge: short(60),
+    title: short(160),
+    titleHighlight: short(80),
+    subtitle: long(500),
+    cta: short(60),
+    cards: z.array(z.object({ title: short(120), subtitle: short(120), video: url, poster: url })).max(12)
+  }),
+  faqs: z.array(z.object({ q: short(300), a: long(2e3) })).max(30),
+  footerDestinations: z.array(short(80)).max(30)
+});
+var siteSettingsSchema = z.object({
+  heroTag: short(80),
+  heroTitle: short(160),
+  heroHighlight: short(80),
+  heroSubtitle: long(500),
+  heroPrimaryCta: short(60),
+  heroSecondaryCta: short(60),
+  featuredDestinationCount: z.coerce.number().int().min(0).max(100),
+  featuredPackageCount: z.coerce.number().int().min(0).max(100),
+  featuredBlogCount: z.coerce.number().int().min(0).max(100),
+  showTrustBar: z.coerce.boolean(),
+  contact: contactInfoSchema,
+  seo: seoSchema,
+  home: homeContentSchema
+});
+var siteSettingsPatchSchema = siteSettingsSchema.deepPartial();
+var password = z.string().min(10, "Password must be at least 10 characters").max(200);
+var adminUserCreateSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(200),
+  name: short(120).default(""),
+  role: z.enum(["owner", "editor"]).default("editor"),
+  password
+});
+var adminUserUpdateSchema = z.object({
+  name: short(120).optional(),
+  role: z.enum(["owner", "editor"]).optional(),
+  active: z.coerce.boolean().optional(),
+  password: password.optional()
+});
+var changePasswordSchema = z.object({
+  currentPassword: z.string().min(1).max(200),
+  newPassword: password
+});
+
+// server/lib/upload.ts
+import crypto from "crypto";
+import fs from "fs/promises";
+import path2 from "path";
+import multer from "multer";
+import sharp from "sharp";
+var IMAGE_TYPES = /* @__PURE__ */ new Set(["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"]);
+var PDF_TYPE = "application/pdf";
+var VIDEO_TYPES = /* @__PURE__ */ new Set(["video/mp4", "video/webm"]);
+var upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: config.maxUploadMb * 1024 * 1024, files: 1 },
+  fileFilter(_req, file, cb) {
+    if (IMAGE_TYPES.has(file.mimetype) || file.mimetype === PDF_TYPE || VIDEO_TYPES.has(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new HttpError(415, "Only images (jpg/png/webp/gif/avif), PDF and mp4/webm allowed"));
+    }
+  }
+});
+async function ensureUploadDir() {
+  if (config.blobToken) return;
+  await fs.mkdir(path2.join(config.uploadDir, "images"), { recursive: true });
+  await fs.mkdir(path2.join(config.uploadDir, "pdf"), { recursive: true });
+  await fs.mkdir(path2.join(config.uploadDir, "video"), { recursive: true });
+}
+function randomName() {
+  return `${Date.now().toString(36)}-${crypto.randomBytes(6).toString("hex")}`;
+}
+function looksLikePdf(buf) {
+  return buf.subarray(0, 5).toString("latin1") === "%PDF-";
+}
+async function persist(kind, filename, buffer, contentType) {
+  if (config.blobToken) {
+    const { put } = await import("@vercel/blob");
+    const blob = await put(`${kind}/${filename}`, buffer, {
+      access: "public",
+      contentType,
+      token: config.blobToken,
+      addRandomSuffix: false
+    });
+    return blob.url;
+  }
+  await ensureUploadDir();
+  await fs.writeFile(path2.join(config.uploadDir, kind, filename), buffer);
+  return `/uploads/${kind}/${filename}`;
+}
+async function storeFile(file) {
+  if (file.mimetype === PDF_TYPE) {
+    if (!looksLikePdf(file.buffer)) throw new HttpError(415, "File is not a valid PDF");
+    const filename2 = `${randomName()}.pdf`;
+    const url3 = await persist("pdf", filename2, file.buffer, "application/pdf");
+    return { url: url3, kind: "pdf", filename: filename2, size: file.size };
+  }
+  if (VIDEO_TYPES.has(file.mimetype)) {
+    const ext = file.mimetype === "video/webm" ? "webm" : "mp4";
+    const filename2 = `${randomName()}.${ext}`;
+    const url3 = await persist("video", filename2, file.buffer, file.mimetype);
+    return { url: url3, kind: "video", filename: filename2, size: file.size };
+  }
+  let pipeline = sharp(file.buffer, { animated: file.mimetype === "image/gif", limitInputPixels: 5e7 });
+  const meta = await pipeline.metadata().catch(() => {
+    throw new HttpError(415, "File is not a valid image");
+  });
+  const MAX = 2400;
+  if ((meta.width ?? 0) > MAX || (meta.height ?? 0) > MAX) {
+    pipeline = pipeline.resize({ width: MAX, height: MAX, fit: "inside", withoutEnlargement: true });
+  }
+  const buffer = await pipeline.rotate().webp({ quality: 82 }).toBuffer();
+  const out = await sharp(buffer).metadata();
+  const filename = `${randomName()}.webp`;
+  const url2 = await persist("images", filename, buffer, "image/webp");
+  return { url: url2, kind: "image", filename, size: buffer.length, width: out.width, height: out.height };
+}
+async function deleteStoredFile(url2) {
+  if (config.blobToken && /^https:\/\/.*\.public\.blob\.vercel-storage\.com\//.test(url2)) {
+    const { del } = await import("@vercel/blob");
+    await del(url2, { token: config.blobToken }).catch(() => void 0);
+    return;
+  }
+  if (!url2.startsWith("/uploads/")) return;
+  const rel = url2.replace(/^\/uploads\//, "");
+  const abs = path2.resolve(config.uploadDir, rel);
+  if (!abs.startsWith(config.uploadDir + path2.sep)) return;
+  await fs.unlink(abs).catch(() => void 0);
+}
+
+// server/models/index.ts
+import mongoose, { Schema } from "mongoose";
+var counterSchema = new Schema({
+  _id: { type: String, required: true },
+  seq: { type: Number, default: 0 }
+});
+var Counter = mongoose.model("Counter", counterSchema);
+async function nextId(name) {
+  const doc = await Counter.findByIdAndUpdate(
+    name,
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+  return doc.seq;
+}
+async function bumpCounter(name, atLeast) {
+  await Counter.findByIdAndUpdate(name, { $max: { seq: atLeast } }, { upsert: true });
+}
+var baseOptions = {
+  timestamps: true,
+  versionKey: false,
+  toJSON: {
+    transform(_doc, ret) {
+      delete ret._id;
+      return ret;
+    }
+  }
+};
+var destinationSchema2 = new Schema(
+  {
+    id: { type: Number, required: true, unique: true, index: true },
+    name: { type: String, required: true },
+    slug: { type: String, required: true, unique: true, index: true },
+    country: { type: String, default: "India" },
+    category: { type: String, default: "India" },
+    description: { type: String, default: "" },
+    imageUrl: { type: String, default: "" },
+    gallery: { type: [String], default: [] },
+    rating: { type: Number, default: 4.5 },
+    startingPrice: { type: Number, default: 0 },
+    bestSeason: { type: String, default: "" },
+    weather: { type: String, default: "" },
+    featured: { type: Boolean, default: false },
+    published: { type: Boolean, default: true, index: true },
+    itinerarySlug: { type: String, default: "" },
+    pdfUrl: { type: String, default: "" },
+    sortOrder: { type: Number, default: 0 }
+  },
+  baseOptions
+);
+var packageSchema2 = new Schema(
+  {
+    id: { type: Number, required: true, unique: true, index: true },
+    destinationId: { type: Number, default: 0, index: true },
+    destinationName: { type: String, default: "" },
+    title: { type: String, required: true },
+    slug: { type: String, required: true, unique: true, index: true },
+    description: { type: String, default: "" },
+    imageUrl: { type: String, default: "" },
+    gallery: { type: [String], default: [] },
+    price: { type: Number, default: 0 },
+    duration: { type: Number, default: 1 },
+    nights: { type: Number, default: 0 },
+    category: { type: String, default: "" },
+    rating: { type: Number, default: 4.5 },
+    hotelStars: { type: Number, default: 3 },
+    mealsIncluded: { type: Boolean, default: false },
+    transportIncluded: { type: Boolean, default: false },
+    includedItems: { type: String, default: "" },
+    excludedItems: { type: String, default: "" },
+    itinerary: { type: String, default: "" },
+    itinerarySlug: { type: String, default: "" },
+    pdfUrl: { type: String, default: "" },
+    featured: { type: Boolean, default: false },
+    published: { type: Boolean, default: true, index: true },
+    sortOrder: { type: Number, default: 0 }
+  },
+  baseOptions
+);
+var blogPostSchema2 = new Schema(
+  {
+    id: { type: Number, required: true, unique: true, index: true },
+    title: { type: String, required: true },
+    slug: { type: String, required: true, unique: true, index: true },
+    excerpt: { type: String, default: "" },
+    content: { type: String, default: "" },
+    imageUrl: { type: String, default: "" },
+    category: { type: String, default: "Travel" },
+    author: { type: String, default: "Wanderly Trails" },
+    readTime: { type: Number, default: 5 },
+    publishedAt: { type: String, default: "" },
+    published: { type: Boolean, default: true, index: true }
+  },
+  baseOptions
+);
+var testimonialSchema2 = new Schema(
+  {
+    id: { type: Number, required: true, unique: true, index: true },
+    name: { type: String, required: true },
+    location: { type: String, default: "" },
+    rating: { type: Number, default: 5 },
+    review: { type: String, default: "" },
+    avatarUrl: { type: String, default: "" },
+    destination: { type: String, default: "" },
+    published: { type: Boolean, default: true, index: true },
+    sortOrder: { type: Number, default: 0 }
+  },
+  baseOptions
+);
+var itinerarySchema2 = new Schema(
+  {
+    id: { type: Number, required: true, unique: true, index: true },
+    title: { type: String, required: true },
+    slug: { type: String, required: true, unique: true, index: true },
+    subtitle: { type: String, default: "" },
+    route: { type: String, default: "" },
+    durationPrice: { type: String, default: "" },
+    contact: { type: String, default: "" },
+    about: { type: String, default: "" },
+    heroImage: { type: String, default: "" },
+    destinationId: { type: Number, index: true },
+    days: {
+      type: [
+        new Schema(
+          { day: String, heading: String, description: String },
+          { _id: false }
+        )
+      ],
+      default: []
+    },
+    pricing: {
+      type: [new Schema({ type: String, price: String }, { _id: false })],
+      default: []
+    },
+    inclusions: { type: [String], default: [] },
+    exclusions: { type: [String], default: [] },
+    notes: { type: [String], default: [] },
+    precautionsSafety: { type: [String], default: [] },
+    termsAndConditions: { type: [String], default: [] },
+    paymentPolicy: { type: [String], default: [] },
+    cancellationPolicy: { type: [String], default: [] },
+    pdfUrl: { type: String, default: "" },
+    published: { type: Boolean, default: true, index: true }
+  },
+  baseOptions
+);
+var leadSchema = new Schema(
+  {
+    id: { type: Number, required: true, unique: true, index: true },
+    type: { type: String, enum: ["booking", "contact", "newsletter"], required: true, index: true },
+    name: { type: String, default: "" },
+    email: { type: String, default: "" },
+    phone: { type: String, default: "" },
+    subject: { type: String, default: "" },
+    message: { type: String, default: "" },
+    destination: { type: String, default: "" },
+    travelDate: { type: String, default: "" },
+    travelers: { type: Number, default: 0 },
+    status: {
+      type: String,
+      enum: ["new", "contacted", "converted", "closed"],
+      default: "new",
+      index: true
+    },
+    notes: { type: String, default: "" }
+  },
+  baseOptions
+);
+var mediaSchema = new Schema(
+  {
+    id: { type: Number, required: true, unique: true, index: true },
+    url: { type: String, required: true },
+    kind: { type: String, enum: ["image", "pdf", "video"], required: true },
+    filename: { type: String, required: true },
+    originalName: { type: String, default: "" },
+    size: { type: Number, default: 0 },
+    width: Number,
+    height: Number
+  },
+  baseOptions
+);
+var settingsSchema = new Schema(
+  {
+    key: { type: String, required: true, unique: true },
+    // Mixed rakha hai — shape zod se enforce hota hai, Mongoose se nahi
+    data: { type: Schema.Types.Mixed, required: true }
+  },
+  { timestamps: true, versionKey: false, minimize: false }
+);
+var adminUserSchema = new Schema(
+  {
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    passwordHash: { type: String, required: true, select: false },
+    name: { type: String, default: "" },
+    role: { type: String, enum: ["owner", "editor"], default: "editor" },
+    active: { type: Boolean, default: true },
+    lastLoginAt: Date
+  },
+  { timestamps: true, versionKey: false }
+);
+var activitySchema = new Schema(
+  {
+    action: { type: String, required: true },
+    entity: { type: String, required: true },
+    targetId: { type: String, default: "" },
+    summary: { type: String, default: "" },
+    actor: { type: String, default: "admin" }
+  },
+  { timestamps: { createdAt: true, updatedAt: false }, versionKey: false }
+);
+activitySchema.index({ createdAt: -1 });
+var DestinationModel = mongoose.model("Destination", destinationSchema2);
+var PackageModel = mongoose.model("Package", packageSchema2);
+var BlogPostModel = mongoose.model("BlogPost", blogPostSchema2);
+var TestimonialModel = mongoose.model("Testimonial", testimonialSchema2);
+var ItineraryModel = mongoose.model("Itinerary", itinerarySchema2);
+var LeadModel = mongoose.model("Lead", leadSchema);
+var MediaModel = mongoose.model("Media", mediaSchema);
+var SettingsModel = mongoose.model("Settings", settingsSchema);
+var AdminUserModel = mongoose.model("AdminUser", adminUserSchema);
+var ActivityModel = mongoose.model("Activity", activitySchema);
+
+// src/data/staticData.ts
+var staticData_exports = {};
+__export(staticData_exports, {
+  blogPosts: () => blogPosts,
+  destinations: () => destinations,
+  featuredDestinations: () => featuredDestinations,
+  featuredPackages: () => featuredPackages,
+  getBlogPostById: () => getBlogPostById,
+  getDestinationById: () => getDestinationById,
+  getPackageById: () => getPackageById,
+  getPackagesByDestination: () => getPackagesByDestination,
+  getRelatedPackages: () => getRelatedPackages,
+  packages: () => packages,
+  siteSettings: () => siteSettings,
+  testimonials: () => testimonials
+});
+var siteSettings = {
+  "heroTag": "Explore India",
+  "heroTitle": "Discover New",
+  "heroHighlight": "Adventures",
+  "heroSubtitle": "From Rajasthan to Kerala and the Himalayas \u2014 Wanderly Trails brings India closer to you.",
+  "heroPrimaryCta": "Explore Packages",
+  "heroSecondaryCta": "Customize Trip",
+  "featuredDestinationCount": 50,
+  "featuredPackageCount": 50,
+  "featuredBlogCount": 3,
+  "showTrustBar": true
+};
+var destinations = [
+  {
+    "id": 1,
+    "name": "Himachal",
+    "country": "India",
+    "category": "Himachal",
+    "description": "Himachal\u2019s scenic routes, snowy peaks, and charming valley stays for an unforgettable mountain escape.",
+    "imageUrl": "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=1200&q=80",
+    "rating": 4.7,
+    "startingPrice": 10499,
+    "bestSeason": "March to June & Sep to Nov",
+    "weather": "Cool mountain climate",
+    "featured": true
+  },
+  {
+    "id": 2,
+    "name": "Bali",
+    "country": "Indonesia",
+    "category": "International",
+    "description": "Tropical temples, boutique resorts, and unforgettable spa experiences. A premium island escape.",
+    "imageUrl": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?w=1200&q=80",
+    "rating": 4.9,
+    "startingPrice": 38999,
+    "bestSeason": "April to October",
+    "weather": "Tropical, 26\u201330\xB0C",
+    "featured": true
+  },
+  {
+    "id": 3,
+    "name": "Kashmir",
+    "country": "India",
+    "category": "Mountains",
+    "description": "Paradise on Earth\u2014lakes, valleys, and serene landscapes across the Kashmir region.",
+    "imageUrl": "/kashmir.webp",
+    "rating": 4.7,
+    "startingPrice": 6999,
+    "bestSeason": "March to June & Sep to Nov",
+    "weather": "Cool and refreshing",
+    "featured": true
+  },
+  {
+    "id": 4,
+    "name": "Leh Ladakh",
+    "country": "India",
+    "category": "Adventure",
+    "description": "High-altitude desert landscapes, monasteries, and breathtaking road trips in Ladakh.",
+    "imageUrl": "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcSjx7yZLsj7DYwFG84gtEl_4VJ9VoPMwzuWUOmjZPhOmgDyAU3y0X7lpEtjZZHKO5GYKFNoJWwd0yq3SDcr8LgBvcE&s=19",
+    "rating": 4.8,
+    "startingPrice": 15800,
+    "bestSeason": "May to Sep",
+    "weather": "Clear skies, chilly nights",
+    "featured": true
+  },
+  {
+    "id": 5,
+    "name": "Spiti Valley",
+    "country": "India",
+    "category": "Adventure",
+    "description": "Spiti Valley circuit\u2014ancient monasteries, cold deserts, and stunning Himalayan vistas.",
+    "imageUrl": "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1200&q=80",
+    "rating": 4.6,
+    "startingPrice": 17999,
+    "bestSeason": "May to Oct",
+    "weather": "Cold, crisp air with clear days",
+    "featured": true
+  },
+  {
+    "id": 6,
+    "name": "Uttarakhand",
+    "country": "India",
+    "category": "Nature",
+    "description": "Uttarakhand trails\u2014temples, valleys, and riverside escapes for nature lovers.",
+    "imageUrl": "/uttrakhand.webp",
+    "rating": 4.6,
+    "startingPrice": 7499,
+    "bestSeason": "Mar to Jun & Sep to Nov",
+    "weather": "Pleasant temperatures",
+    "featured": true
+  },
+  {
+    "id": 7,
+    "name": "Jaipur",
+    "country": "India",
+    "category": "Heritage",
+    "description": "Pink city heritage\u2014forts, palaces, markets, and royal experiences in Jaipur.",
+    "imageUrl": "/jaipur.webp",
+    "rating": 4.7,
+    "startingPrice": 20999,
+    "bestSeason": "Oct to Mar",
+    "weather": "Cool evenings",
+    "featured": true
+  },
+  {
+    "id": 8,
+    "name": "Udaipur",
+    "country": "India",
+    "category": "Heritage",
+    "description": "City of Lakes\u2014royal palaces, scenic sunsets, and romantic heritage moments.",
+    "imageUrl": "/udaipur.webp",
+    "rating": 4.7,
+    "startingPrice": 8999,
+    "bestSeason": "Oct to Mar",
+    "weather": "Pleasant days, cool evenings",
+    "featured": true
+  },
+  {
+    "id": 9,
+    "name": "Meghalaya",
+    "country": "India",
+    "category": "Nature",
+    "description": "Living root bridges, misty hills, and waterfalls in Meghalaya.",
+    "imageUrl": "/meghalya.webp",
+    "rating": 4.8,
+    "startingPrice": 21499,
+    "bestSeason": "Mar to Jun & Sep to Nov",
+    "weather": "Misty with occasional showers",
+    "featured": true
+  },
+  {
+    "id": 10,
+    "name": "Sikkim",
+    "country": "India",
+    "category": "Nature",
+    "description": "Sikkim\u2014mountain beauty with lakes, valleys, and serene monasteries.",
+    "imageUrl": "https://images.unsplash.com/photo-1589308078059-be1415eab4c3?w=1200&q=80",
+    "rating": 4.7,
+    "startingPrice": 18999,
+    "bestSeason": "Mar to Jun & Sep to Nov",
+    "weather": "Cool and clear",
+    "featured": true
+  },
+  {
+    "id": 11,
+    "name": "Rajasthan",
+    "country": "India",
+    "category": "Adventure",
+    "description": "Desert forts, camel rides, and heritage stays across royal routes in Rajasthan.",
+    "imageUrl": "/rajisthan.webp",
+    "rating": 4.6,
+    "startingPrice": 15999,
+    "bestSeason": "Oct to Mar",
+    "weather": "Pleasant temperatures",
+    "featured": true
+  },
+  {
+    "id": 12,
+    "name": "Andaman",
+    "country": "India",
+    "category": "Beaches",
+    "description": "Turquoise waters and island-hopping adventures in the Andaman region.",
+    "imageUrl": "/andaman.webp",
+    "rating": 4.6,
+    "startingPrice": 19999,
+    "bestSeason": "Nov to May",
+    "weather": "Warm and humid",
+    "featured": true
+  },
+  {
+    "id": 13,
+    "name": "Kerala",
+    "country": "India",
+    "category": "Family",
+    "description": "Kerala backwaters and hill-station charm\u2014houseboats, greenery, and slow travel.",
+    "imageUrl": "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=1200&q=80",
+    "rating": 4.7,
+    "startingPrice": 14e3,
+    "bestSeason": "Sep to Mar",
+    "weather": "Tropical and scenic",
+    "featured": true
+  },
+  {
+    "id": 16,
+    "name": "Munnar",
+    "country": "India",
+    "category": "Nature",
+    "description": "Munnar\u2019s rolling tea gardens, misty hills, and cool mountain retreats for a serene South India escape.",
+    "imageUrl": "/munnar.webp",
+    "rating": 4.8,
+    "startingPrice": 12999,
+    "bestSeason": "Sep to Feb",
+    "weather": "Cool and misty",
+    "featured": true
+  },
+  {
+    "id": 14,
+    "name": "Goa",
+    "country": "India",
+    "category": "Beaches",
+    "description": "Sun-soaked beaches, lively nightlife, and Portuguese heritage in Goa.",
+    "imageUrl": "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=1200&q=80",
+    "rating": 4.7,
+    "startingPrice": 12999,
+    "bestSeason": "Nov to Mar",
+    "weather": "Warm days, cool evenings",
+    "featured": true
+  },
+  {
+    "id": 24,
+    "name": "Konkan",
+    "country": "India",
+    "category": "Beaches",
+    "description": "Explore the pristine beaches and lush green landscapes of the Konkan coast.",
+    "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQw_cTKZA7Vx2ANl9a_rWm2t1UTkGmfNUN_Pw&s",
+    "rating": 4.5,
+    "startingPrice": 1e4,
+    "bestSeason": "October to March",
+    "weather": "Warm and humid",
+    "featured": true
+  },
+  {
+    "id": 25,
+    "name": "Phuket",
+    "country": "Thailand",
+    "category": "Beaches",
+    "description": "Thailand's largest island, known for its stunning beaches and vibrant nightlife.",
+    "imageUrl": "https://hblimg.mmtcdn.com/content/hubble/img/desttvimg/mmt/destination/m_Phuket_tv_destination_img_1_l_629_1005.jpg",
+    "rating": 4.7,
+    "startingPrice": 3e4,
+    "bestSeason": "November to February",
+    "weather": "Tropical, warm and humid",
+    "featured": true
+  },
+  {
+    "id": 26,
+    "name": "Krabi",
+    "country": "Thailand",
+    "category": "Beaches",
+    "description": "Famous for its stunning limestone cliffs and dense mangrove forests.",
+    "imageUrl": "https://hblimg.mmtcdn.com/content/hubble/img/tvdestinationimages/mmt/activities/m_Krabi_tv_destination_img_1_l_858_1288.jpg",
+    "rating": 4.6,
+    "startingPrice": 28e3,
+    "bestSeason": "November to February",
+    "weather": "Tropical, warm and humid",
+    "featured": true
+  },
+  {
+    "id": 27,
+    "name": "Lakshadweep",
+    "country": "India",
+    "category": "Beaches",
+    "description": "Stunning coral islands with pristine white-sand beaches.",
+    "imageUrl": "https://res.cloudinary.com/jerrick/image/upload/v1733505976/675333b80e5fbe001d95da57.jpg",
+    "rating": 4.8,
+    "startingPrice": 25e3,
+    "bestSeason": "October to May",
+    "weather": "Tropical monsoon climate",
+    "featured": true
+  },
+  {
+    "id": 17,
+    "name": "Thailand",
+    "country": "Thailand",
+    "category": "Beaches",
+    "description": "Explore vibrant cities, ancient temples, and stunning beaches.",
+    "imageUrl": "https://images.unsplash.com/photo-1506665531195-3566af2b4dfa?w=1200&q=80",
+    "rating": 4.7,
+    "startingPrice": 25e3,
+    "bestSeason": "November to February",
+    "weather": "Tropical, warm and humid",
+    "featured": true
+  },
+  {
+    "id": 20,
+    "name": "Nepal",
+    "country": "Nepal",
+    "category": "Adventure",
+    "description": "Home to Mount Everest, Nepal offers breathtaking Himalayan treks and ancient temples.",
+    "imageUrl": "https://storage.googleapis.com/stateless-www-justwravel-com/2024/09/2ed0f1e1-best-time-to-visit-nepal-1024x576.jpg",
+    "rating": 4.7,
+    "startingPrice": 28e3,
+    "bestSeason": "October to December",
+    "weather": "Varied, from tropical to alpine",
+    "featured": true
+  },
+  {
+    "id": 22,
+    "name": "Vietnam",
+    "country": "Vietnam",
+    "category": "Culture",
+    "description": "Discover a land of stunning natural beauty, rich history, and delicious cuisine.",
+    "imageUrl": "https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&q=80",
+    "rating": 4.6,
+    "startingPrice": 3e4,
+    "bestSeason": "February to April",
+    "weather": "Tropical monsoon climate",
+    "featured": true
+  },
+  {
+    "id": 23,
+    "name": "Singapore",
+    "country": "Singapore",
+    "category": "City",
+    "description": "A global financial hub with iconic landmarks and a multicultural population.",
+    "imageUrl": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1200&q=80",
+    "rating": 4.7,
+    "startingPrice": 45e3,
+    "bestSeason": "February to April",
+    "weather": "Hot and humid",
+    "featured": true
+  },
+  {
+    "id": 18,
+    "name": "Bhutan",
+    "country": "Bhutan",
+    "category": "Mountains",
+    "description": "Land of the Thunder Dragon, known for its monasteries and dramatic landscapes.",
+    "imageUrl": "https://rtwin30days.com/wp-content/uploads/2013/07/Tigers-Nest-Monastery-Paro-Bhutan-Travel-Guide.jpg",
+    "rating": 4.8,
+    "startingPrice": 4e4,
+    "bestSeason": "March to May",
+    "weather": "Cool and pleasant",
+    "featured": true
+  },
+  {
+    "id": 19,
+    "name": "Dubai",
+    "country": "UAE",
+    "category": "City Break",
+    "description": "Modern architecture, luxury shopping, and a vibrant nightlife.",
+    "imageUrl": "https://images.unsplash.com/photo-1518684079-3c830dcef090?w=1200&q=80",
+    "rating": 4.6,
+    "startingPrice": 35e3,
+    "bestSeason": "November to March",
+    "weather": "Warm and sunny",
+    "featured": true
+  },
+  {
+    "id": 21,
+    "name": "Maldives",
+    "country": "Maldives",
+    "category": "Beaches",
+    "description": "Luxurious overwater bungalows and vibrant coral reefs.",
+    "imageUrl": "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=1200&q=80",
+    "rating": 4.9,
+    "startingPrice": 6e4,
+    "bestSeason": "November to April",
+    "weather": "Warm and sunny",
+    "featured": true
+  },
+  {
+    "id": 28,
+    "name": "Sri Lanka",
+    "country": "Sri Lanka",
+    "category": "Culture",
+    "description": "Explore pristine beaches and ancient Buddhist heritage.",
+    "imageUrl": "https://storage.googleapis.com/stateless-www-justwravel-com/2024/10/56d87ac7-best-time-to-visit-sri-lanka.png",
+    "rating": 4.6,
+    "startingPrice": 32e3,
+    "bestSeason": "December to April",
+    "weather": "Tropical and warm",
+    "featured": true
+  },
+  {
+    "id": 29,
+    "name": "Kutch",
+    "country": "India",
+    "category": "Desert",
+    "description": "Experience the vast white salt desert of the Rann of Kutch.",
+    "imageUrl": "https://rannutsav.net/wp-content/uploads/2025/07/White-Rann.webp",
+    "rating": 4.6,
+    "startingPrice": 15e3,
+    "bestSeason": "October to March",
+    "weather": "Dry and hot",
+    "featured": true
+  }
+];
+var packages = [
+  {
+    "id": 101,
+    "destinationId": 14,
+    "destinationName": "Goa, India",
+    "title": "Goa Chill & Coastal Lights (3D/2N)",
+    "description": "Experience vibrant beaches, Portuguese heritage, and exciting nightlife. This short getaway is perfect for couples and families looking to unwind by the Arabian Sea.",
+    "imageUrl": "https://blogs.tripyverse.com/wp-content/uploads/2026/04/246c973dd89e933270fe730159748551.jpg",
+    "price": 12999,
+    "duration": 3,
+    "nights": 2,
+    "category": "Beaches",
+    "rating": 4.6,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "2 Nights in 3\u2605 Hotel, Daily breakfast, Airport/Railway Station transfers, North Goa sightseeing, South Goa sightseeing, All transfers by AC vehicle, Assistance during the trip",
+    "excludedItems": "Airfare / Train Tickets, Lunch & Dinner, Personal expenses, Water sports activities, Entry fees to monuments, Travel insurance",
+    "itinerary": "Arrival & North Goa Exploration. Meet and greet at Airport/Station, transfer to hotel. Afternoon visit Calangute, Baga, and Sinquerim beaches plus Fort Aguada. Evening at beachside cafes.\nFull Day South Goa Sightseeing. Visit Old Goa Churches (Basilica of Bom Jesus), Panjim City Latin Quarter, Miramar Beach, and Dona Paula. Optional evening Mandovi River cruise.\nLeisure Time & Departure. Enjoy a morning beach walk or shopping. Hotel check-out and transfer to Airport/Railway Station for departure.",
+    "featured": true
+  },
+  {
+    "id": 102,
+    "destinationId": 14,
+    "destinationName": "Goa, India",
+    "title": "Adventure North Goa (5D/4N)",
+    "description": "Water sports, forts, and vibrant markets\u2014built for active travelers.",
+    "imageUrl": "https://www.oyorooms.com/travel-guide/wp-content/uploads/2021/08/NorthGoa-Image1-1-1.jpg",
+    "price": 18999,
+    "duration": 5,
+    "nights": 4,
+    "category": "Adventure",
+    "rating": 4.7,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "4 Nights in 3\u2605 Hotel, Daily breakfast, Airport/Railway Station transfers, AC Private Vehicle for sightseeing, Water sports package (5 activities), Mandovi River Cruise tickets",
+    "excludedItems": "Airfare / Train Tickets, Lunch & Dinner, Personal expenses, Entry fees to monuments, Travel insurance",
+    "itinerary": "Arrival & Evening Market Vibe. Meet and greet at Airport/Railway Station and transfer to your North Goa hotel. In the evening, explore the vibrant Anjuna or Vagator flea markets for local crafts and food.\nForts & Scenic Beaches. Visit the historic Aguada Fort and Chapora Fort (Dil Chahta Hai point). Spend the afternoon at the scenic Vagator and Anjuna beaches.\nThrilling Water Sports Day. Head to Calangute/Baga for an action-packed day. Enjoy Parasailing, Jet Ski, Banana Boat rides, and Bumper rides under expert supervision.\nCultural & Panjim Exploration. Walk through the colorful streets of Fontainhas (Latin Quarter), visit the Immaculate Conception Church, and enjoy a cruise on the Mandovi River.\nLocal Shopping & Farewell. Final morning for souvenir shopping at Mapusa or Panjim markets. Transfer to Airport/Railway Station for your journey back.",
+    "featured": true
+  },
+  {
+    "id": 103,
+    "destinationId": 14,
+    "destinationName": "Goa, India",
+    "title": "South Goa Heritage Stays (4D/3N)",
+    "description": "Relive the Portuguese era with heritage house stays and quiet beaches.",
+    "imageUrl": "https://assets.simplotel.com/simplotel/image/upload/w_900,h_506,f_auto,c_fit,q_80/heritage-village-resort-spa/DJI_0059_kb1pgp",
+    "price": 15999,
+    "duration": 4,
+    "nights": 3,
+    "category": "Heritage",
+    "rating": 4.8,
+    "hotelStars": 5,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "3 Nights in Heritage Boutique Stay, Daily breakfast, All transfers by AC vehicle, Guided Heritage Walk in Old Goa, South Goa Sightseeing",
+    "excludedItems": "Airfare / Train Tickets, Lunch & Dinner, Personal expenses, Water sports, Boat trips to Butterfly beach",
+    "itinerary": "Arrival & Heritage Welcome. Transfer to a beautifully restored Portuguese-era heritage stay in South Goa. Spend the day relaxing by the pool or taking a quiet walk in the village.\nOld Goa Spiritual & History Walk. Detailed visit to the UNESCO World Heritage sites: Basilica of Bom Jesus and Se Cathedral. Explore the Museum of Christian Art.\nSouthern Beach Bliss. Full day at the crescent-shaped Palolem beach. Options for a boat trip to Butterfly Beach or simply relaxing at a beach shack for the sunset.\nAncestral Goa & Departure. Visit Big Foot (Ancestral Goa) to see traditional Goan life. Transfer to Airport/Railway Station for departure.",
+    "featured": true
+  },
+  {
+    "id": 1001,
+    "destinationId": 1,
+    "destinationName": "Himachal, India",
+    "title": "Himachal Quick Tour (4D/3N)",
+    "description": "A crisp mountain escape with scenic drives, valley views, and a curated local experience in Manali.",
+    "imageUrl": "https://www.peakadventuretour.com/assets/tour/himachal-tour/himachal-tour-banner-01.webp",
+    "price": 18999,
+    "duration": 4,
+    "nights": 3,
+    "category": "Himachal",
+    "rating": 4.7,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Welcome dinner, 3 breakfasts, local sightseeing, point-to-point transfers",
+    "excludedItems": "Flights, personal expenses, tips",
+    "itinerary": "Day 1: Arrival & check-in. Day 2: Scenic valley tour + viewpoints. Day 3: Local market + culture stop. Day 4: Departure.",
+    "featured": true
+  },
+  {
+    "id": 1002,
+    "destinationId": 1,
+    "destinationName": "Himachal, India",
+    "title": "Himachal Complete Escape (6D/5N)",
+    "description": "More time to explore\u2014mountain drives, comfortable stays, and deeper sightseeing across Shimla and Manali.",
+    "imageUrl": "https://www.topindialuxurytours.com/tour_images/manalii.webp",
+    "price": 28999,
+    "duration": 6,
+    "nights": 5,
+    "category": "Himachal",
+    "rating": 4.8,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "5 breakfasts, 2 dinners, local guide, transfers & sightseeing",
+    "excludedItems": "Flights, personal expenses, activities",
+    "itinerary": "Day 1: Arrival & city orientation. Day 2: Scenic route + viewpoints. Day 3: Heritage stop & local experiences. Day 4: Day trip to nearby attractions. Day 5: Leisure + market time. Day 6: Departure.",
+    "featured": true
+  },
+  {
+    "id": 1004,
+    "destinationId": 1,
+    "destinationName": "Himachal, India",
+    "title": "Himachal Explorer Circuit (7D/6N)",
+    "description": "A balanced route with multiple valley stops like Kullu and Manali\u2014ideal for travelers who want variety without rushing.",
+    "imageUrl": "https://www.bharatbooking.com/admin/webroot/img/uploads/holiday-package-gallery/1699527490_205251-himachal-tribal-tour-package-slider-image.webp",
+    "price": 33999,
+    "duration": 7,
+    "nights": 6,
+    "category": "Himachal",
+    "rating": 4.8,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "6 breakfasts, 2 dinners, transfers & sightseeing, local guide",
+    "excludedItems": "Flights, personal expenses, tips",
+    "itinerary": "Day 1: Arrival & check-in. Day 2: Viewpoints + scenic drive. Day 3: Local market + heritage stop. Day 4: Valley day with optional activities. Day 5: Culture & nature mix. Day 6: Relaxed sightseeing + photos. Day 7: Departure.",
+    "featured": true
+  },
+  {
+    "id": 1003,
+    "destinationId": 1,
+    "destinationName": "Himachal, India",
+    "title": "Himachal Grand Holiday (8D/7N)",
+    "description": "A full-fledged Himalayan getaway with relaxed pacing and standout scenic highlights including Shimla, Manali, and Dalhousie.",
+    "imageUrl": "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=800&q=80",
+    "price": 28999,
+    "duration": 8,
+    "nights": 7,
+    "category": "Himachal",
+    "rating": 4.9,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "7 breakfasts, curated sightseeing, local guide, transfers",
+    "excludedItems": "Flights, personal expenses, tips",
+    "itinerary": "Day 1: Arrival & check-in. Day 2: Scenic circuit. Day 3: Local culture. Day 4: Nature day trip. Day 5: Relaxed day. Day 6: Scenic drive. Day 7: Leisure. Day 8: Departure.",
+    "featured": true
+  },
+  {
+    "id": 201,
+    "destinationId": 2,
+    "destinationName": "Bali, Indonesia",
+    "title": "Bali Luxury Retreat (6D/5N)",
+    "description": "Boutique stays, private transfers, and temple visits with a premium touch in Ubud and Seminyak.",
+    "imageUrl": "https://dplusa.s3-ap-southeast-1.amazonaws.com/uploads/ulaman-4.jpg",
+    "price": 48999,
+    "duration": 6,
+    "nights": 5,
+    "category": "Luxury",
+    "rating": 4.9,
+    "hotelStars": 5,
+    "mealsIncluded": false,
+    "transportIncluded": true,
+    "includedItems": "Private transfers, curated experiences, bottled water",
+    "excludedItems": "International flights, meals, add-ons",
+    "itinerary": "Day 1: Arrival & welcome dinner. Day 2: Ubud temple tour. Day 3: Spa & art village. Day 4: Beach day. Day 5: Nusa trip. Day 6: Departure.",
+    "featured": true
+  },
+  {
+    "id": 202,
+    "destinationId": 2,
+    "destinationName": "Bali, Indonesia",
+    "title": "Bali Adventure & Culture (5D/4N)",
+    "description": "Surfing lessons in Kuta, volcano hiking at Mount Batur, and exploring the heart of Balinese culture in Ubud.",
+    "imageUrl": "https://static.justwravel.com/images/cgnfe1hd/production/17c56693b536806e5aecdfb94e063e3fa0aac56f-1500x1360.jpg?fm=webp",
+    "price": 32999,
+    "duration": 5,
+    "nights": 4,
+    "category": "Adventure",
+    "rating": 4.7,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Mt Batur hike, Surfing lesson, Local guide",
+    "excludedItems": "Visa fees, Flights",
+    "itinerary": "Day 1: Arrival. Day 2: Culture Tour. Day 3: Mt Batur Trek. Day 4: Beach & Surf. Day 5: Departure.",
+    "featured": true
+  },
+  {
+    "id": 301,
+    "destinationId": 11,
+    "destinationName": "Rajasthan, India",
+    "title": "Desert & Forts Explorer (7D/6N)",
+    "description": "Camel rides in Jaisalmer, heritage dinners, and royal palaces across Jaipur and Jodhpur.",
+    "imageUrl": "/rajisthan.webp",
+    "price": 18999,
+    "duration": 7,
+    "nights": 6,
+    "category": "Adventure",
+    "rating": 4.7,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Breakfasts, heritage dinner, guided sightseeing",
+    "excludedItems": "Flights, souvenirs",
+    "itinerary": "Day 1: Arrival & city orientation. Day 2: Forts & bazaars. Day 3: Desert camp. Day 4: Heritage tour. Day 5: Culture show. Day 6: Scenic drives. Day 7: Departure.",
+    "featured": true
+  },
+  {
+    "id": 304,
+    "destinationId": 11,
+    "destinationName": "Rajasthan, India",
+    "title": "Rajasthan Cultural Loop (6D/5N)",
+    "description": "A focused journey through Jaipur, Jodhpur, and the vibrant villages of Pushkar, experiencing local life and traditions.",
+    "imageUrl": "https://www.erajasthantourism.net/wp-content/uploads/2019/01/culture-of-rajasthan.jpg",
+    "price": 15999,
+    "duration": 6,
+    "nights": 5,
+    "category": "Heritage",
+    "rating": 4.8,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Bazaar walks, Village tours, Professional photography",
+    "excludedItems": "Flights, Entry fees",
+    "itinerary": "Day 1: Jaipur Arrival. Day 2: Pink City. Day 3: Pushkar. Day 4: Jodhpur. Day 5: Mehrangarh. Day 6: Departure.",
+    "featured": true
+  },
+  {
+    "id": 302,
+    "destinationId": 3,
+    "destinationName": "Kashmir, India",
+    "title": "Kashmir Paradise Tour (6D/5N)",
+    "description": "Experience the serene Dal Lake, the snowy slopes of Gulmarg, and the lush valleys of Pahalgam in the heaven on Earth.",
+    "imageUrl": "https://5.imimg.com/data5/OK/YU/DM/SELLER-33615216/kashmir-paradise-tour-packages-service.png",
+    "price": 24999,
+    "duration": 6,
+    "nights": 5,
+    "category": "Nature",
+    "rating": 4.9,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Houseboat stay, Shikara ride, Gulmarg Gondola",
+    "excludedItems": "Pony rides, Flights",
+    "itinerary": "Day 1: Srinagar Arrival. Day 2: Mughal Gardens. Day 3: Gulmarg. Day 4: Pahalgam. Day 5: Sonmarg. Day 6: Departure.",
+    "featured": true
+  },
+  {
+    "id": 403,
+    "destinationId": 4,
+    "destinationName": "Leh Ladakh, India",
+    "title": "Ladakh Explorer (7D/6N)",
+    "description": "A thrilling journey through high mountain passes like Khardung La and crystal clear lakes like Pangong Tso in Ladakh.",
+    "imageUrl": "https://thedreamridersgroup.com/pages/og/2025-07-23-6880997e885b6.webp",
+    "price": 32999,
+    "duration": 7,
+    "nights": 6,
+    "category": "Adventure",
+    "rating": 4.9,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Pangong Lake Camping, Nubra Valley, Permits",
+    "excludedItems": "Oxygen cylinders, Flights",
+    "itinerary": "Day 1: Leh Arrival. Day 2: Leh Local. Day 3: Nubra Valley. Day 4: Hunder. Day 5: Pangong Lake. Day 6: Leh return. Day 7: Departure.",
+    "featured": true
+  },
+  {
+    "id": 502,
+    "destinationId": 5,
+    "destinationName": "Spiti Valley, India",
+    "title": "Spiti Valley Road Trip (8D/7N)",
+    "description": "A high-altitude circuit exploring ancient monasteries like Key Monastery and cold deserts of Spiti Valley.",
+    "imageUrl": "https://dashboard.enlivetrips.com/storage/blog/9.jpg",
+    "price": 19999,
+    "duration": 8,
+    "nights": 7,
+    "category": "Adventure",
+    "rating": 4.8,
+    "hotelStars": 2,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Homestay experiences, Guide, Inner Line Permits",
+    "excludedItems": "Personal gear, High altitude medicines",
+    "itinerary": "Day 1: Shimla. Day 2: Sangla. Day 3: Kalpa. Day 4: Tabo. Day 5: Kaza. Day 6: Key & Kibber. Day 7: Chandratal. Day 8: Manali.",
+    "featured": true
+  },
+  {
+    "id": 602,
+    "destinationId": 6,
+    "destinationName": "Uttarakhand, India",
+    "title": "Rishikesh & Mussoorie Escape (4D/3N)",
+    "description": "Experience yoga and white-water rafting in Rishikesh, followed by a serene escape to Mussoorie, the Queen of Hills.",
+    "imageUrl": "https://rishikeshcamps.in/wp-content/uploads/2024/05/Mussoorie.jpg",
+    "price": 11999,
+    "duration": 4,
+    "nights": 3,
+    "category": "Nature",
+    "rating": 4.6,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Rafting session, Ganga Aarti, Mall Road visit",
+    "excludedItems": "Entry fees, Personal gear",
+    "itinerary": "Day 1: Dehradun Arrival. Day 2: Mussoorie. Day 3: Rishikesh. Day 4: Departure.",
+    "featured": true
+  },
+  {
+    "id": 702,
+    "destinationId": 7,
+    "destinationName": "Jaipur, India",
+    "title": "Jaipur Royal Heritage (3D/2N)",
+    "description": "Experience the grandeur of the Pink City with guided fort tours to Amer Fort and City Palace.",
+    "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTLoIq7XMyprEqT0M65WlzjEOEX6Pc9foZM9g&s",
+    "price": 9999,
+    "duration": 3,
+    "nights": 2,
+    "category": "Heritage",
+    "rating": 4.7,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Amer Fort entry, Chokhi Dhani dinner, AC car",
+    "excludedItems": "Camera fees, Tips",
+    "itinerary": "Day 1: Arrival & City Palace. Day 2: Amer Fort & Hawa Mahal. Day 3: Shopping & Departure.",
+    "featured": true
+  },
+  {
+    "id": 802,
+    "destinationId": 8,
+    "destinationName": "Udaipur, India",
+    "title": "Udaipur Lake Romance (3D/2N)",
+    "description": "A perfect romantic getaway in Udaipur, the Venice of the East, with serene lake views and palace visits.",
+    "imageUrl": "https://d2a0if70l7p1kn.cloudfront.net/blog/uploads/2018/04/romance-in-udaipur-1.jpg",
+    "price": 14999,
+    "duration": 3,
+    "nights": 2,
+    "category": "Honeymoon",
+    "rating": 4.8,
+    "hotelStars": 5,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Boat ride on Lake Pichola, Bagore Ki Haveli show",
+    "excludedItems": "Flights, Personal shopping",
+    "itinerary": "Day 1: Arrival & Sunset Boat Ride. Day 2: City Palace & Lakes. Day 3: Leisure & Departure.",
+    "featured": true
+  },
+  {
+    "id": 902,
+    "destinationId": 9,
+    "destinationName": "Meghalaya, India",
+    "title": "Meghalaya Rain Trails (6D/5N)",
+    "description": "Explore the unique living root bridges, majestic waterfalls, and mysterious caves of Meghalaya.",
+    "imageUrl": "https://wanderon-images.gumlet.io/gallery/new/2025/03/05/1741171265132-mawsynram-village-in-meghalaya.jpg?auto=compress%2Cformat&w=768",
+    "price": 24999,
+    "duration": 6,
+    "nights": 5,
+    "category": "Nature",
+    "rating": 4.8,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Double Decker root bridge trek, Dawki boating, Caving",
+    "excludedItems": "Guide tips, Personal shopping",
+    "itinerary": "Day 1: Guwahati Arrival. Day 2: Shillong. Day 3: Cherrapunji. Day 4: Trek. Day 5: Dawki. Day 6: Departure.",
+    "featured": true
+  },
+  {
+    "id": 1005,
+    "destinationId": 10,
+    "destinationName": "Sikkim, India",
+    "title": "North Sikkim Wonders (5D/4N)",
+    "description": "Journey to the pristine valleys of Lachung, Lachen, and the breathtaking Zero Point in North Sikkim.",
+    "imageUrl": "https://unigotravel.com/crm/sys_images/img4_(74)1765969302.jpg",
+    "price": 18999,
+    "duration": 5,
+    "nights": 4,
+    "category": "Nature",
+    "rating": 4.8,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Permits, All meals in North Sikkim, Luxury vehicle",
+    "excludedItems": "Zero point entry, Liquor",
+    "itinerary": "Day 1: Gangtok Arrival. Day 2: To Lachen. Day 3: Gurudongmar Lake. Day 4: Lachung & Yumthang. Day 5: Departure.",
+    "featured": true
+  },
+  {
+    "id": 1201,
+    "destinationId": 12,
+    "destinationName": "Andaman, India",
+    "title": "Andaman Beach Bliss (6D/5N)",
+    "description": "Island hopping at its best in the Bay of Bengal, exploring Havelock, Neil, and Port Blair.",
+    "imageUrl": "https://www.basilleafholidays.com/wp-content/uploads/2019/01/havelock_island_best_time-660x495.jpg",
+    "price": 24999,
+    "duration": 6,
+    "nights": 5,
+    "category": "Beaches",
+    "rating": 4.7,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Cruise transfers, Scuba intro, Radhanagar Beach tour",
+    "excludedItems": "Airfare, Personal photos",
+    "itinerary": "Day 1: Port Blair. Day 2: To Havelock. Day 3: Radhanagar. Day 4: To Neil. Day 5: Return to Port Blair. Day 6: Departure.",
+    "featured": true
+  },
+  {
+    "id": 1501,
+    "destinationId": 19,
+    "destinationName": "Dubai, UAE",
+    "title": "Dubai Skyline & Safari (5D/4N)",
+    "description": "Experience the glamour of Dubai with iconic landmarks like Burj Khalifa and thrilling desert adventures.",
+    "imageUrl": "https://media.tacdn.com/media/attractions-splice-spp-674x446/06/f7/fc/b9.jpg",
+    "price": 42999,
+    "duration": 5,
+    "nights": 4,
+    "category": "City Break",
+    "rating": 4.8,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Burj Khalifa entry, Desert Safari with BBQ, Marina Dhow Cruise",
+    "excludedItems": "Visa, Flights",
+    "itinerary": "Day 1: Arrival. Day 2: City Tour. Day 3: Burj Khalifa & Dubai Mall. Day 4: Desert Safari. Day 5: Departure.",
+    "featured": true
+  },
+  {
+    "id": 401,
+    "destinationId": 13,
+    "destinationName": "Kerala, India",
+    "title": "Backwater Family Cruise (4D/3N)",
+    "description": "Enjoy a serene houseboat stay, authentic village lunch, and slow travel moments for families in Kerala's backwaters.",
+    "imageUrl": "https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&q=80",
+    "price": 23999,
+    "duration": 4,
+    "nights": 3,
+    "category": "Family",
+    "rating": 4.6,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Houseboat cruise, meals, backwater guide",
+    "excludedItems": "Flights, personal expenses",
+    "itinerary": "Day 1: Arrival & check-in. Day 2: Backwater cruise. Day 3: Village lunch + sightseeing. Day 4: Departure.",
+    "featured": true
+  },
+  {
+    "id": 402,
+    "destinationId": 13,
+    "destinationName": "Kerala, India",
+    "title": "Solo Serenity in Kerala (5D/4N)",
+    "description": "Experience mindful stays, scenic boat rides, and explore caf\xE9-friendly local routes in the tranquil backwaters of Kerala.",
+    "imageUrl": "https://static2.tripoto.com/media/filter/tst/img/1790032/SpotDocument/1575453198_1575453190530.jpg.webp",
+    "price": 18999,
+    "duration": 5,
+    "nights": 4,
+    "category": "Solo",
+    "rating": 4.5,
+    "hotelStars": 3,
+    "mealsIncluded": false,
+    "transportIncluded": true,
+    "includedItems": "Transfers, curated itinerary, local guide",
+    "excludedItems": "Meals, flights",
+    "itinerary": "Day 1: Arrival. Day 2: Cruise + markets. Day 3: Nature trails. Day 4: Cooking class. Day 5: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2001,
+    "destinationId": 3,
+    "destinationName": "Kashmir, India",
+    "title": "Kashmir Adventure Trek (7D/6N)",
+    "description": "Trek through the stunning valleys and meadows of Kashmir, experiencing its raw natural beauty and serene landscapes, including the Great Lakes Trek.",
+    "imageUrl": "https://himalayanoutback.com/wp-content/uploads/2021/12/The-Great-Lakes-Trek-Of-Kashmir.webp",
+    "price": 28999,
+    "duration": 7,
+    "nights": 6,
+    "category": "Adventure",
+    "rating": 4.8,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, All meals, Trekking guide, Transfers, Permits",
+    "excludedItems": "Flights, Personal gear, Tips",
+    "itinerary": "Day 1: Arrive Srinagar, transfer to Sonmarg. Day 2: Trek to Nichnai. Day 3: Trek to Vishansar Lake. Day 4: Trek to Gadsar Lake. Day 5: Trek to Satsar. Day 6: Trek to Naranag, transfer to Srinagar. Day 7: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2002,
+    "destinationId": 3,
+    "destinationName": "Kashmir, India",
+    "title": "Kashmir Family Holiday (5D/4N)",
+    "description": "A perfect family getaway to Kashmir, featuring houseboat stays on Dal Lake, shikara rides, and visits to beautiful Mughal Gardens and Gulmarg.",
+    "imageUrl": "https://hldak.mmtcdn.com/prod-s3-hld-hpcmsadmin/holidays/images/cities/3766/Snow%203.jpeg?downsize=328:200",
+    "price": 18999,
+    "duration": 5,
+    "nights": 4,
+    "category": "Family",
+    "rating": 4.7,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Houseboat stay, Hotel accommodation, Breakfast & dinner, Airport transfers, Shikara ride, Mughal Gardens, Gulmarg excursion",
+    "excludedItems": "Flights, Personal expenses, Pony rides",
+    "itinerary": "Day 1: Arrive Srinagar, houseboat check-in, Shikara ride. Day 2: Mughal Gardens, Shankaracharya Temple. Day 3: Gulmarg excursion. Day 4: Pahalgam day trip. Day 5: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2003,
+    "destinationId": 4,
+    "destinationName": "Leh Ladakh, India",
+    "title": "Ladakh Bike Expedition (9D/8N)",
+    "description": "An epic motorcycle journey through the high-altitude deserts and passes of Ladakh, including Khardung La and Pangong Tso, a dream for every adventure enthusiast.",
+    "imageUrl": "https://internationalyouthclub.org/wp-content/uploads/2024/11/1614925085_16.jpg.jpg",
+    "price": 45e3,
+    "duration": 9,
+    "nights": 8,
+    "category": "Adventure",
+    "rating": 4.9,
+    "hotelStars": 2,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Royal Enfield bike, Fuel, Accommodation, All meals, Support vehicle, Mechanic, Permits",
+    "excludedItems": "Flights, Personal gear, Medical insurance",
+    "itinerary": "Day 1: Arrive Leh, acclimatization. Day 2: Leh local sightseeing. Day 3: Leh to Nubra Valley via Khardung La. Day 4: Nubra Valley to Pangong Lake. Day 5: Pangong to Leh. Day 6: Leh to Kargil. Day 7: Kargil to Srinagar. Day 8: Srinagar local. Day 9: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2004,
+    "destinationId": 4,
+    "destinationName": "Leh Ladakh, India",
+    "title": "Ladakh Cultural Immersion (6D/5N)",
+    "description": "Explore the ancient monasteries, vibrant culture, and stunning landscapes of Leh Ladakh at a relaxed pace, visiting Hemis and Thiksey monasteries.",
+    "imageUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMTEhUTExMWFhUWGBoaGBgYFxggHRoaGhcXGBgYGBodHSggHR4lHRcXIjIhJSkrLi4uHR8zODMtNygtLisBCgoKDg0OGxAQGy8mICYwLzI1LS0tLS0yNjAvLS0vLjUyNS0tLS0tLy0yLS0tLS0tLS0tLS0tLy0tLS8tLS0tLf/AABEIALEBHAMBIgACEQEDEQH/xAAcAAABBQEBAQAAAAAAAAAAAAAFAAIDBAYHAQj/xABBEAACAQIEAwYCCQMCBQQDAAABAhEAAwQSITEFQVEGEyIyYXGBkQcjQlKhscHR8BRy4TNigpKisvEWJENzJTTS/8QAGgEAAgMBAQAAAAAAAAAAAAAAAwQAAQIFBv/EADERAAEEAAQDBwQDAAMBAAAAAAEAAgMRBBIhMUFRYQUTInGBkfChsdHhIzLBM0LxFP/aAAwDAQACEQMRAD8A6RckU0XaJ3bIO1UcVho1FaWUkuTUwqlaarlttKtRTI1YHtxibea9bOjs1rL0OY2geXKCd9hW8B0npXNO1OMS+xcSFm2QeepQqdD+XzpHGuprR1TEA1JRP6NhrjP/ALwZ6zbUD8jW2a1IrC/Rjc+uxq6+a208tRc/augxTEH/ABhDkHiKHvh9ZqW1aq7diINU2tsD6UZDXmMxQQSaBcV4gO6d2iI06ydB8ZNG8QA2jDTnWO+kLJZtYZE3u4hASTuADzPqVoWINQurkUWBhfIAinBcDbWyjFfEQSSRzLFtPnREYNB4lAk84plm4rWUA1gClbuxpNbw9903yH2QpP7lPvHw5GHLehIxebwLBLbDpFWsUrt5WaCI0FeYLCdxqVJbfbemW0AhkIthuF2iVuMq94o0MDT2/nOrT4lVHryFZ/i+LvxIUqY01oFiuJ3FK5z71psRfxWXSBqLcfwFq6hD3AsnYCcxrBcbNnMEsjRQMzci3MgVPfxwltyZPOgl65J0rrYaAt3K588odwSpE00GlFOhqUtezThXgWnCtUpa8ivRTq9irpRXbBgVJ/UTVa3MVJaQ8hNBc0cUQOKdgsdmvCyEuM5kyFkaCTqNfjFDeM8Nt2rxu3Zi4M6Iu7SpEk8hm5c9duZrCcUyWCLTKt2+vja34nygnKoMABZPiJHUCYrEXsRevYlyWZysgMzswBBidZ3I5RMCvO4qf/6GPA2brdei7eGh7pwJ48EYF+5egHILa+UAEBRMhQOgqlh8E1y6QplQdAOoiTI/ntT8IrHS6YMciNuWg9aLpeygJZQMzEBR0Mb7S259a4TczHGl0XU4eLQBC7mWyxVfHd+052XnC+tXMHahSzmNySdNN5M7D1NWMFwwLLuddSSevM+nufwrL9pONPcLWkQLbDbwSWI0k8oorZw85Y9eZ4eiVfHp4tlNxHtP9mzEDTOR/wBoP5kfAUFucVuEybtwn+8/vVJ2PMD/AJR+1XuHcM71SxZU1iCjGdAZ096NkaNSoCNgvrFm0pBZ3qFalUGmkJRXcMvSmZABT7pqEGaiia5IViPun8jXNsbognzG5aOq5VIDDy8iu2orqCWq4/g8WbLiyxkZlI1gAIjADU75hvPSksYAatMQ3rSNfRnd/wDdY707kH3zX5rpli5XKPozbNisYjEK75GgCJg3M0e2YaV0xVIpmEVGFia8yJugO9NIEUy09R2MUC7IfMupHVT5WHpy9wa054aQDxQwLVe/gs29c0+lVoxGBt6xnzEe7oB+RrrIcVy76VsOxxeEuAeAAAno2ckT6H+cqFiX1GbT3ZrQ7EAHqtP2fHeW1yiAvhPpB0Hyg/GpsZhSDJmrHZXAJbtB1mbniaTzk7DYUWYgmIrWEc7uW5uQScwGc0qXCg2QGIHrzqbF3ZMBZP8AJqe4YilaxaDl8aMXVqUOll+LXroRibLkegk/ACudY3G3CxEFddiDPxmupcY7RB3FiwecO/QfaCxzjnyrIdpLJA7y0nhXRmJEyecHXWaa7LxscziGiwNL6oGMgc1oJ9lknYwfWoMlSOxJk14BXow1cYm14Fr0CnRXoFapZTa9y1IEqRbU1FAoQtTW7dXMNgwTqakxFkKQNgQZbXTTTXkSdv1oMs7YxbkaOJzzQVLEYhLS5mnosKTLcgYpuJ489zvHCqoaMuZFDJCnwjKSDJBjTQ7xMBmL4m7iGIgR4VWAcpgCYlQRymTuTVS69m0A+KfytAw9sr3pnXxD/wCMdSdT01mvNYjGSYiUd1a70GDbEz+RVMXnJcW9EUS7ka89CddSNMo3qpYw15FzIAxcakdOmkCAZNWjYa/duPcTu0B+qt6QqxuBOpiJY7nMZpt3FWj9UjeBRqQdCZmJJ8Rk+w6UubawxA3dE8tEdzwTdKHGWhlBlS32sp9OvvR7s7hbrWlvW9e6cGADmOUzA+ECPfShGIvWsmUKJEx416AamZ19BWl7EXlClSJUw5/uIKNEfz9UsQ14aS0LbHMNarP/AEiXWzLatyVaXOXofIPz+VY7+lu5c2oExGbX3yzMetbHtxgyl9TGZXXwzPhykgrrsBofjWYvXLY0IDHop09JPOt4VrWxNpYkccxRHhfCcpV7tzNzCjVTvGYnT8K1uGxKhRFtQP7SZ5TOU0D7IoQSRAPJQBIJEHfQe8z6URvZAYFpWjmcxPtyHyAoMkjHOyubfrSadCWaAruXfg+WmDFGYrH8A4058F0guACCNJBnQjqI/GjlniQmuoyntzN2XMdbTRRR5Y1YtWQKojGgCals40NtV5Spav8ASuO4nBA3A+pbO0zrpLwP8e1dNv4xgdIrkl/F3g4QuAZck5BGgJg+Lfp7c65+OYTl15prDO3V/wCj6zeXF3b1u13oVgHBYCA4OoJIEgT/ADWuwpFco+jnGsrYkQCzPbkrtGUia3yXnpnDxkMu91nEvt9cgPsi7sBQjjaOwFy0YvW5K/7h9q2fRo+BANWp0qNN62+MPaWlBDiDYVfgvHLWIXMphhIZCRmVhuCKZ2g4at5Q51NuTH3l3j5gEVlu2HZ66lz+rw3hzEC8o+OW4P8AcDp8fWtB2Mv3XtM14g5SAG1E7zM69NDMaiTXPkcZLw8vEbj7/PZOZA0CaM+iK8Cf/wBvb9j/ANxqyTrpQnhuKQX1wqny23eBqrA3BlytzgE6Dr6aXOK8Tt2B4vMdlG5/YeppuORkUILjQACWcxzn0BqpOIY1UXMxgbfE7ADma5r2y7aBCUtkluST6bvH/b+UzQ7td20zyqEFxIEGVT92/npWR7PWDdxVsNJ8WdidZjxEk+pH41zZpHYgFz9GDhz8+nRdjC4IRjO/ddb7HhbKZrxBfLr/AHNq3wG1U+0vEbZIZGkjWPsg9dd9qq429oYoFimZz6V6fsbs/uoWl251PmfxsvM9o4vPI6tlUdiSSdyZpwWnC3TwteipcZR5aeFp4WpVSoqUarUoXnU9vCMYMQCCQToCBuZOmlBLmLyPcYN54iCdQNJ16jroOUyZRxeNZA29ynMLhXTHorNniwYN4CFgQc0HUTmmNAOvynWIrd65dzOpHh1LsQqW/s5iTop2gmWPuKI8K4Iz2+9vBLVsbZgSxPIhTpy3InTkNgvajEJiLgtWMy4cJ4VXa5cLGbjbSdBqQdh6mvNmSTEm3k0OPzivQiJkAtoq0/iXEUtXFt4RluXNruIIOVTBBFqdBprn32g7ig2DtW7IZro7zxgIQCZMCIBAAMzvRyxhVt2wHCqqjUeo1P8ANTt1oHfxBuP3hlQNLY8Ihf7Z0NW14rI0UFh7j/ZylxF9rhlyoX7nj1/vaJb8qjfFDYKnwVqhuXmmMzfh+MbCqt7FRoTPoP1b9BVWG7JenO3Ut67MiFJ6Df49PjRrsVxE28SmsjxJAOgkEiJ55gKBpgLzDMbbC2pGYZT6GCN9uZ61aXiDC6rCAtshkCqAAAQfflzoL3h4Iv2TMUdHb3Wz7d4IXrIcqysrHUaCWEajXSQDy/fltow22qnWf25V2rjSG5ZuKTPgkHw7gBtI1g9J6bVytiihr6282W4FfMJjnMbco96BDcbMp+9/XRW0l5zbEdEfwuEFnMSQ8hSCIClWUMDJ94gyPeo34uts5SQDufq53HXT8BFeYe2Xe7ZuDQIHtNqJk5ob3BIED7Jonh+CWLyIzS5ChcwMSBtpBg69aSkexpt+3yl0sr5DY3+WrlzFdyygYi4MxzMtzMC2hy5Z0GoOmUn9S/B+0AuSSrKQTMzyGvIfw0H4lxLNdNlkyspYnTcBSwOvOQNKGcCUh/FdDFVJC9Z1MEbiJMz1o8U0keoPouW8CRy3x4kWBFWMNjj0M1mcFZ7of6nmOZgqiRJEyxkwKK8Pxpa2XIiGIaVIMDUHWN1IO3M9K6ze0ISPEKQXYSQHQo1/VnpWOxmKtv3bk65gp8EQWDqv4kVobmII00mJmZ+BEzPzoDicOAFBGilPnl/zXN7QnjkezJwtNYWN7GuzJvYDGKL+JG0i2QPY3B+orf2MYOtcg7OXWXFs0HK6OAepR7c/LN+NbixivWu5h8OTA0pTGStE5A2ofYLa2b4Ik7Vbtld6xlziJVcq/wA+NT8Nx5OhrJgcBaEJRdLYd/0Fc949xnEXrvdvZRMO8wbjMM+WCMxTysY8pExptNaXEYv6pxm1KnaJ20j1rj921dxA+qsqArFCzAZp0zzpJ29SNa5eMDgQ3guv2ZGyRzi47LRYDH4yxkL2RatqRlKvlyCdBDMWy8oYSTuRoK2/DeD2Mdh1vMLiu8h2lvEysUaVuToSp5AxFcmw997t63bWwLZtsBdOTQKIzZ9uSk6wdYrqvZnjw/pbbZgxYZnMjRyZZYGggmAOgFAw2HEjiHAHp7fXqt49xicKPzXj+VRxP0dWxJmyw/3Wgv4iaGW+zdvDuXUIrEESubqOR9q03EOMWyNX1+dZzE8RBYGTXRh7GjLsxvys0ubJ2nIGltqLFYeNc0+1BsSQa0SZXFD+IYIDUR6xXo4XUaK4srbFhBglSrbqVLNWLdmnC5K0qyIJIBEjcdJ6025dADRqVnT21Pw9dhzqvicettywJkyMoAOaBCzP+6TppBEydKdZwOnfYxu7tHXLqWYD0HLlroJ2WuBi+1yPBHvdX+F2cL2YXeJ+3L7qoUu4i4Vs2yx0k7qsaCTHr8eQMTRWxhsPgxmuN3t8mZnQH9/jPqu1Vsd2mAU2cMmRTp6mebH9TPxoNizKtczZ3gAE7CdAYJ9dtduVc04eznnd6N3Pmdm+lldVs0cYyxiz12/J+g6pvGOO3MU2slUaAv2dIifY8h+tVFuFdZctEaEAAdAAdB86r94FGXn8ZJ5nequIxQ/wP1P7fOiOe3QAaDYDh85pR7nyGyfnzgjWE4jBcOXIa2widdwfgKCPjdOcnkCZ9if2rzCsc45a+Ufmf3NT/wBE4nL4QT5tBIJ2zb+kCly4C0cR2y+KWAwD3mys4tqsZpnQHaR19zR+3wyzYUZYuO27zqFHziT09aC2FS02cGTEwBCwHCyQdWKkzrFS4m4xBQjzZ1+IkqfjoKSnLnOoHT56pmFjQLI1R/DYgnOoh5GgAyjQQesk6VnTbgQEADF0JmSGXUAn1Eaac6J4W1cezntDV0VlOn+oNGEnTXWricDzMwJPjuI6qgMh4gj1naIpZhaxx+fP0me6LqIC0fZpUvYa2xHiFuCcxPiWQTEabHQa/nWTu8DfvsRaVD3V5NGOyup8P461puz+AMOiK0WWFyMw0R0zyDzJ1OXerPE7i4cHPJy5fCo11YeHUjXLO2x5ETGnmRrt99geHzRCgbGXubR0480G4VwJwLLPcKvbTKwUyGAPhBJHITrHP5lbfDkUeFNDJEZo31j4g0LftKGtnu0yOCILqW2uZwxI8KsNtOms0Lu8bxM+K+Z38JgaknZRGsk/GsGBzzqfZMHEMYPCB6lbbiqLbtXPvFd9yDA09/jyrH8CRRiSySxaQqkdTGpnTn8qM8avrdIS3enM6T6CWRwZ6AzynX0ry1wK3hGF64+cblgpiS3mOp5nl+9FZqCuWTmcKRK5w+BFt7ZIMxHkJ2kACegE6RQ+xbbDuzXbuY3WQLCaIQWPyO28wOdSccx2HxFpVt4nDK3dupzd8PE5Xb6vYBYnqZ6gxLbQWcgxmEusd+8ceKCApOYgCFzeGNwIIk0ZsDqu0QyDZG/6YOrBIOZYBUiRIic3OesToazPFuDKiaM2hUSHYxGp5mDMUTwmOvJbsrmwjMJD93esnKo8gRQ5LGd4GnLnVXi1pkDXlnxf6q6kEZgQ/UEGPgaFRbKG2tA20lP7IcJLYW3ckatfAmZMukbdQtS4i22YKBrMnSQFEgnMDHLSrnCsOTwyzbstnYIoORgYd2LvqD9kvB1nw/ChrpinxXevgr6otsiAjMD5TKwOvXXTly6mKEwnLoiQlmFjmAPC9uYjyrDBi4X5zyExtz6ctJuWRcByBwIieusxHyI+FVcVaxTtnTDXvq5yqyMB5sniABMnxMB0HqKs37NwZWFjEZhmDLBiAUKFUAB2J19GoUWOxcYrfz1VvwkLzY08kQucFu3bTLaabx2J6gg6+mlYrH4QYa49vGW1z+JgBcOQ7ZlG8tJ2itXw7EX7rXEN1sPZQKbr6q2WdEVtCMxG410qhxns2AxxBY3VKlkzzmyiRLBtYZmVQOck8tRz4kYghxFFPQ4U4M0aN8Pt6rG4TH3GuXWt5VF0lZd9gTJiTLEA76ketbLhHhw9tZ5agfe+18ZmfWay9u93P+ooYqCWedZaNI1UZR4gAOu9HOD8bFlbTIlvLmZboy5hdDEAMDyyqT4TlMr60xgpmwuc+rQO0ITMwZdKr/flq48nnTBb9av4/F2O9yhTaY6ZSSVnoCeR5fpUeICpE7GdemVS5n4D8RXocL2hBOzOw+685Pg5onZXBQWwRsamJmrKYQxMaevrtUWNv27Am4YP3YknSdqNJMxgzEobIXvdlCr33CKWPy9yAPhJGtCr2Ju3ZWwQSYzCZCaayQPCPeJj3FRYkPcQ3LzNZsCTlA+sefuqY09T0NVjxYuhtWbfc2AGEbm5yzE85Gs1wsRi5cQPBo357+S7eHwkWH/udflK0LtnCS099fMAOIIBM6KPs7bmBqNxsF4vibz+e4Sjk6akjSTmO2mgAEcj6VTCBdZlm3J119zUeLuOtsKywM5I2nVfw2oLA2D+v9jx4+nL79UV+IMhyDQcvzz+3RI4iNpj4ftXlnFtFxVO6zGk6cvTflUOHzMpXKSZkEctOZPpHyqzhMAVOZiNjoOh01PzoL5QN1IIbfshyMWMTvyH7/8AmrWHwDnzQq7HefkNf+aiWGw6yQiwTPl1JEwNd9gfnRPD8FuN5gEH+4665uWv3jvSr8UAnGYWyhOD4eieIKSw+02+2um3I/vRiz2ZxF7uxlyC5mVXbyxAeWKzGwIXckgRrRMcHtWQ1y6GuZdSplQxMwoA11JjcjWi1rj3dAd2P6e1kBg2y4ZySAqiYA23OpOgoDXueb3W5PD4AspieyzpcdblxFVWYGA0nOADAIEeLXXqOtF8NwS2CPBmIggvygkSBGsGdgToelRXcffkNdttbCqJfLbOqsfFkE5NGiSCdgTRg8QXe3aBYxJMBZA3yoYJEbzyqpbH9ia6I8ET7IAHOzw/xOt8OAJz5jkgsB/wGND0ZhuOR11FTYi5bsSRcVBp5oZvsbqs6yoOsgHaKpXrt8qSzZV5gaDaYIHWI/4qGXTh0DLcvICI0BBIInQgTOojahNc7/oK8tSqkmwjD/NKXHk0X+lKnHEt+CyrQ2hztlHWQikeI9Sd+VCu3WHdVt4idc2SYnQgmYMxqPm1PXi1tHHdpmlwV100JgA6miXaNxfwZzAKxRWALH7OVgFXnOon302pmBha7MW31P7SeIxLcQ4NjYWNHXUrAWOIRqTnP+6YB6ipzx150Fv5VALlsDUs0a6COcetSXeIKx8SA5dATJMDbWfWnS4nYf4k8rOKM3bTd9sYVtSWk5TI35gwdhpp1E9M4Ii4uwqGywWAsFRGVZggFY5R8qz+H+kK/wCCcU40OfwAw2uUKCniG0kxVzD/AEm4hRbU3UbwnOShkEeWDAzTzMLHrQO7boUQMcNkAxuHxC3D/wDhiFkmBazbkwJE8o2969XBEjXguJn0t3QI+VaVfpSvHIC1oEqxeA0KR5VGgJnrIj1p4+lBzzAOTNAdSA42tiUJM/emBRwIuI+p/KJ3ko4D2QfhfZ1muKV4XirZGzsYC6Hk2/8Ami/HOB4vuXAskAgyzTCqYzMQJOgk6TSv/SLdMmbcBA0KzAyT/pz3mpHWAPWk/wBINwZvEpjLAV38Wbzedj5ecxziaC+KNzw4EivVRz3kUQFQwtrDdybf1SqVVbirdtzfyiQ5fNmXKR6HXbWQQ4ZxkWEy4dLCASJBtqNeZeZJ9SSaB8VFvuzcW3bQknKykHMDsyggR1gdaw2Hv3e+YoHcAkNAJ68thzioGPkOh2QSS0a0uz4TtMjEC8yTPmS8GBnmUhstEbXaAlsgOa2SQCci5REySrMPmAfSuZDgeMZJ/pzqNCyDb0ymaDYXE5Xa1dVrVxTADSJnaZ2Ox9RzpdkmYloOo3CII5CLbquscZxslVRHuADNANsp4uZJJBBIbQTtQjH8fvAlbqBYUsswQTBgypJMTIHL0ms7Zxt5EZhecQDpM7A6a7c6JcI42y5bjgXVKgifCVJbKSfCQdRE1Z01KjGyOcAFZw+FsW0HeqG7x1cs32g9oSTP2ZIJn1Hvz/E2jhbrAFgra5VaDkMwfRh0O8fI7xXjzO7ONBcIhS0wT6EzHT1351lbN93v52Ge4zSxJAnmZ99vSmsLC7xZ9jwTGImyhhZ/YLVXsU4W03nRkBzRuwGpOpAOoPWn37o7sNcGAKkaD6zMTlGjKhkvC6+oofceLFyyZXMC9qeUH6203qpzEf8AFryrO42+SwGbLoJAHwn8BWYoe5cQfpy4KpMUJ42mtR910nB4u6AjouB1RcpLXScqqptGC+4ganUVm7vHlzM/ixF4glmcwikTAS2fNA5mNtAKzDWYGrg+n8PqaZhyTchTGm0dVg0wCzc6+f8A6g3qMor6/wCIhjMb3hL3nzPlECdBqBAG2xOtVFxxLADTXly5VNgsA4zGYDIVOxMNuJ25D1opw7gN1gDbt5QT5n00jfXX5Chy4po4q2YZ7yCUDsYK40FvCPX0PTf8KM4gh7fiXMcywI3MPsPlzO9arD9nrQIzsTBOggbzEk/pFXkspbBKBE05joImNWakXYpztvwnI8E0Pvc9Nd1lcLwe6wHhyrG7aR7Lv+FFrHA0GUMSxP2QI9tPMR60TXFaqVDsCQOSjcAmYJieVQ47Fhdr1lI3AZZ6c5PypbNe/wBEw4xxaOIb5mz7BSW7du2IChE3JAA/PfTqRypqY22uoaf7Vn/qPL2JqnhOHnEv9WXuCVmTCzBdmYkT5cuuvpvQDiHaF8Oz4cIoyMRqCTEypBmIykEaGZFH7l+mUboL8VCG3Rd0vKPnotNcx7PL20UiSc5IOu8rEKPlUHHRiLdjO6O6l5DKqnKfCuqzoCAIMbqNddanYfHG9cF265aLoRbcqFkqSXZQIMDQT60W4j2hvh7oUfVqrNkCqwcBZKsDrB2JBEamDtS7Q4YjJx43aozvfHq1rRwoa+5/Sy9rjBuAgdwrak5cNZViDqYJnUyx1PzqTH8ZxNm0hNoWVYDK5BYtvrEKBOv6VbwnCsJjGFyyHAEG4pbxBmglAW8wEt4ucjnVvDsrLdw/cPdymIWWCLE6E/ZE+Ua66V0JGAC3cNweH+JXumy+F23Dlaw+N4xcuznuO8+sD5CKpnGx5VUeoAnlz32miowFkMYUkA6ZiZ9iPTarKd2vlVR7AVRmY3QNQxFXGkBR7rMCA7ajWDyP7Vqbtsd2cug5aT8Tp6VSuYirHDeIDIdRBlYIO3P4iedV3hdwpdXsumvc3mFnn4fClmfSNlGpnlrXgwQO9u//ANP6itV2fxKqyqgDXSSWJWcijQBfcxJ9QK117hlq4czopaNTqPyrYkdxRGdktOrneyw97gN7WbbKVjN5dA3kmD9o7Rvyr3/09iNALZnMViQCXAkpGbcCSRvFdMsYWFh/GSVJLKoJKeSQAPLy6aVMLazOUA5i0jfMwhmB6kSCd6JlXG71cnbgl4CcoiC0yCMq+ZpnYHnyprcGvhoyHdRryLDwg+/LrXWGwqRARYyFIgRkO6RtlJ3XY1Us4K53hZ7gYEggBRMrGRmMbqBAM6VKWhIueWeCXp8uni2j7B8fMeXn0+NOucFxMH6sySo5al/L7FuXWunLhVH2Rsw25Pq41GzHU9edTvhwAWhTHi5DVR4deUbAnarpUZFiuEW7NrCBsSjC4pYKpCEPDNOVtYAIyn7poNh89vu7ltFt3FJJCrDOGJIUsYLaR5jBncSJJ47iKupi4ufxEJbGYqZ0ysrBTMk6H111omqXg1rGNZuLbQTcgnvHkKSXgSuUqJ6E6aa1rDkBxLxQS0ri4Ui/AuIi9bDpcRLizKNPhA8y3BMgkDeNI50/tBwOzjUDMMtxNUuaSI1hjzXn8ZFUuL8JS9bTEYPVijIwGzk6gP8A7+s6HaeYn4fjEGHZ8zk/cIObLmKnKNQ0TyiSI9kO08F3tYiA1ID7jl+LRcHiCw5X7LnPEMe2WFV0liLsyVIBXJlJEw0Ny5c5qPh+PdCFuMHVCBlkgspOaFI0gEk1Yw91ghKsGh7qZd4VQDmHpB09hVm1xZMo7spkQFMt1tTnmDAXWOvx0rpNAXoYsFDkBJ3+c/RU+L65lW2QymD4gw1GkeH+ctqF4G2IYNu3gLGRlnRp6groRRNb9u3ILqxEr4FOpbc5mHLrHtVzhuEN6213KMocW4AMsCIJk7nxCT6+gpiGQh97pDtPBQRwXHpqPm6KdoOEhbRKM5ZCpDMVLFlUQ2gAEiBBHrzoBw3g4xWV7YtjLAuKdxudBlOh5f4o9bxGUi4xLJenvRB0cQGI6GSGHoYrNNcfB4psug9Oak6jX+bUhh3PmjMbtHC68uXodPZc5zG4d4du133RlexzmBlWfjOp0+zVi12etW3DXGVFhfCSPEQoBOwMTJiNOtTYUO+Gu4hnYtK5CrQI11283gaV5FRE1jb3F2a6pyqoYjMZLGWPiJPXX8BQDFIfCSni+NlODd9vlroODewhi3bLERqfXQanbblVHi/aVkEKyK3ijadI6mdi3yrCHi14uJuNAMQNJAOxj9aqXkBLSYluZ6mBJq2YTKbJWH4x5BDWiuuv4H0K2mH4wXxHdHPdzgKADqJny9SVI9JPKrGN41dtp3IXuwGyrbKvJVVMMQYEtBkidhqNJG9jscLOPU3LeZgABAltAJCf7oUifnWo45j8RafucSha4rB7F9QMygLJXKZBbIWJUk6TA2qxFbqAWHyOoteb6cFgjjMVcQ6tkUKuUmFgggeHQEQOdVLmEYCXdRAJgSdB6CBRLtEP6aLSsXnxMSADIkBYBjSSZH3vSmX+Ht3ZPid/KFtgzJTPpEkiJM6bHSt6tIqggCNosAbLe9nb2Jw1g3LeRlPd23UNle2q28qspg+NgwYluoG1Zvi/A7t6xf4g8sRdCEXPFcAIGUn7IgMojlrtFT4LihtXMpJDXJksAwLDRYzGAIgR1A5RUnGO0N3IMMFRbdxgbkAy8AFWJJ3lFERuetDEpLwwpqSKhdrPdlMcy4pF0yyM2gEEHfT0zfjWzNoriEVdT3hEDmpJkR/adqxAfLdGQKFGmkagxvzY6mJrqHBUF7FhxLBLTMsCJdhaCgToPPMgDn70CVv87XAbg/RW8ZYgOqyGDwpwguzatXrediEbvJQKxUMGQQAV5E/jQfDcYuC5ntt3YubQAFDgzEbQc2/rrpXReM8Ft22vh3Z3ZkHI5IRSF8UjKGkgQRWM49gPqS7R4SoSCJYkgGEzsttAMxMRJg8qdMriws5oIZqCEK7UHLkuFYe5JPLUGGmPn8amwWDfEWwi5QbeXO0GAXJCqx0EzpqRrVnhiW8TbFq4T3tnVCeY5e8bfD2oseEXcPgrptOpa542ZnQgJkaRlIjNmJ+fpScbwR3ZNOHwJigbcRvSyHFcObBgkyDHudQRHL5mouDYmZUgTmJHsd/0oz2d7PY3FAEWzdQTDOSFBII/1G0MdBNVeJ9lcTgbiNeVYeSrK4IYrBK9QYncU4xhDCHb81vDvEU4/Kk4dxRcM1xiha4QMm0QCSQZ11MbdKt2e3NyP/11Prmb9qG8ewsotxRtBPy116aHeg1rFZRA/Orja0jVH7QxU0UlMNA67LvYVj9lvkacmFuNsjfKtYlpj5mn0Aj56makNoRHpy50zS4Kx5w9wfYPyn8qdcsOrBSpBOwPyrWmBAkgk8gNfw9Khu2bJK6SV2P6nrtVUrtYztPjbmCtq7Wc2ZsvmEAxOsSdap8N7U2Gg3ctt+UliDy8EQJ1961Xa3ALfwly0plz4kWN2XUAD1gia43/AFDsqiMq+XMB00MHcnbQEChSEg9ERrQ4LpeHuWgSURVB3CsoGpmdMxk9DzqLFX2zd4xgJqqjXYEfWOSOp6+8zXNMPba2We0SAAfMBqTyZdtT0131qzie0neWxaCLbYf6gAEabZT05nY8uWpIYRiHZHbHfyQprhYZKJr5yR/EcSttL2WuKt0ZsqOFBuLCkZchynQAmfbWifEsRatYa8yMGuKgZIbXxAoSTMsZk7A6iuY4LindXDmBZS2aOpEQy+v6e1ajEXw9syQwJDZiRKnUyvUGeWpmKyMOMOBFZoHQ8+V9a0Q85kOdZvh15ABCFDCpMnnOYkHkwO3p6mn4nhrZlKqLivKLtOn5HnNFu4BBcQZlGJ+6dNY1BB1HMR609lCwGUocgFu4CwV3BjvF05jQjqDRXMpes7PxMWKiDNnDhp8r9oV/RZkUpZAzfVSzL5xJLDXTQHX03rT9m4ZMoTKpaQFn7qrPxInagGOS3aDPbDg+EWyGB8UeOSB01jTc1ouyeGJsuQDl8eQsPUgSP5yqR6E3ySvbZDIAwb2PystxvHXcPiWtsfqlPlHQgNn/ALttfSiHaTCm/Ys311IUofdRp7llHzA61Z+knB/WoeTpHxRjP4MBRrsz2WxFyyTddWs3rKMozsWLEKVIlRkgabnX0pJ5cC2ZmpH1HH8+i50jQY8h2O3QrF9luMi2wt3D9S7ozDoynRvaCQfeeVbLAcGtLlLd3BChSbrDJbItRqBsvePBIk5Y9axXHeBtbuOAZZGIaOZHT/d1X/NLg3G8hVLwZrYkAqfEoIYGBIBHibT13FOvhbL/ACx8R89UlFMYnBkmwWhwvA1c5ktl7guXHgKSpUkhSZbQAPIYknYba1X7O2kGLVARbEOHNlgzOMs+bMdpaTMGI5g1t+zXC7DqL2GxReVKtIBOuWcwYllPhFVLP0d5bpuridSuXyNPvmFyRppodvalS1zePunBM124odOf7WftphLGKOJTvLtnuSEuMGhr5bxQcu2pEb6tvGl3jmJGMAYQHQasDztkkROsqATrvG3Ungvo/e1bKLiyQZMd3E9VnMYBkiYO/PasbjrOKOJdQlpChUO4vrBAMZ4ZlLaDkOUb1uGmuLnb7eiziMr3eA35qtj8A1y8Ripi3aZwUhc0Zcx1BGmsgDkNqL2rgw39Q1sStpbWS6QpdZtgqZgKc6lVPQctddL2U7PlGuG5iO9dhAY+Xu4EAKW0Om8bfjor3AQ2XxLAM7b+EqJ+dAeC51i6V95obqzusRhsMuIwuS4DtnF1cg+smA3Vdc4I10gispikbMUK62zmKt7wQNdZ8w19ia0PbXCG3iyokFgGt5FJMBYkKBupDEjoTTeGcLvYtiMTbe1byMO+YG30PhDjy8vF96aVEbgSSePsn8sfdA5taR+7xLDjhqrdy4a5cRkIVIMhe7DNkGgOVYJ3j0q32Kv5LzPaQuhthlUbhWyNp1ALnQcvan8M7PrctIUvC4qSucqwz5dJ1328w3ih/GLt/DXS+HIN20JncMFUl1I3IyTp6CNQKYfbiCeHFc46WAd0b47fVr13wEgrbuK6gzMEQTGnlOh/Wsd2kv27lhzbhifCYGoYEGIiQTG1OsdpcTiryIe7s3r2ZUIQ5Qqy7MFYt4iTudND0ofa4Ves8TspccO15gQ+4cAzI6EFRtSzGyd4TenD5+0zFGcucOFjgeizfB7jNcCqhzrOU+FYjfxMQCPTnyrU4bjd1FuKoCPBV0KoxRp1ZMwIMwROoIJ+HQH4Q5nRD8ems7VTxPAnYGUQnYSQT76jrRZI8zg5oooZmzXmVDsaLzXLt440X2VGBDNe0UwVyoUVZDBdV5TWH4th3xuNs3e9Q27iaXEV8oCTKlSoKsZ57z8K0/AuHYzC4q2y4ci1LK8XLeq3G1IGf7KhdB900uH9l8RbvX1CA2ixNs508pJO0yNCPxpszOyVWqBu+1WscEsFQjXWIGh+rAkHlqwPxj4VkuI9kAjxbvysDz22n/pkEetbz/0viQ+dUG8xnT96JHhN/naU+7J+9Aa9zTojSyGSsxtbN7JmO9dfTwf/AM04WdILXPeYn2gbU9LQiCS3vrNJ0UTPP1afhrT6STbCICJBmIBlidffT5elMt3VA8qrmE6RMe52/wA0+667Zc079PjJ1p3ek+HTQfZ5emlRReCygggCeuk+0npWX7TdkbN9kZXSywJzZVEMpnZZ1aefvM6VrVO259So19+cVmO0/AGuv31og3IhlBEMBsV5T6H057ilvLoFtm6wmN7KY43BbtpmtKzQ5KiViQfNvpsetZbtBwm7ZKm4ADGhBkEAxHowIMqa6Hb4zesNluK2+shgy+rDcj1396Cdv8VNoHNPeGAIB31OvQBf+qlWSuDxSca4luU6hYfFlXVWVAsaHXnHIctpq3wLFuTkLSixpHUgRO8b6TQyKK9mtGf2GvIamTHxFdCSTPV8Es2ERA0tYmHWHiQYbc6hl1EwYI9TVWwhZQTp1nQftqauJeBUxIziMxPKTOUfoBBqpZxDLcJBIRtIHlIg7a7859550uyRwsDghiIO1pV72VMudtJ9Trz0G+pozie0eEW0wV3H1ZK/VGSWEA8hvrQDi0lM0iQIOmoPoOmo19twaFcTskKSRtbtDl95B4ufUUxDLmNHigPiFE8lrOKWmxOBtss3biXGBygkkHNm0HTwT7Vtuy2NtCxYw/eK11LNtXRfFlKoAQSBAggjWsV9HWO+ruK2uS4HI6q4yv8A9q/81dTFpAIRQo5BQANdZgUOWPu3liPHKZIgqd3hlliSbNsyIPgWSPXSsjx/6ObF2Wsk2n6bqT68/jNbaQDufmf2pG6OVU17m7KnMDt1xb/01jMJczy1oja4kkH35R6GutcDxTXrCXG1YiGIBgkGCR7xPxq+F/mlOGg009hRJJg8AVqhxxFh30TTaOunziohgbf3E+S1OJNOFARwoLeDVTKogPUKAfnFSGen5VIaZmFUrQji3ZuxiGD3M4cCAyXGUgAkiIMTqdYqje7HI4g4jElejOjjT/7EatG1wUu9FVQUTcNhyiBQSQoAk6kx7CnHDqSGKgsOdOUj+Gs5xjs7duliuMur0VgCB6ArlIHzqKLEfSFwW9YvDEqc6l2AkkwhUeF52EkgQeXWi/YXCLiGt4gHKLBaEBWczpDeuUiNdJy+9U8d2HxZDeJH/wCI5jG3mH60P4P2TxZuADNaAiWZWHhnUAgAE+hIrOUDQLWY0uum4elNa76fz50ItcEVWz572Y7/AFz5ZJkwkkATy2q2MKfvufcj9q1azSs95XneelMCn1+ZpMf5NSwopGunkB8/8U3vD0phPoa9zfyaq1Ffe/bALFiR6a/AgAmvLGLtseenLK3pzy+tUBd+6Z/nqYHyqR2b759gB+1FzFZyhEXxYXZR7+ED85qM49idAVXpI/MGqBY82b4mnu8LoT7k1CSpQV18TcMQdwPYdd9z8f8APrO4HgEf+Paha41vvT8RUveM27H2/mtVZVgBOxuEe7lD21KidzrJ2gxIHWDNZTtR9H39Qs2nCOk5VJlTMSG1JG24+RrYYdIpFhMEiehIn3is0LtaDiNl878QwNyy7W7qFHXcH8COo9RpUgdrOgjUCZ56SRI1512ntJg8DdXJimt6ajxQ4/tjXXpsaxmP7P8ADrgOTE3lM6EpPyGUEj3Irdo7ZGEEOWQw/GiCMyA9YP6GZ+NGbfGbLbvow1zCCDmAHUHSDppofaoT2aw4J/8AcXWHKLKL+Jut+VWuH9hP6gO1u5lVSB4zJJ3PlXkPzGtZfR1Kx4dghmIxIukW7ZDOZGh0IEk68tBI9DFQ8W4jmtujKyNKLBG4BkkkGPsrrr+E0W4VhFwWIS6om6mYDPsGKkEgCORbeRrVzi+I/qbq3ryqzKAB4QRAJIlYg7ncGiQuZeZAlaToOKG9g7mW+QT4XU2z/cwzpz624+Ndg4PiBcsqd4GU6ncaa+4g/GuQcPtdwxZTqSI9CPLHtofcCi+B43ftE+JiDurM4HvCkRRMS7vJMwQoWFjMpXVLdoDYUK4lx3D2DFy6gPSZ+YEkUG4NxO3iT3bWb0xqTduumnWW0n1FHMLwpLf+nYtJ6hF/Ol0YKG32hsOJW9bb07xfy3q3YxJO2UjqCfzqXun+8B/PapUtj70/KrUUaYhvu/KnFp61OLXSmhKpUoyOv6V53Q6/gKfceOUinAVFaiNoVGGWJE/I/lVqa8KzVKKJSeVewadl9R86ZmH3qlK17pTc4/gr0t6zTFBn/wAVVKL0tS7z0r0rpXkDpVUovC1RFF6VIT6U1j6VVK7TO7HI/jXnd+p+demm5/X8apRSpaf/AGj4ml3Dc3Eeg/zXiBtyYqU3oopWU0WBO/4VI8HQyflUXfMeVeZm9hVKKZEUfZ+dSKegAqstscyTUy3PQVaqln+J4XiLA5MRZC66BMvwlg3z0rE8QOItec2gTzXuM3/QM3x0rovEuDWcQR3oZo2AdgPkDFSYDhFiyPBaRfWNf+Y61QWlzLBcKxN0TbtOR1iB820olZ7IYtokIk/ecfks10Vr49/WmGG0DCtWqWOw/YR//kvgeiox/ExR2xwSxbXJba4g3bK/mMASZB6DaKM9xpqSaaCo5fgKydd1Y0QN+zuCOpsyfvFnn381XE7P4flatxpEg/jRHvQdo/CkX9fwqxooUJxXZmyYNtFttIJIA2GkLKkKfYUD4p2YcszXLzEaxcc5gNfCHO6jUidhvzga4/GpF9ATUsqlgrNjiOGAFuWt7jLldTPQb/Kph22xKkC5hpI3AFxT66GfyrY2+HqP9MlNZKqBlJ5+E6fEQaldI1zAfOrHVRZSz24sExet3LR9RI/f8KM4TtDhLkBMSknkWAM+zQavsisI0NRDh9uJNpT08Kn9Kiiugxzr3vqiQtz29acfUj4VSi9AFeiORFeG3FLKOlRUpAtI2pqLOOh/Gor2Ky8m+Aqla9u4boDUXcEb0+zjQef89qkNyd4/H8dKu1FAWApx9B+FJr33YqNsSek+gqKJ5Zv4P801nPKP58KSXp+yfzpwM1SiSuen40/4UxlpB/WoqT4qNl9aRemz6VRV2pr9Q3fL8f1pUqtRWP2qHnSpVahXoqzapUqtUpDQ/F7/AC/KlSqK04eWla8w9xSpVfBRXzUGI2pUqyooLO5968bf4ClSqKBPO386UrW3wpUqtROXanXNh/Ote0qpRVcP5j8KIJSpVFCob361XevaVRQKWxUw2pUqiiZ+9ec6VKooqLfaqFdvhSpVatS2tvh+1eWfP8KVKqKiICoblKlU4Kk5NqialSqiommvRSpVAqK//9k=",
+    "price": 25e3,
+    "duration": 6,
+    "nights": 5,
+    "category": "Culture",
+    "rating": 4.8,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast & dinner, Airport transfers, Local sightseeing, Monastery visits, Permits",
+    "excludedItems": "Flights, Personal expenses, Entry fees",
+    "itinerary": "Day 1: Arrive Leh, acclimatization. Day 2: Leh local - monasteries. Day 3: Leh to Nubra Valley. Day 4: Nubra Valley to Pangong Lake. Day 5: Pangong to Leh. Day 6: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2005,
+    "destinationId": 5,
+    "destinationName": "Spiti Valley, India",
+    "title": "Spiti Winter Expedition (7D/6N)",
+    "description": "Experience the surreal beauty of Spiti Valley in winter, a challenging yet rewarding journey through snow-covered landscapes and frozen rivers like Pin Valley.",
+    "imageUrl": "https://dashboard.enlivetrips.com/storage/blog/Spiti%20in%20Winters.jpg",
+    "price": 35e3,
+    "duration": 7,
+    "nights": 6,
+    "category": "Adventure",
+    "rating": 4.7,
+    "hotelStars": 2,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Homestay accommodation, All meals, 4x4 transport, Guide, Permits, Winter gear",
+    "excludedItems": "Flights, Personal expenses, High altitude sickness medication",
+    "itinerary": "Day 1: Shimla to Kalpa. Day 2: Kalpa to Kaza. Day 3: Kaza local - Key, Kibber. Day 4: Pin Valley. Day 5: Langza, Hikkim, Komic. Day 6: Kaza to Shimla. Day 7: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2006,
+    "destinationId": 5,
+    "destinationName": "Spiti Valley, India",
+    "title": "Spiti Photography Tour (6D/5N)",
+    "description": "Capture the breathtaking landscapes and unique culture of Spiti Valley on a specialized photography tour, visiting Key Monastery and Hikkim.",
+    "imageUrl": "https://siaphotography.in/assets/img/phototours/photography-tours-609979464.jpg",
+    "price": 3e4,
+    "duration": 6,
+    "nights": 5,
+    "category": "Photography",
+    "rating": 4.8,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast & dinner, Transfers, Photography guide, Permits",
+    "excludedItems": "Flights, Camera gear, Personal expenses",
+    "itinerary": "Day 1: Shimla to Sangla. Day 2: Sangla to Kaza. Day 3: Kaza local - Key, Kibber. Day 4: Langza, Hikkim, Komic. Day 5: Pin Valley. Day 6: Kaza to Manali/Shimla.",
+    "featured": true
+  },
+  {
+    "id": 2007,
+    "destinationId": 6,
+    "destinationName": "Uttarakhand, India",
+    "title": "Uttarakhand Hill Station Hopping (6D/5N)",
+    "description": "Discover the serene beauty of Uttarakhand's popular hill stations, including Nainital, Mussoorie, and a wildlife safari in Corbett National Park.",
+    "imageUrl": "https://lh7-rt.googleusercontent.com/docsz/AD_4nXc76XVC4dTNxUBjHTNuZzUU_EKsL9NEfrLlQtuK6MvMjMVBVtPZjEuCpfcZrxZjy5A8qNuSifx9BzZ4QQckI_394_lt1hUibvf5pfjnfMT9KS38jyLsq3y1p0hj2nUy-I-D_ann?key=zkvcQnBFMC5e8pFx15rMv3y-",
+    "price": 22e3,
+    "duration": 6,
+    "nights": 5,
+    "category": "Nature",
+    "rating": 4.6,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast & dinner, Transfers, Local sightseeing, Boat ride in Naini Lake, Cable car ride",
+    "excludedItems": "Flights, Personal expenses, Safari charges",
+    "itinerary": "Day 1: Delhi to Nainital. Day 2: Nainital local. Day 3: Nainital to Corbett. Day 4: Corbett Safari. Day 5: Corbett to Mussoorie. Day 6: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2008,
+    "destinationId": 6,
+    "destinationName": "Uttarakhand, India",
+    "title": "Rishikesh Adventure Getaway (4D/3N)",
+    "description": "An exciting short trip to Rishikesh, the adventure capital of India, offering white-water rafting, optional bungee jumping, and spiritual Ganga Aarti experiences.",
+    "imageUrl": "https://www.lovelytrails.com/admin/image.php?path=privateToursImages%2F16274784070.jpg",
+    "price": 12e3,
+    "duration": 4,
+    "nights": 3,
+    "category": "Adventure",
+    "rating": 4.7,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast & dinner, Transfers, White-water rafting, Ganga Aarti, Yoga session",
+    "excludedItems": "Flights, Personal expenses, Bungee jumping charges",
+    "itinerary": "Day 1: Delhi to Rishikesh. Day 2: White-water rafting, Laxman Jhula, Ram Jhula. Day 3: Bungee jumping (optional), Ganga Aarti. Day 4: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2009,
+    "destinationId": 7,
+    "destinationName": "Jaipur, India",
+    "title": "Jaipur Heritage Walk (4D/3N)",
+    "description": "Immerse yourself in the royal history and vibrant culture of Jaipur with guided heritage walks and visits to iconic palaces and forts like Amer Fort and City Palace.",
+    "imageUrl": "https://i.ytimg.com/vi/hQ3m1913ggw/maxresdefault.jpg",
+    "price": 15e3,
+    "duration": 4,
+    "nights": 3,
+    "category": "Heritage",
+    "rating": 4.7,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast, Transfers, Guided city tour, Amer Fort, Hawa Mahal, City Palace, Jantar Mantar",
+    "excludedItems": "Flights, Lunch & dinner, Personal shopping, Entry fees",
+    "itinerary": "Day 1: Arrive Jaipur, check-in, Hawa Mahal. Day 2: Amer Fort, Jaigarh Fort, Nahargarh Fort. Day 3: City Palace, Jantar Mantar, local markets. Day 4: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2010,
+    "destinationId": 7,
+    "destinationName": "Jaipur, India",
+    "title": "Jaipur Food & Culture Tour (3D/2N)",
+    "description": "A short but immersive tour of Jaipur focusing on its culinary delights with food walks and rich cultural traditions including local markets.",
+    "imageUrl": "https://align-labs.s3.ap-south-1.amazonaws.com/article-images/2026/03/8dbe5e541c414bcc8e756f308d1393da.png",
+    "price": 1e4,
+    "duration": 3,
+    "nights": 2,
+    "category": "Culture",
+    "rating": 4.6,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast, Transfers, Food walk, Cooking class, Cultural show",
+    "excludedItems": "Flights, Personal shopping",
+    "itinerary": "Day 1: Arrive Jaipur, check-in, evening food walk. Day 2: Cooking class, cultural show, local market. Day 3: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2011,
+    "destinationId": 8,
+    "destinationName": "Udaipur, India",
+    "title": "Udaipur Romantic Escape (4D/3N)",
+    "description": "A romantic getaway to Udaipur, the City of Lakes, featuring boat rides on Lake Pichola, palace visits, and serene sunsets.",
+    "imageUrl": "https://prod-bloom-website.s3.ap-southeast-1.amazonaws.com/content/1724310774274-Desktop.jpg",
+    "price": 16e3,
+    "duration": 4,
+    "nights": 3,
+    "category": "Honeymoon",
+    "rating": 4.8,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast, Transfers, Boat ride on Lake Pichola, City Palace, Jag Mandir, Saheliyon-ki-Bari",
+    "excludedItems": "Flights, Lunch & dinner, Personal shopping, Entry fees",
+    "itinerary": "Day 1: Arrive Udaipur, check-in, Lake Pichola boat ride. Day 2: City Palace, Jag Mandir, Jagdish Temple. Day 3: Saheliyon-ki-Bari, Fateh Sagar Lake, local markets. Day 4: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2012,
+    "destinationId": 8,
+    "destinationName": "Udaipur, India",
+    "title": "Udaipur Lakes & Palaces (3D/2N)",
+    "description": "A quick tour of Udaipur's most iconic lakes and majestic palaces like City Palace, perfect for a short cultural immersion.",
+    "imageUrl": "https://dynamic-media-cdn.tripadvisor.com/media/photo-o/30/77/ea/4b/royalty-meets-fairy-tale.jpg?w=900&h=500&s=1",
+    "price": 1e4,
+    "duration": 3,
+    "nights": 2,
+    "category": "Heritage",
+    "rating": 4.7,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast, Transfers, City Palace, Lake Pichola, Jagdish Temple",
+    "excludedItems": "Flights, Lunch & dinner, Personal shopping",
+    "itinerary": "Day 1: Arrive Udaipur, check-in, City Palace. Day 2: Lake Pichola boat ride, Jagdish Temple, local markets. Day 3: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2013,
+    "destinationId": 9,
+    "destinationName": "Meghalaya, India",
+    "title": "Meghalaya Living Root Bridges Trek (7D/6N)",
+    "description": "An adventurous trek to explore the unique Double Decker Living Root Bridges and stunning natural beauty of Meghalaya, including Dawki.",
+    "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS72DQKTyeCXGQPnR31KwWmJU1Uzs4wOaVgbg&s",
+    "price": 28e3,
+    "duration": 7,
+    "nights": 6,
+    "category": "Adventure",
+    "rating": 4.8,
+    "hotelStars": 2,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, All meals, Transfers, Trekking guide, Living Root Bridge trek, Dawki boating",
+    "excludedItems": "Flights, Personal gear, Permits",
+    "itinerary": "Day 1: Arrive Guwahati, transfer to Shillong. Day 2: Shillong local. Day 3: Cherrapunji, Double Decker Living Root Bridge. Day 4: Mawlynnong, Dawki. Day 5: Krang Suri Falls, Jowai. Day 6: Laitlum Canyons, back to Shillong. Day 7: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2014,
+    "destinationId": 9,
+    "destinationName": "Meghalaya, India",
+    "title": "Meghalaya Waterfalls & Caves (5D/4N)",
+    "description": "Discover the enchanting Nohkalikai Falls and mysterious Mawsmai Caves of Meghalaya, the abode of clouds.",
+    "imageUrl": "https://i.ytimg.com/vi/xx_VY5VkaDU/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLBG9O_mhdyOy8bN5JA_1bpd6LTJJg",
+    "price": 2e4,
+    "duration": 5,
+    "nights": 4,
+    "category": "Nature",
+    "rating": 4.7,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast & dinner, Transfers, Nohkalikai Falls, Mawsmai Cave, Seven Sisters Falls",
+    "excludedItems": "Flights, Personal expenses, Caving equipment",
+    "itinerary": "Day 1: Arrive Guwahati, transfer to Shillong. Day 2: Shillong local, Elephant Falls. Day 3: Cherrapunji - Nohkalikai Falls, Mawsmai Cave. Day 4: Dawki, Mawlynnong. Day 5: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2015,
+    "destinationId": 10,
+    "destinationName": "Sikkim, India",
+    "title": "East Sikkim Delights (6D/5N)",
+    "description": "Explore the charming capital Gangtok, the serene Tsomgo Lake, and the sacred Baba Mandir in East Sikkim, with panoramic views.",
+    "imageUrl": "data:image/jpeg;base64,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",
+    "price": 25e3,
+    "duration": 6,
+    "nights": 5,
+    "category": "Nature",
+    "rating": 4.7,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast & dinner, Transfers, Gangtok sightseeing, Tsomgo Lake, Baba Mandir, Permits",
+    "excludedItems": "Flights, Personal expenses, Nathula Pass permit",
+    "itinerary": "Day 1: Arrive Bagdogra, transfer to Gangtok. Day 2: Gangtok local sightseeing. Day 3: Tsomgo Lake, Baba Mandir. Day 4: Namchi, Ravangla. Day 5: Pelling. Day 6: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2016,
+    "destinationId": 10,
+    "destinationName": "Sikkim, India",
+    "title": "West Sikkim Cultural Trail (7D/6N)",
+    "description": "A journey through the cultural heartland of West Sikkim, visiting ancient monasteries like Pemayangtse, serene Khecheopalri Lake, and offering panoramic Himalayan views.",
+    "imageUrl": "https://images.squarespace-cdn.com/content/v1/61e7e5a3cf6ffc194bbf16f4/0feaed81-72ba-4c48-bc18-95497cf357bc/IMG_1132.jpg",
+    "price": 3e4,
+    "duration": 7,
+    "nights": 6,
+    "category": "Culture",
+    "rating": 4.8,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast & dinner, Transfers, Pelling sightseeing, Yuksom, Khecheopalri Lake, Pemayangtse Monastery",
+    "excludedItems": "Flights, Personal expenses, Permits",
+    "itinerary": "Day 1: Arrive Bagdogra, transfer to Pelling. Day 2: Pelling local sightseeing. Day 3: Yuksom, Khecheopalri Lake. Day 4: Ravangla, Namchi. Day 5: Gangtok. Day 6: Tsomgo Lake, Baba Mandir. Day 7: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2017,
+    "destinationId": 12,
+    "destinationName": "Andaman, India",
+    "title": "Andaman Scuba & Snorkel (7D/6N)",
+    "description": "Dive into the crystal-clear waters of Andaman, exploring vibrant coral reefs and marine life with dedicated scuba and snorkeling sessions at Havelock Island.",
+    "imageUrl": "https://www.diveandaman.com/storage/blogs/180425093200-CostofSnorkellingintheAndamanIslands.jpg",
+    "price": 35e3,
+    "duration": 7,
+    "nights": 6,
+    "category": "Adventure",
+    "rating": 4.8,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast, Transfers, Scuba diving session, Snorkeling, Havelock Island, Neil Island, Cellular Jail",
+    "excludedItems": "Flights, Personal expenses, Advanced diving courses",
+    "itinerary": "Day 1: Arrive Port Blair, Cellular Jail. Day 2: Port Blair to Havelock, Radhanagar Beach. Day 3: Scuba diving, Elephant Beach. Day 4: Havelock to Neil Island, Bharatpur Beach. Day 5: Neil Island to Port Blair. Day 6: Ross Island, North Bay. Day 7: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2018,
+    "destinationId": 12,
+    "destinationName": "Andaman, India",
+    "title": "Andaman Family Fun (5D/4N)",
+    "description": "A perfect family vacation to the Andaman Islands, combining relaxing beach time at Radhanagar with exciting activities like a Light & Sound Show for all ages.",
+    "imageUrl": "https://www.deforetresorts.com/_next/image?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2Fnmkwfwlr%2Fproduction%2F2c69bd9f0cfcf42ccb649fda329930d457f60a53-1200x675.jpg%3Ffit%3Dmax%26auto%3Dformat&w=3840&q=75",
+    "price": 25e3,
+    "duration": 5,
+    "nights": 4,
+    "category": "Family",
+    "rating": 4.7,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast, Transfers, Havelock Island, Radhanagar Beach, Light & Sound Show",
+    "excludedItems": "Flights, Personal expenses, Water sports",
+    "itinerary": "Day 1: Arrive Port Blair, Cellular Jail, Light & Sound Show. Day 2: Port Blair to Havelock, Radhanagar Beach. Day 3: Elephant Beach, Snorkeling. Day 4: Havelock to Port Blair. Day 5: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2019,
+    "destinationId": 19,
+    "destinationName": "Dubai, UAE",
+    "title": "Dubai Family Adventure (6D/5N)",
+    "description": "An exciting family trip to Dubai, featuring theme parks like Dubai Parks & Resorts, desert adventures, and iconic city attractions like Burj Khalifa.",
+    "imageUrl": "https://res.cloudinary.com/ddjuftfy2/image/upload/f_webp,c_fill,q_auto/memphis/large/38d443b8e2ab781c7beca02c8ef15e4c.jpg",
+    "price": 6e4,
+    "duration": 6,
+    "nights": 5,
+    "category": "Family",
+    "rating": 4.8,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast, Transfers, Dubai Parks & Resorts, Desert Safari, Burj Khalifa, Dubai Aquarium",
+    "excludedItems": "Flights, Visa, Lunch & dinner, Personal shopping",
+    "itinerary": "Day 1: Arrive Dubai, check-in, Dubai Mall. Day 2: Dubai Parks & Resorts. Day 3: Desert Safari. Day 4: Burj Khalifa, Dubai Aquarium. Day 5: Global Village, Miracle Garden. Day 6: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2020,
+    "destinationId": 19,
+    "destinationName": "Dubai, UAE",
+    "title": "Dubai Shopping Extravaganza (4D/3N)",
+    "description": "A short but intense shopping and luxury experience in Dubai, perfect for fashion enthusiasts and luxury seekers, visiting Dubai Mall and Gold Souk.",
+    "imageUrl": "https://resources.thomascook.in/images/holidays/sightSeeing/DubaishoppingFestival850.jpg",
+    "price": 4e4,
+    "duration": 4,
+    "nights": 3,
+    "category": "Luxury",
+    "rating": 4.7,
+    "hotelStars": 5,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Accommodation, Breakfast, Transfers, Dubai Mall, Gold Souk, Spice Souk, City tour",
+    "excludedItems": "Flights, Visa, Lunch & dinner, Personal shopping budget",
+    "itinerary": "Day 1: Arrive Dubai, check-in, Dubai Mall. Day 2: Gold Souk, Spice Souk, Old Dubai. Day 3: Mall of the Emirates, optional Ski Dubai. Day 4: Departure.",
+    "featured": true
+  },
+  {
+    "id": 203,
+    "destinationId": 2,
+    "destinationName": "Bali, Indonesia",
+    "title": "Bali Honeymoon Special (5D/4N)",
+    "description": "A romantic escape featuring flower baths, sunset dinners, and scenic temple tours in the heart of Bali, perfect for honeymooners.",
+    "imageUrl": "https://static.justwravel.com/images/cgnfe1hd/production/6df64b9fedc38a38d05c6b632dfa18253809570e-1768x728.jpg?fm=webp",
+    "price": 38999,
+    "duration": 5,
+    "nights": 4,
+    "category": "Honeymoon",
+    "rating": 4.9,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Private Pool Villa stay, Daily breakfast, Candlelight dinner, Uluwatu sunset tour, Airport transfers",
+    "excludedItems": "Flights, Personal expenses, Visa on arrival",
+    "itinerary": "Day 1: Arrival & Villa check-in. Day 2: Tanah Lot & Uluwatu sunset tour. Day 3: Leisure day with Balinese Spa. Day 4: Nusa Dua beach club experience. Day 5: Souvenir shopping & Departure.",
+    "featured": true
+  },
+  {
+    "id": 2501,
+    "destinationId": 25,
+    "destinationName": "Phuket, Thailand",
+    "title": "Phuket Island Getaway (4D/3N)",
+    "description": "Explore Thailand's largest island, known for its stunning beaches like Patong, vibrant nightlife, and cultural attractions like Big Buddha.",
+    "imageUrl": "https://www.travelandleisure.com/thmb/gRSodi4zEUOM5zkKhFFmnhK_CGE=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc():focal(799x499:801x501)/phuket-thailand-karst-formation-phuket0327-92bd3ce9266148dba74cba5e36c711e2.jpg",
+    "price": 3e4,
+    "duration": 4,
+    "nights": 3,
+    "category": "Beaches",
+    "rating": 4.7,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Premium Hotel stay, Daily breakfast, Phi Phi Island tour by speedboat, Phuket City tour, Airport transfers",
+    "excludedItems": "Flights, National Park entry fees, Personal expenses",
+    "itinerary": "Day 1: Arrive Phuket, evening at Patong beach. Day 2: Full day Phi Phi Island tour with lunch. Day 3: Phuket City tour visiting Big Buddha and Old Town. Day 4: Leisure & Departure.",
+    "featured": true
+  },
+  {
+    "id": 2601,
+    "destinationId": 26,
+    "destinationName": "Krabi, Thailand",
+    "title": "Krabi Beach Explorer (4D/3N)",
+    "description": "Experience stunning limestone cliffs, dense mangrove forests, and hundreds of offshore islands in Krabi, including the 4 Islands tour.",
+    "imageUrl": "https://hblimg.mmtcdn.com/content/hubble/img/tvdestinationimages/mmt/activities/m_Krabi_tv_destination_img_1_l_858_1288.jpg",
+    "price": 28e3,
+    "duration": 4,
+    "nights": 3,
+    "category": "Beaches",
+    "rating": 4.6,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Beachfront Hotel stay, Daily breakfast, 4 Islands tour by Longtail boat, Transfers",
+    "excludedItems": "Flights, Visa fees, Personal tips",
+    "itinerary": "Day 1: Arrive Krabi, transfer to Ao Nang. Day 2: 4 Islands tour (Poda, Chicken, Tup, Phranang Cave). Day 3: Afternoon visit to Tiger Cave Temple or Emerald Pool. Day 4: Departure.",
+    "featured": true
+  },
+  {
+    "id": 1701,
+    "destinationId": 17,
+    "destinationName": "Thailand",
+    "title": "Classic Thailand: Bangkok & Pattaya (6D/5N)",
+    "description": "Explore vibrant cities like Bangkok, ancient temples, and stunning beaches in Pattaya in one comprehensive trip.",
+    "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVchsNqj5f9wJvSIKfLXkzbi1UXObyIxpFxWvX-mB1&s",
+    "price": 25e3,
+    "duration": 6,
+    "nights": 5,
+    "category": "Beaches",
+    "rating": 4.7,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Hotels in Bangkok & Pattaya, Daily breakfast, Coral Island tour, Safari World Bangkok, Airport transfers",
+    "excludedItems": "Flights, Visa, Personal expenses",
+    "itinerary": "Day 1: Arrive Bangkok, transfer to Pattaya. Day 2: Coral Island tour with lunch. Day 3: Pattaya to Bangkok, evening cruise. Day 4: Safari World & Marine Park. Day 5: Bangkok City tour & Temples. Day 6: Departure.",
+    "featured": true
+  },
+  {
+    "id": 1801,
+    "destinationId": 18,
+    "destinationName": "Bhutan",
+    "title": "Glimpse of Bhutan (5D/4N)",
+    "description": "Discover the Land of the Thunder Dragon, known for its monasteries like Tiger's Nest, fortresses, and dramatic landscapes.",
+    "imageUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSLMxITet6FQc0lKKTtNFPQYdOItuZcpScR2g&s",
+    "price": 4e4,
+    "duration": 5,
+    "nights": 4,
+    "category": "Mountains",
+    "rating": 4.8,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Standard Hotel stay, All meals (B/L/D), Sustainable Development Fee (SDF), Bhutanese Guide, Private transfers",
+    "excludedItems": "Flights, Travel insurance, Personal shopping",
+    "itinerary": "Day 1: Arrive Paro, transfer to Thimphu. Day 2: Thimphu city highlights. Day 3: Drive to Paro, visit National Museum. Day 4: Iconic Tiger's Nest Monastery hike. Day 5: Paro Airport drop.",
+    "featured": true
+  },
+  {
+    "id": 2021,
+    "destinationId": 20,
+    "destinationName": "Nepal",
+    "title": "Nepal: Kathmandu & Pokhara (5D/4N)",
+    "description": "Experience breathtaking Himalayan views, ancient temples in Kathmandu, and rich cultural experiences in Nepal, including Pokhara.",
+    "imageUrl": "https://www.alphonsostories.com/AlphonSoStoriesImages/TourImage/kathmandu-pokhara-nepal-delights-2-AlphonSo-Stories.jpg",
+    "price": 28e3,
+    "duration": 5,
+    "nights": 4,
+    "category": "Adventure",
+    "rating": 4.7,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Hotel stay, Daily breakfast, Pashupatinath temple visit, Sarangkot sunrise tour in Pokhara, Transfers",
+    "excludedItems": "Flights, Entry fees to monuments, Adventure sports like paragliding",
+    "itinerary": "Day 1: Arrive Kathmandu. Day 2: Drive to Pokhara, lakeside evening. Day 3: Sarangkot sunrise & Pokhara sightseeing. Day 4: Return to Kathmandu, visit Boudhanath. Day 5: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2101,
+    "destinationId": 21,
+    "destinationName": "Maldives",
+    "title": "Maldives Overwater Luxury (4D/3N)",
+    "description": "Indulge in luxurious overwater bungalows, pristine white-sand beaches, and vibrant coral reefs in the Maldives.",
+    "imageUrl": "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?w=1200&q=80",
+    "price": 6e4,
+    "duration": 4,
+    "nights": 3,
+    "category": "Beaches",
+    "rating": 4.9,
+    "hotelStars": 5,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Overwater Villa stay, Full board meals, Speedboat transfers from Male, Snorkeling gear",
+    "excludedItems": "Flights, Personal expenses, Spa treatments",
+    "itinerary": "Day 1: Arrive Male, speedboat transfer to resort. Day 2: Day for snorkeling & water sports. Day 3: Leisure day on the private island. Day 4: Breakfast & return transfer to Male.",
+    "featured": true
+  },
+  {
+    "id": 2201,
+    "destinationId": 22,
+    "destinationName": "Vietnam",
+    "title": "Vietnam Heritage Trail (6D/5N)",
+    "description": "Discover a land of stunning natural beauty in Halong Bay, rich history in Hanoi, and delicious cuisine in Vietnam.",
+    "imageUrl": "https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&q=80",
+    "price": 3e4,
+    "duration": 6,
+    "nights": 5,
+    "category": "Culture",
+    "rating": 4.6,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Hanoi Hotel, Halong Bay Cruise overnight, Daily breakfast, Halong Bay meals, Airport transfers",
+    "excludedItems": "Flights, Vietnam Visa fees, Tips",
+    "itinerary": "Day 1: Arrive Hanoi. Day 2: Hanoi city tour & Old Quarter. Day 3: Drive to Halong Bay, board cruise. Day 4: Halong Bay activities & return to Hanoi. Day 5: Ninh Binh day trip. Day 6: Departure.",
+    "featured": true
+  },
+  {
+    "id": 2301,
+    "destinationId": 23,
+    "destinationName": "Singapore",
+    "title": "Singapore City Highlights (4D/3N)",
+    "description": "Experience iconic landmarks like Marina Bay Sands, modern architecture, and the multicultural vibe of Singapore.",
+    "imageUrl": "https://images.unsplash.com/photo-1525625293386-3f8f99389edd?w=1200&q=80",
+    "price": 45e3,
+    "duration": 4,
+    "nights": 3,
+    "category": "City",
+    "rating": 4.7,
+    "hotelStars": 4,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "4-star Hotel stay, Daily breakfast, Universal Studios tickets, Night Safari, Sentosa Island, Transfers",
+    "excludedItems": "Flights, Visa (E-visa), Personal meals",
+    "itinerary": "Day 1: Arrive Singapore, evening Night Safari. Day 2: Full day Universal Studios. Day 3: City tour & Gardens by the Bay. Day 4: Souvenir shopping & Departure.",
+    "featured": true
+  },
+  {
+    "id": 2801,
+    "destinationId": 28,
+    "destinationName": "Sri Lanka",
+    "title": "Sri Lanka: Culture & Coast (6D/5N)",
+    "description": "Explore pristine beaches, lush tea gardens in Kandy, and ancient Buddhist heritage in Sri Lanka.",
+    "imageUrl": "data:image/jpeg;base64,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",
+    "price": 32e3,
+    "duration": 6,
+    "nights": 5,
+    "category": "Culture",
+    "rating": 4.6,
+    "hotelStars": 3,
+    "mealsIncluded": true,
+    "transportIncluded": true,
+    "includedItems": "Hotel stays, Daily breakfast, Sigiriya Rock Fortress tour, Kandy Temple, Bentota beach stay, Transfers",
+    "excludedItems": "Flights, Visa (ETA), Personal tips",
+    "itinerary": "Day 1: Arrive Colombo, transfer to Sigiriya. Day 2: Sigiriya Rock & Dambulla Caves. Day 3: Drive to Kandy, visit Tooth Relic Temple. Day 4: Kandy to Bentota beach. Day 5: Madu River boat safari. Day 6: Departure via Colombo.",
+    "featured": true
+  }
+];
+var blogPosts = [
+  {
+    "id": 501,
+    "title": "How to Plan a Stress-Free Beach Trip",
+    "excerpt": "A quick checklist for booking, packing, and building a flexible itinerary.",
+    "content": "Planning a beach trip doesn\u2019t have to be complicated. Start with the best season, book early if you travel during peak months, and leave room for spontaneous moments like sunset walks or local markets. Choose transfers that reduce travel stress and pick one \u2018anchor activity\u2019 per day to keep your schedule enjoyable.",
+    "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&q=80",
+    "category": "Beaches",
+    "author": "Wanderly Trails Team",
+    "readTime": 6,
+    "publishedAt": "2026-01-10"
+  },
+  {
+    "id": 502,
+    "title": "Luxury Travel: What\u2019s Actually Worth It?",
+    "excerpt": "From hotel star ratings to private transfers\u2014here\u2019s how to spend smarter.",
+    "content": "Luxury travel is not just about expensive hotels. It\u2019s about reducing friction\u2014private transfers, curated experiences, and thoughtful pacing. Look for packages that include the experiences you\u2019d otherwise need to plan yourself, and prioritize comfort that matches your travel style. The best luxury trips feel effortless from start to finish.",
+    "imageUrl": "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1200&q=80",
+    "category": "Luxury",
+    "author": "Advisor Center",
+    "readTime": 7,
+    "publishedAt": "2026-02-02"
+  },
+  {
+    "id": 503,
+    "title": "Family Itineraries That Keep Everyone Happy",
+    "excerpt": "Balancing activities, rest time, and kid-friendly fun across 4\u20137 days.",
+    "content": "Family travel works best when you plan for energy levels, not just attractions. Mix interactive activities with downtime, pick destinations with convenient transport, and schedule meals and breaks that prevent burnout. A great family itinerary has variety, but also a predictable rhythm\u2014everyone knows what\u2019s coming next.",
+    "imageUrl": "https://images.unsplash.com/photo-1528127269322-539801943592?w=1200&q=80",
+    "category": "Family",
+    "author": "Wanderly Trails Team",
+    "readTime": 5,
+    "publishedAt": "2026-03-12"
+  }
+];
+var testimonials = [
+  {
+    "id": 701,
+    "name": "Aarav Sharma",
+    "location": "Mumbai, India",
+    "rating": 5,
+    "review": "Everything was smooth from booking to itinerary. The destinations felt curated, not rushed.",
+    "avatarUrl": "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
+    "destination": "Goa"
+  },
+  {
+    "id": 702,
+    "name": "Sara Ahmed",
+    "location": "Delhi, India",
+    "rating": 5,
+    "review": "Our Bali luxury retreat was exactly what we wanted\u2014private transfers and perfect pacing.",
+    "avatarUrl": "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
+    "destination": "Bali"
+  },
+  {
+    "id": 703,
+    "name": "Rahul Verma",
+    "location": "Bengaluru, India",
+    "rating": 4,
+    "review": "Kerala trip was fantastic. Loved the houseboat experience and family-friendly schedule.",
+    "avatarUrl": "https://www.shutterstock.com/image-vector/default-avatar-social-media-display-600nw-2632690107.jpg",
+    "destination": "Kerala Backwaters"
+  }
+];
+var getDestinationById = (id) => destinations.find((d) => d.id === id);
+var getPackageById = (id) => packages.find((p) => p.id === id);
+var getBlogPostById = (id) => blogPosts.find((b) => b.id === id);
+var getRelatedPackages = (packageId) => {
+  const pkg = getPackageById(packageId);
+  if (!pkg) return [];
+  return packages.filter((p) => p.id !== packageId && (p.destinationId === pkg.destinationId || p.category === pkg.category)).slice(0, 4);
+};
+var getPackagesByDestination = (destId) => packages.filter((p) => p.destinationId === destId);
+var featuredDestinations = destinations.filter((d) => d.featured);
+var featuredPackages = packages.filter((p) => p.featured);
+
+// src/data/homeContent.ts
+var homeHero = {
+  brandLine: "WANDERLY TRAILS",
+  title: "Explore India, Discover New",
+  titleHighlight: "Adventures",
+  description: "Discover unforgettable journeys across India with Wanderly Trails. From the serene Himalayas to vibrant cities, we craft personalized travel experiences that blend culture, nature, and adventure. Your next great story starts here.",
+  ctaPrimary: "Explore Packages",
+  ctaSecondary: "Plan on WhatsApp",
+  image: "https://images.unsplash.com/photo-1469854523086-cc02afe5c88f?w=1920&q=80"
+};
+var homeStats = {
+  tours: { value: 100, suffix: "+", label: "All-India Tours & Experiences" },
+  rating: { value: 4.9, suffix: "", label: "Positive Reviews", display: "(4.9)" },
+  customers: { value: 5e3, suffix: "+", label: "Happy Customers" }
+};
+var aboutHome = {
+  badge: "About Us",
+  title: "Shaping Timeless Travel",
+  titleHighlight: "Moments",
+  paragraph1: "We specialize in crafting journeys that are immersive, seamless, and unforgettable. Each trip is thoughtfully planned, keeping your comfort, curiosity, and aspirations in mind.",
+  paragraph2: "Whether it's a cultural escape or a scenic getaway, our team ensures every moment is tailored to perfection. Your adventure deserves more than just a booking \u2014 it deserves a story worth telling.",
+  cta: "Learn More",
+  imageMain: "https://images.unsplash.com/photo-1526779259212-939e64788e3c?w=800&q=80",
+  imageSide: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=600&q=80",
+  stats: [
+    { value: "5+", label: "Years Of Experience" },
+    { value: "100+", label: "Trip Destinations" },
+    { value: "5,000+", label: "Happy Customers" }
+  ]
+};
+var indiaTrips = {
+  title: "India Trips",
+  subtitle: "A Journey Through Time, Colour And Culture",
+  cta: "Explore",
+  bannerImage: "/meghalya-opt.webp",
+  destinations: [
+    { name: "Himachal", price: 7499, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80", slug: "himachal" },
+    { name: "Leh Ladakh", price: 15800, image: "https://encrypted-tbn0.gstatic.com/licensed-image?q=tbn:ANd9GcSjx7yZLsj7DYwFG84gtEl_4VJ9VoPMwzuWUOmjZPhOmgDyAU3y0X7lpEtjZZHKO5GYKFNoJWwd0yq3SDcr8LgBvcE&s=19", slug: "ladakh" },
+    { name: "Spiti", price: 17999, image: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600&q=80", slug: "spiti" },
+    { name: "Kashmir", price: 24499, image: "/kashmir.webp", slug: "kashmir" },
+    { name: "Meghalaya", price: 21499, image: "/meghalya-opt.webp", slug: "meghalaya" },
+    { name: "Goa", price: 10499, image: "https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=600&q=80", slug: "goa" },
+    { name: "Kerala", price: 14e3, image: "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?w=600&q=80", slug: "kerala" },
+    { name: "Rajasthan", price: 15999, image: "/rajisthan.webp", slug: "rajasthan" }
+  ]
+};
+var weekendGetaways = {
+  title: "Weekend Getaways",
+  subtitle: "Quick escapes to recharge your soul",
+  cta: "Explore",
+  bannerImage: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=1400&q=80",
+  destinations: [
+    { name: "Pushkar", price: 4599, image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=500&q=70" },
+    { name: "Rishikesh", price: 4999, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTCiDXfTZFWyYLm57FSOXMgkRvcolwUyS8sPw&s" },
+    { name: "Mussoorie", price: 6999, image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80" },
+    { name: "Kasol", price: 5499, image: "https://images.unsplash.com/photo-1544085311-11a028465b03?w=600&q=80" },
+    { name: "Nainital", price: 7499, image: "https://img.avianexperiences.com/trek/acca8c5e-0708-4d0c-be5d-8df354d4d17e" },
+    { name: "Udaipur", price: 8999, image: "https://storage.googleapis.com/stateless-www-justwravel-com/2025/01/b8a866ca-explore-the-best-places-to-visit-in-udaipur.webp" }
+  ]
+};
+var servicesHome = [
+  {
+    num: "01",
+    title: "Guide Tour Services",
+    description: "Travel with confidence as our experienced local guides take you through iconic sites and hidden gems, sharing stories that bring each place to life."
+  },
+  {
+    num: "02",
+    title: "Accommodation Booking",
+    description: "We handpick every stay \u2014 be it a cozy homestay in the hills, a luxury resort by the beach, or a campsite under the stars \u2014 to match your vibe and comfort."
+  },
+  {
+    num: "03",
+    title: "Activities & Excursions",
+    description: "From paragliding in Bir to kayaking in Alleppey, camel safaris in Jaisalmer to food trails in Old Delhi \u2014 we connect you to the most exciting experiences across India."
+  }
+];
+var whyChooseHome = [
+  {
+    title: "Exceptional Services",
+    description: "Enjoy end-to-end assistance, curated stays, and smooth travel coordination from start to finish."
+  },
+  {
+    title: "Memorable Experience",
+    description: "Every trip is filled with heartwarming stories, stunning views, and meaningful connections."
+  },
+  {
+    title: "Personalized Itineraries",
+    description: "Tailor-made routes, flexible stays, and travel plans that fit your vibe and pace."
+  }
+];
+var vibeHome = {
+  badge: "Vibe With Us",
+  title: "Make Every Trip An",
+  titleHighlight: "Unforgettable Story",
+  subtitle: "Join our curated travel experiences designed for explorers, dreamers, and adventure lovers.",
+  cta: "Vibe With Us",
+  cards: [
+    { title: "Himalyan ", subtitle: "Peace Of Nature", video: "/blogvid.mp4", poster: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" },
+    { title: "Manali Snowscapes", subtitle: "Adventure & Snow", video: "/vid2.mp4", poster: "https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=600&q=80" },
+    { title: "Himachal's Main Spots", subtitle: "Mountains & Valleys", video: "/vid3.mp4", poster: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" },
+    { title: "Top 4 Snow Places in Himachal", subtitle: "Winter Wonderland", video: "/vid4.mp4", poster: "https://images.unsplash.com/photo-1595815775739-91d9c1d44e39?w=600&q=80" }
+  ]
+};
+var homeFaqs = [
+  {
+    q: "How Do I Book a Trip with Wanderly Trails?",
+    a: "You can book directly on our website or contact our travel expert on WhatsApp. We'll help you choose the perfect itinerary and confirm your booking instantly."
+  },
+  {
+    q: "Can I Customize My Itinerary?",
+    a: "Yes, we offer fully personalized travel plans based on your interests, budget, and travel dates."
+  },
+  {
+    q: "What Is the Cancellation Policy?",
+    a: "We offer flexible cancellation with partial or full refunds based on how early you cancel. Each trip has its specific policy mentioned on the package page."
+  },
+  {
+    q: "Are Group Trips Safe for Solo Travelers?",
+    a: "Absolutely! Our group trips are curated to be safe, inclusive, and fun \u2014 especially for solo explorers. You'll always be accompanied by our trained travel leads."
+  },
+  {
+    q: "What All Is Included in the Package Cost?",
+    a: "Most packages include accommodation, travel, meals, guided tours, and selected activities. Detailed inclusions are listed on each trip page."
+  }
+];
+var footerDestinations = [
+  "Himachal",
+  "Kashmir",
+  "Leh-Ladakh",
+  "Spiti Valley",
+  "Meghalaya",
+  "Kerala",
+  "Goa",
+  "Dubai",
+  "Thailand",
+  "Singapore",
+  "Sri Lanka"
+];
+
+// src/lib/contact.ts
+var CONTACT_PHONE_DIGITS = "7521824197";
+var CONTACT_PHONE_DISPLAY = "+91 75218 24197, +91 88878 67547";
+var CONTACT_EMAIL = "wanderlytrails.in@gmail.com";
+var CONTACT_WHATSAPP_NUMBER = `91${CONTACT_PHONE_DIGITS}`;
+var CONTACT_OFFICE_ADDRESS = "Sector 62, Noida, Uttar Pradesh, India";
+var CONTACT_MAPS_URL = "https://www.google.com/maps/place/Sector+62,+Noida,+Uttar+Pradesh/@28.620126,77.3571991,3636m/data=!3m2!1e3!4b1!4m6!3m5!1s0x390ce5456ef36d9f:0x3b7191b1286136c8!8m2!3d28.627981!4d77.3648567!16s%2Fm%2F01283ztw?entry=ttu&g_ep=EgoyMDI2MDUxNy4wIKXMDSoASAFQAw%3D%3D";
+var CONTACT_MAPS_EMBED_URL = "https://www.google.com/maps?q=Sector+62,+Noida,+Uttar+Pradesh&output=embed";
+var SOCIAL_LINKS = {
+  instagram: "https://instagram.com/wanderly_trails",
+  x: "https://x.com/wanderly_trails",
+  facebook: "https://facebook.com/wanderly_trails",
+  youtube: "https://youtube.com/@wanderly_trails"
+};
+
+// src/data/kashmirItineraryData.ts
+var kashmirItineraryData = {
+  title: "Kashmir",
+  route: "Srinagar - Pahalgam - Gulmarg - Srinagar",
+  durationPrice: "6D/5N at Rs.16500/- ONWARDS",
+  contact: "91-7903639845, 7992433486",
+  days: [
+    {
+      day: "Day 01:",
+      heading: "Arrive - Srinagar",
+      description: "On arrival at the Srinagar airport and transfer to Houseboat. In evening Shikara ride in world famous dal lake. Later return houseboat and overnight stay at the houseboat."
+    },
+    {
+      day: "Day 02:",
+      heading: "Srinagar to Pahalgam (92 kilometers / 2 hrs drive)",
+      description: "After Breakfast, we drive to Pahalgam via Pampore, Avantipura and the village of Bijbehara which remains famous as the bread basket of Kashmir. We switch from the national highway 1A at Khanabal and drive through the second largest city of Anantnag. From here the road turns scenic as we drive parallel on the Lidder River flowing from the opposite direction. In Pahalgam, check-in at the hotel and spend the rest of the day at leisure. Overnight stay at the hotel in Pahalgam."
+    },
+    {
+      day: "Day 03:",
+      heading: "Pahalgam to Gulmarg (135 kilometers / 2.3 hrs drive)",
+      description: "After breakfast in the morning, proceed towards Gulmarg. Enroute you get to see the beautiful Tangmarg town and drive ahead on a scenic drive of 14 kilometers to Gulmarg. Arrive in Gulmarg early in the afternoon and check in at the hotel. Later, begin a short tour, boarding the Gondola cable car system ( at your own cost)( (the 08 minutes ropeway). Descend back to Gulmarg after an hour and later indulge in some horse-riding. Stay overnight at hotel in Gulmarg."
+    },
+    {
+      day: "Day 04:",
+      heading: "Gulmarg to Srinagar",
+      description: "After Breakfast take some sightseeing of Gulmarg and later proceed to Srinagar , check in the hotel & after refresh take some sightseeing of Srinagar half day tour of world famous Mughal Gardens visiting the Nishat Bagh (The garden of pleasure) and Shalimar Bagh (Adobe of love) , Shankaracharya Temple , Pari Mahal , Hazratbal Shrine. Evening back to Srinagar. Overnight Stay in the Hotel."
+    },
+    {
+      day: "Day 05:",
+      heading: "Srinagar - Sonamarg - Srinagar",
+      description: "After breakfasts proceed to full day excursion of Sonamarg which is one of the most beautiful drives from Srinagar. Sonamarg also called Meadows of Gold is located at a height of 2692 meters. You may take a pony ride (at your own cost) to Thajiwas Glacier where snow remains round the year. Evening Back to Srinagar. Overnight Stay in the hotel."
+    },
+    {
+      day: "Day 06:",
+      heading: "Srinagar Airport Drop",
+      description: "After your breakfast, we will assist you with transfers to Srinagar Airport. However, on your way, you can make a brief stopover for Shopping and then for your onward flight."
+    }
+  ],
+  pricing: [
+    { pax: "Min. 2 Pax per person", standard: "13100", deluxe: "16500", superDeluxe: "21900" },
+    { pax: "Min. 4 Pax per person", standard: "17300", deluxe: "14200", superDeluxe: "18500" },
+    { pax: "Min. 6 Pax per person", standard: "21350", deluxe: "24850", superDeluxe: "22350" }
+  ],
+  extraPersonPricing: {
+    standard: "8200",
+    deluxe: "11200",
+    superDeluxe: "13600"
+  },
+  inclusions: [
+    "Accommodation in deluxe room on twin sharing.",
+    "03 Night stay at Srinagar.",
+    "01 Night stay at Gulmarg.",
+    "01 Night stay at Pahalgam.",
+    "Transfer and sightseeing as per the above tour Itinerary by non-a/c car.",
+    "Welcome drink on arrival.",
+    "Complimentary Shikara Ride in Dal Lake.",
+    "Accommodation on Breakfast & Dinner.",
+    "Transport by Indica, Tavera.",
+    "All toll taxes, drivers allowances, Fuel charges, interstate permit if necessary, all taxes.",
+    "All currently applicable Hotel taxes."
+  ],
+  exclusions: [
+    "All kind of personal expenses such as tips, laundry, telephone bills and beverages, Camera Fees.",
+    "Cable Car Tickets, Any meals unless and otherwise specifically mentioned.",
+    "Any claim due to road blocks, curfew, accident etc.",
+    `Any other services' not specified in the Column "Inclusions"`
+  ]
+};
+
+// src/data/ladakhItineraryData.ts
+var ladakhItineraryData = {
+  title: "Ladakh",
+  route: "Delhi - Manali - Sarchu - Leh - Nubra Valley - Pangong Tso - Jispa - Delhi",
+  durationPrice: "9D/8N at Rs.31,999/- ONWARDS",
+  contact: "91-7992433486, 91-6200626938",
+  about: `Set amidst the epic Himalayas, Ladakh is a rustic and heavenly beautiful travel destination. The rugged valleys and mountains, winding roads coupled with the vibrant cultural life maintain the exuberance and charm of this region. The iconic Magnetic Hill, the turquoise coloured Pangong Lake, the confluence of two mystical rivers, ancient and awe inspiring monasteries and the highest passes are a few of the marvelous attractions of Leh and Ladakh in general. The wide array of trekking routes will satiate your soul and enrich the senses. The moon like desert mountains continue to be an exceptional destination for adventure seekers and admirers of Buddhism and phenomenal mountain vistas. So, pack some travel essentials with you to explore the most enthralling destination of India and bring back souvenirs of endless memories with you.
+The magic of Leh will beckon you year after year and leave you still wanting more. The moon-like landscapes, desert mountains with splashes of green and snow peaks, monasteries and stupas make you feel far removed from this world. The drive on the mountain roads, along the mighty Indus and the Zanskar, with grazing Yaks, Martens, wild horses and sheep, apple and apricot trees is really like a dream come alive.`,
+  days: [
+    {
+      day: "Day 0:",
+      heading: "DEPARTURE FROM DELHI TO MANALI",
+      description: "We depart from Delhi around 6 PM in an AC Vehicle. Pit stop for dinner at any decent roadside restaurant. Check in to the hotel, freshen up & have breakfast."
+    },
+    {
+      day: "Day 1:",
+      heading: "MANALI LOCAL SIGHTSEEING | OVERNIGHT STAY AT MANALI",
+      description: "A short brief for the next day to start our trip further. We have kept this day for acclimatization purposes. Later head-out for self-exploration of Manali - Like Vasishta Temple, Hadimba temple, The Mall road, Jogini Waterfall. Come back to the Hotel, Overnight stay at the hotel. Call it an early night to rest and prepare for the upcoming adventures."
+    },
+    {
+      day: "Day 2:",
+      heading: "MANALI TO SARCHU | OVERNIGHT STAY AT SARCHU",
+      description: "Wake up early in the morning, have breakfast and check-out the hotel. Later start your much awaited Ladakh trip on the famous Leh Manali highway. We'll cross the Atal Tunnel to enter Lahaul Valley. We'll also cross Darcha, Baralacha Pass for the enormous panoramic views. Reach Sarchu by evening. Overnight Stay in Sarchu under million stars."
+    },
+    {
+      day: "Day 3:",
+      heading: "SARCHU TO LEH | OVERNIGHT STAY AT LEH",
+      description: "Wake up, have breakfast and check out of the camp. It\u2019s a day of high passes. We\u2019ll need to cross one after the other to reach our destination. Initially, we'll cross the Gata Loops followed by Nakee-La and Lachung-La. Reach Pang by afternoon and have lunch in these gorgeous plains. Later on, we'll cross Tanglang La (second highest pass of the world) to reach Leh. Evening free for leisure and acclimatization. Overnight stay in Leh."
+    },
+    {
+      day: "Day 4:",
+      heading: "VISIT SHANTI STUPA, MAGNETIC HILLS & PATHAR SAHIB GURUDWARA | OVERNIGHT STAY AT LEH",
+      description: "Post breakfast, head out to explore the region. Visit the Hall of Fame Museum, Shanti Stupa, Magnetic Hills, Pathar Sahib Gurudwara & Indus Confluence. Explore the local market and cafes. Do some shopping if you'd like. Strike a conversation with a local to know the culture and history of the place. Return to the hotel by evening. Dinner & Overnight stay in Leh. Note :- Hall of Fame entry tickets not Included."
+    },
+    {
+      day: "Day 5:",
+      heading: "LEH TO KHARDUNG LA - HUNDER - NUBRA VALLEY - DISKIT | OVERNIGHT STAY AT NUBRA VALLEY",
+      description: "Wake up and have breakfast at the camps and then check out. Head for the beautiful Nubra Valley via Khardungla | (Highest motorable road at 5359mt). You will find yourself surrounded between the Karakoram and Ladakh ranges of Himalayas. Check in to the hotel and visit the Sand dunes (Cold desert of India), take a camel safari (Self paid). Dinner and overnight stay in Nubra Valley."
+    },
+    {
+      day: "Day 6:",
+      heading: "NUBRA TO PANGONG TSO LAKE VIA SHYOK VALLEY | OVERNIGHT STAY AT PANGONG TSO",
+      description: "Wake up to see the first ray of sun falling on the mighty Himalayas. Post breakfast, head to Pangong via Agham and Shyok villages. Pangong Tso is a high altitude alpine lake and is the most fascinating lake because it changes its color according to the surroundings. Reach Pangong lake by evening and check-in to the campsite. Dinner and Overnight stay in Pangong."
+    },
+    {
+      day: "Day 7:",
+      heading: "PANGONG TSO TO LEH VIA CHANG LA | OVERNIGHT STAY AT LEH",
+      description: "Wake up early morning to witness a mesmerizing sunrise. After having breakfast, head back to Leh. Enroute visit Chang-La, the 2nd highest motorable road in the world at 5350 m. Reach by evening time and self explore the local market/cafe\u2019s since it will the last day in Leh. Shop something for your friends/relatives back home. Come back to the hotel by evening, Dinner and overnight stay in Leh."
+    },
+    {
+      day: "Day 8:",
+      heading: "JOURNEY BACK TO MANALI | OVERNIGHT STAY AT JISPA",
+      description: "Post breakfast, head towards Jispa for the overnight stay. We will take the same route that we took to reach Leh from Manali. Reach Jispa by evening. Overnight stay in Jispa."
+    },
+    {
+      day: "Day 9:",
+      heading: "TRANSFER FROM JISPA TO MANALI | DEPARTURE FROM MANALI TO DELHI",
+      description: "Wake up early morning & post breakfast depart for Manali. Reach Manali & depart for Delhi by evening."
+    },
+    {
+      day: "Day 10:",
+      heading: "REACH DELHI BY MORNING",
+      description: "Reach Delhi by morning with amazing trip memories!!"
+    }
+  ],
+  pricing: [
+    { type: "Tempo/Car", price: "31,999" },
+    { type: "Dual Bike", price: "36,999" },
+    { type: "Solo Bike", price: "41,999" }
+  ],
+  inclusions: [
+    "Accommodation in Double / Triple Sharing rooms in Hotels / Camps",
+    "A total of 15 meals - 1 meal Day1(B) + 1meal Day2(D) + 2meals Day3(B+D) + 2meals Day4(B+D) +2meals Day5(B+D) +2meals Day6(B+ D) +2meals Day7(B+ D) +2meals Day8(B+D) +1meal Day9(B)",
+    "Volvo Transfers from Delhi to Manali & Back",
+    "Tempo traveller from Manali to Leh & Leh to Manali (for Bike option)",
+    "Bike Rental for 4 days including fuel from Leh to Leh (for Bike option)",
+    "Entire travel from Manali to Manali (for Tempo Traveler option)",
+    "Mechanical Backup",
+    "All inner line permits for the trip",
+    "Team Captain throughout the trip",
+    "Availability of oxygen 24x7 in case of any emergency",
+    "Riding Gears - Helmets, Elbow Guards, Knee Pads (Though it is recommended you to carry your own gears for comfort)"
+  ],
+  exclusions: [
+    "Hall of Fame entry tickets (as mentioned in Day 4)",
+    "Camel safari (Self paid, as mentioned in Day 5)",
+    "Personal expenses such as tips, laundry, telephone bills and beverages",
+    "Any cost arising due to natural calamities like landslides, road blocks etc.",
+    "Anything not mentioned in inclusions"
+  ],
+  notes: [
+    "Travellers residing outside Delhi are suggested to book trains/flights reaching Delhi not delayed than 2 PM at the start of the trip. Similarly, on trip ending date, book returning flight/trains leaving post 4 PM.",
+    "All the riders are required to wear a riding jacket (won't be provided by TRIPZADA) at all the times they are riding the bike, else won't be permitted to ride the bike.",
+    "Numerous factors such as weather, road conditions, the physical ability of participants etc. May cause itinerary change. We reserve the rights to change any schedule in the interest of safety, comfort and general wellbeing.",
+    "The age limit of our group departures is 16 to 42 years due to the power packed itineraries that we provide to our travellers. We can customise trips for travellers beyond the mentioned age bracket as a private trip."
+  ],
+  precautionsSafety: [
+    "Committed to delivering a clean and safe environment through health and safety protocols. One of our highest priorities is the health, safety, and security of our guests, and team members. COVID-19 has fundamentally changed the way we live, and we are adjusting our daily operations to fit within the new normal. In response to this, we and a team of experts have reviewed our existing health and safety processes and developed a new Safety protocol. This in-depth cleanliness and disinfection protocol and is designed to ensure your safety and peace of mind from travelling to check-in to check-out.",
+    "Increasing cleaning and disinfection frequency throughout the premises, with a special focus on recreational and relaxation areas.",
+    "Increasing cleaning and disinfecting frequency of Kids Clubs, paying attention to high-touch items.",
+    "Installing alcohol-based hand sanitizing stations throughout the premises.",
+    "Providing disinfectant wipes throughout the premises. Implementing physical distancing measures in outside spaces.",
+    "Increase cleaning and disinfection frequency of all hotel areas, paying special attention to high-touch items.",
+    "Improve air circulation processes to increase air quality."
+  ],
+  termsAndConditions: [
+    "Tripzada and it\u2019s organizers strictly prohibit the utilization of any Narcotics and Banned Substances during the tours and would not be responsible for any adversities due to the same.",
+    "Weapon, Fireworks and toxic substances are not allowed at this tour. Management would not be responsible for any person who has been found guilty under the Indian Law.",
+    "Tripzada is not responsible for your safety if you are outside the camping premises.",
+    "The organizers reserve the rights to evict any camper anytime without any refund if his/her actions violates any camp rules or in case of any misbehavior with other co-travelers.",
+    "Any Loss to the camping materials such as tents, pillows, mattress or any property belonging to the campsite will is subject to full payment of Product MRP.",
+    "Tripzada won't be responsible for any loss or damage of Goods belonging to the travelers.",
+    "All guests must carry a Govt issued Valid ID Card.",
+    "Only campers staying with Tripzada will be allowed in the campsite and if you intend to bring guests from outside, you'll have to Pre notify us.",
+    "Availability of hot water is not promised.",
+    "Slots at campsite will be confirmed only after receipt of full payment.",
+    "Management accepts no responsibility for injuries or the loss/theft of any personal property during the tour.",
+    "In case of any breakdown or in delay due to the breakdown of the transport in the way, you would have to wait until the transport gets repaired. No backup transport would be provided.",
+    "Tripzada is not responsible for any delays or alterations in the program or indirectly incurred expenses in cases such as natural hazards, accidents, weather conditions, landslides, political closure or any untoward incident.",
+    "Trip organizer/coordinator has complete right to change the itinerary as per on the spot condition. Please cooperate with us in keeping the environment clean and safe.",
+    "Enjoy the trip, respect others and have a memorable experience."
+  ]
+};
+
+// server/lib/defaults.ts
+function defaultHomeContent() {
+  return {
+    hero: {
+      brandLine: homeHero.brandLine,
+      title: homeHero.title,
+      titleHighlight: homeHero.titleHighlight,
+      description: homeHero.description,
+      ctaPrimary: homeHero.ctaPrimary,
+      ctaSecondary: homeHero.ctaSecondary,
+      video: "/hero-video.mp4",
+      image: homeHero.image
+    },
+    stats: {
+      tours: { ...homeStats.tours },
+      rating: { ...homeStats.rating },
+      customers: { ...homeStats.customers }
+    },
+    about: { ...aboutHome, stats: [...aboutHome.stats] },
+    indiaTrips: { ...indiaTrips, destinations: [...indiaTrips.destinations] },
+    weekendGetaways: {
+      ...weekendGetaways,
+      destinations: weekendGetaways.destinations.map((d) => ({ ...d, slug: "" }))
+    },
+    services: [...servicesHome],
+    whyChoose: [...whyChooseHome],
+    vibe: { ...vibeHome, cards: [...vibeHome.cards] },
+    faqs: [...homeFaqs],
+    footerDestinations: [...footerDestinations]
+  };
+}
+function defaultSettings() {
+  return {
+    ...siteSettings,
+    contact: {
+      phoneDigits: CONTACT_PHONE_DIGITS,
+      phoneDisplay: CONTACT_PHONE_DISPLAY,
+      email: CONTACT_EMAIL,
+      whatsappNumber: CONTACT_WHATSAPP_NUMBER,
+      officeAddress: CONTACT_OFFICE_ADDRESS,
+      mapsUrl: CONTACT_MAPS_URL,
+      mapsEmbedUrl: CONTACT_MAPS_EMBED_URL,
+      instagram: SOCIAL_LINKS.instagram,
+      facebook: SOCIAL_LINKS.facebook,
+      x: SOCIAL_LINKS.x,
+      youtube: SOCIAL_LINKS.youtube
+    },
+    seo: {
+      siteName: "Wanderly Trails",
+      defaultTitle: "Wanderly Trails \u2014 Explore India, Discover New Adventures",
+      defaultDescription: "Curated travel packages across India \u2014 Himachal, Kashmir, Ladakh, Meghalaya, Kerala and more. Group trips, weekend getaways and custom itineraries.",
+      ogImage: "/opengraph.jpg"
+    },
+    home: defaultHomeContent()
+  };
+}
+var HIMACHAL_DAYS = [
+  ["DAY 1", "DELHI TO SHIMLA", "Morning 10 AM Departure from Delhi to Shimla. Night reach at Shimla. Check-in & Rest in Leisure, Dinner & Overnight stay at Hotel."],
+  ["DAY 2", "SHIMLA - KUFRI", "Breakfast. Morning 9 AM checkout and proceed to visit sightseeing Kufri, Green Valley. Visit Mall Road, St. Christ Church, The Ridge, Scandal Point. Dinner. Night departure to Manali at 10 PM."],
+  ["DAY 3", "MANALI LOCAL SIGHTSEEING", "Reach Manali at 9 AM and Check into Hotel (Early check-in depends upon availability of rooms). Afternoon, Proceed to visit Local Sightseeing of Hadimba Temple, Van Vihar, Tibetan Monastery and Mall Road. Have Dinner. Overnight Stay at Hotel."],
+  ["DAY 4", "SOLANG VALLEY & MORE", "Breakfast. At 8 AM proceed to Solang Valley, Atal Tunnel (if open). Adventurous trekk of Jogini Waterfall (If time permits), Vashisht Temple & Hot Spring. Have Dinner with Bonfire & Enjoy Music Party. Overnight Stay at Manali."],
+  ["DAY 5", "KULLU - KASOL", "Breakfast and then checkout & Proceed to Kullu Rafting Point. Visit Kasol, Manikaran Sahib. Enjoy Dinner at Langar \u201Cwhere food prepared from healthy sulphuric water\u201D. Later at 10 PM proceed to Dalhousie."],
+  ["DAY 6", "KHAJJIAR - DALHOUSIE", "Morning Reach at Dalhousie. Have Breakfast & Rest. Afternoon visit to Khajjiar, Mini Switzerland of India. Mall Road, St John\u2019s Church & Gandhi Chowk. Have Dinner. Overnight stay at Dalhousie."],
+  ["DAY 7", "AMRITSAR", "Breakfast. Proceed to Amritsar. Visit Wagah Border (if open), Golden Temple & Market. Have Dinner at Golden Temple Langar \u201CThe World\u2019s Largest Kitchen\u201D. Night departure to Delhi."],
+  ["DAY 8", "REACH DELHI", "Reach Delhi. Trip Ends with Wonderful Memories of Himalayas."]
+];
+function defaultItineraries() {
+  return [
+    {
+      title: "Himachal Backpacking",
+      slug: "himachal-backpacking",
+      subtitle: "SHIMLA | MANALI | DALHOUSIE | KASOL | AMRITSAR",
+      route: "Delhi - Shimla - Manali - Kasol - Dalhousie - Amritsar - Delhi",
+      durationPrice: "8D/7N at Rs.12,999/- ONWARDS",
+      contact: CONTACT_PHONE_DISPLAY,
+      about: "",
+      heroImage: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80",
+      destinationId: 1,
+      days: HIMACHAL_DAYS.map(([day, heading, description]) => ({ day, heading, description })),
+      pricing: [
+        { type: "Triple/Quad Sharing", price: "12,999" },
+        { type: "Double Sharing", price: "14,999" }
+      ],
+      inclusions: [
+        "Anjani Mahadev Trek (if time permits)",
+        "Adventure trekking of Jogini Waterfall",
+        "Bonfire, activities Burma Bridge, Balanced Bridge, Rock Climbing (if you choose to stay 1N at Manali camp at the time of booking)",
+        "Music party",
+        "All transfers from Delhi by AC Tempo Traveller",
+        "2 nights stay at Manali",
+        "1 night stay at Shimla",
+        "1 night stay at Dalhousie",
+        "Early check-ins at Manali & Dalhousie (if rooms are available)",
+        "5 breakfast, 5 dinner and 2 langar",
+        "Toll, parking and transport taxes",
+        "Virtual travel manager",
+        "Sightseeing or \u201CDhersaari Masti\u201D"
+      ],
+      exclusions: [
+        "Personal expenses",
+        "5% GST on billing",
+        "Any cost arising due to natural calamities like landslides, road blocks etc. (to be borne by the client directly on the spot)",
+        "Anything not mentioned in inclusions"
+      ],
+      notes: [],
+      precautionsSafety: [],
+      termsAndConditions: [
+        "Standard time of check-in at 1 AM, early check-ins depend on availability, your cooperation is appreciable.",
+        "Transportation shall be provided as per the itinerary and will not be at disposal. (AC will not work on hills)",
+        "Wanderly Trails will not be liable for any delay in, change to or cancellation of trips due to force majeure \u2014 circumstances beyond the reasonable control of the company including war, riot, lockdown, civil strife, terrorist activity, industrial dispute, disease, disaster, adverse weather, fire, restricted entry, flight/train cancellation and strike. We will do our best to make suitable alternate arrangements but are not liable for refunds/compensation arising out of this.",
+        "Change of hotel and/or tour programme due to unavoidable circumstances not in control of the company \u2014 same category of hotel will be allotted.",
+        "Registration once booked cannot be cancelled, transferred or exchanged.",
+        "In case of breakdown of the vehicle, travellers have to wait for repair or another alternate option arranged by the company.",
+        "Covid guidelines must be followed by all travellers.",
+        "Travellers are solely responsible for any mishap, theft, loss, injuries, or illegal activities during the tour.",
+        "Wanderly Trails reserves the right to take photographs of participants (with their consent) for promotional purposes. Participants who prefer not to be photographed must inform the tour leader at the start of the trip."
+      ],
+      paymentPolicy: ["\u20B94000 INR at the time of registration", "Balance payment 4 days before departure"],
+      cancellationPolicy: [
+        "Registration charges are non refundable.",
+        "If cancellations are made within 2 days before the start date of the trip, 100% of booking value will be charged as cancellation fees.",
+        "In case of unforeseen weather conditions or government restrictions, certain activities may be cancelled; we will try our best to provide an alternate feasible activity. No refund will be provided for the same.",
+        "In case of lockdown at the destination, a credit shell will be released for future bookings, after deduction of IRCTC/airline cancellation charges.",
+        "If cancelled 5 days before the start date of the trip, 50% of booking value will be charged as cancellation fees."
+      ],
+      pdfUrl: "",
+      published: true
+    },
+    {
+      title: "Kashmir Tour",
+      slug: "kashmir-tour",
+      subtitle: kashmirItineraryData.route,
+      route: kashmirItineraryData.route,
+      durationPrice: kashmirItineraryData.durationPrice,
+      contact: kashmirItineraryData.contact,
+      about: "",
+      heroImage: "/kashmir.webp",
+      destinationId: 3,
+      days: kashmirItineraryData.days,
+      // Purani file me pax × hotel-category table thi; simple type/price rows me convert
+      pricing: [
+        ...kashmirItineraryData.pricing.flatMap((row) => [
+          { type: `${row.pax} \u2014 Standard`, price: row.standard },
+          { type: `${row.pax} \u2014 Deluxe`, price: row.deluxe },
+          { type: `${row.pax} \u2014 Super Deluxe`, price: row.superDeluxe }
+        ]),
+        { type: "Extra person \u2014 Standard", price: kashmirItineraryData.extraPersonPricing.standard },
+        { type: "Extra person \u2014 Deluxe", price: kashmirItineraryData.extraPersonPricing.deluxe },
+        { type: "Extra person \u2014 Super Deluxe", price: kashmirItineraryData.extraPersonPricing.superDeluxe }
+      ],
+      inclusions: kashmirItineraryData.inclusions,
+      exclusions: kashmirItineraryData.exclusions,
+      notes: [],
+      precautionsSafety: [],
+      termsAndConditions: [],
+      paymentPolicy: [],
+      cancellationPolicy: [],
+      pdfUrl: "",
+      published: true
+    },
+    {
+      title: "Ladakh Tour",
+      slug: "ladakh-tour",
+      subtitle: ladakhItineraryData.route,
+      route: ladakhItineraryData.route,
+      durationPrice: ladakhItineraryData.durationPrice,
+      contact: ladakhItineraryData.contact,
+      about: ladakhItineraryData.about,
+      heroImage: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?w=1920&q=80",
+      destinationId: 4,
+      days: ladakhItineraryData.days,
+      pricing: ladakhItineraryData.pricing,
+      inclusions: ladakhItineraryData.inclusions,
+      exclusions: ladakhItineraryData.exclusions,
+      notes: ladakhItineraryData.notes,
+      precautionsSafety: ladakhItineraryData.precautionsSafety,
+      termsAndConditions: ladakhItineraryData.termsAndConditions,
+      paymentPolicy: [],
+      cancellationPolicy: [],
+      pdfUrl: "",
+      published: true
+    }
+  ];
+}
+
+// server/lib/slug.ts
+function slugify(input) {
+  return input.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 100) || "item";
+}
+async function uniqueSlug(model, base, excludeId) {
+  const root = slugify(base);
+  let candidate = root;
+  let n = 2;
+  while (true) {
+    const filter = { slug: candidate };
+    if (excludeId !== void 0) filter.id = { $ne: excludeId };
+    const exists = await model.exists(filter);
+    if (!exists) return candidate;
+    candidate = `${root}-${n++}`;
+  }
+}
+
+// server/lib/seed.ts
+var SETTINGS_KEY = "site";
+async function seedIfEmpty() {
+  const report = {};
+  if (await DestinationModel.countDocuments() === 0) {
+    const usedSlugs = /* @__PURE__ */ new Set();
+    const docs = staticData_exports.destinations.map((d, i) => {
+      let slug2 = slugify(d.name);
+      while (usedSlugs.has(slug2)) slug2 = `${slug2}-${d.id}`;
+      usedSlugs.add(slug2);
+      return { ...d, slug: slug2, gallery: [], published: true, itinerarySlug: "", pdfUrl: "", sortOrder: i };
+    });
+    await DestinationModel.insertMany(docs);
+    await bumpCounter("destination", Math.max(...docs.map((d) => d.id)));
+    report.destinations = docs.length;
+  }
+  if (await PackageModel.countDocuments() === 0) {
+    const usedSlugs = /* @__PURE__ */ new Set();
+    const docs = staticData_exports.packages.map((p, i) => {
+      let slug2 = slugify(p.title);
+      while (usedSlugs.has(slug2)) slug2 = `${slug2}-${p.id}`;
+      usedSlugs.add(slug2);
+      return { ...p, slug: slug2, gallery: [], published: true, itinerarySlug: "", pdfUrl: "", sortOrder: i };
+    });
+    await PackageModel.insertMany(docs);
+    await bumpCounter("package", Math.max(...docs.map((d) => d.id)));
+    report.packages = docs.length;
+  }
+  if (await BlogPostModel.countDocuments() === 0) {
+    const docs = staticData_exports.blogPosts.map((b) => ({ ...b, slug: slugify(b.title), published: true }));
+    await BlogPostModel.insertMany(docs);
+    await bumpCounter("blogPost", Math.max(...docs.map((d) => d.id)));
+    report.blogPosts = docs.length;
+  }
+  if (await TestimonialModel.countDocuments() === 0) {
+    const docs = staticData_exports.testimonials.map((t, i) => ({ ...t, published: true, sortOrder: i }));
+    await TestimonialModel.insertMany(docs);
+    await bumpCounter("testimonial", Math.max(...docs.map((d) => d.id)));
+    report.testimonials = docs.length;
+  }
+  if (await ItineraryModel.countDocuments() === 0) {
+    const docs = defaultItineraries().map((it, i) => ({ ...it, id: i + 1 }));
+    await ItineraryModel.insertMany(docs);
+    await bumpCounter("itinerary", docs.length);
+    report.itineraries = docs.length;
+    for (const it of docs) {
+      if (it.destinationId) {
+        await DestinationModel.updateOne(
+          { id: it.destinationId, itinerarySlug: "" },
+          { $set: { itinerarySlug: it.slug } }
+        );
+      }
+    }
+  }
+  if (!await SettingsModel.exists({ key: SETTINGS_KEY })) {
+    await SettingsModel.create({ key: SETTINGS_KEY, data: defaultSettings() });
+    report.settings = 1;
+  }
+  if (Object.keys(report).length) console.log("[seed]", report);
+  return report;
+}
+async function getSettings() {
+  const doc = await SettingsModel.findOne({ key: SETTINGS_KEY }).lean();
+  return doc?.data ?? defaultSettings();
+}
+async function saveSettings(data) {
+  await SettingsModel.updateOne({ key: SETTINGS_KEY }, { $set: { data } }, { upsert: true });
+  return data;
+}
+
+// server/middleware/auth.ts
+import jwt from "jsonwebtoken";
+var ADMIN_COOKIE = "wt_admin";
+async function requireAdmin(req, _res, next) {
+  if (!config.adminAuth) {
+    req.admin = { sub: "local", email: "admin@local", role: "owner" };
+    return next();
+  }
+  const token = req.cookies?.[ADMIN_COOKIE];
+  if (!token) return next(new HttpError(401, "Login required"));
+  try {
+    const claims = jwt.verify(token, config.jwtSecret, { algorithms: ["HS256"] });
+    const user = await AdminUserModel.findById(claims.sub).lean();
+    if (!user || !user.active) return next(new HttpError(401, "Account disabled"));
+    req.admin = { sub: String(user._id), email: user.email, role: user.role };
+    next();
+  } catch {
+    next(new HttpError(401, "Session expired, please login again"));
+  }
+}
+function signAdminToken(claims) {
+  return jwt.sign(claims, config.jwtSecret, { algorithm: "HS256", expiresIn: "12h" });
+}
+function requireOwner(req, _res, next) {
+  if (req.admin?.role !== "owner") return next(new HttpError(403, "Owner access required"));
+  next();
+}
+
+// server/routes/crud.ts
+import { Router } from "express";
+function crudRouter(opts) {
+  const r = Router();
+  const { model, schema, counterName, slugFrom, label } = opts;
+  const log = (action, id, summary, actor = "admin") => ActivityModel.create({ action, entity: label, targetId: String(id), summary, actor }).catch(() => void 0);
+  r.get(
+    "/",
+    asyncHandler(async (req, res) => {
+      const q = String(req.query.q ?? "").trim().slice(0, 100);
+      const published = req.query.published;
+      const page = Math.max(1, Number(req.query.page ?? 1) || 1);
+      const limit = Math.min(200, Math.max(1, Number(req.query.limit ?? 100) || 100));
+      const filter = {};
+      if (published === "true") filter.published = true;
+      if (published === "false") filter.published = false;
+      if (q && opts.searchFields?.length) {
+        const safe = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        filter.$or = opts.searchFields.map((f) => ({ [f]: { $regex: safe, $options: "i" } }));
+      }
+      const [items, total] = await Promise.all([
+        model.find(filter).sort(opts.sort ?? { sortOrder: 1, id: 1 }).skip((page - 1) * limit).limit(limit).lean({ transform: (doc) => {
+          delete doc._id;
+          return doc;
+        } }),
+        model.countDocuments(filter)
+      ]);
+      res.json({ items, total, page, limit });
+    })
+  );
+  r.get(
+    "/:id",
+    parseNumericId,
+    asyncHandler(async (req, res) => {
+      const doc = await model.findOne({ id: getId(req) }).lean();
+      if (!doc) throw new HttpError(404, `${label} not found`);
+      const { _id, ...rest } = doc;
+      res.json(rest);
+    })
+  );
+  r.post(
+    "/",
+    validateBody(schema),
+    asyncHandler(async (req, res) => {
+      const data = req.body;
+      if (slugFrom) {
+        const base = data.slug || data[slugFrom];
+        data.slug = await uniqueSlug(model, base);
+      }
+      await opts.beforeSave?.(data);
+      data.id = await nextId(counterName);
+      const doc = await model.create(data);
+      await log("create", doc.id, String(data[slugFrom ?? "id"] ?? doc.id), req.admin?.email);
+      res.status(201).json(doc.toJSON());
+    })
+  );
+  r.put(
+    "/:id",
+    parseNumericId,
+    validateBody(schema),
+    asyncHandler(async (req, res) => {
+      const id = getId(req);
+      const data = req.body;
+      if (slugFrom) {
+        const base = data.slug || data[slugFrom];
+        data.slug = await uniqueSlug(model, base, id);
+      }
+      await opts.beforeSave?.(data);
+      delete data.id;
+      const doc = await model.findOneAndUpdate({ id }, { $set: data }, { new: true, runValidators: true });
+      if (!doc) throw new HttpError(404, `${label} not found`);
+      await log("update", id, String(data[slugFrom ?? "id"] ?? id), req.admin?.email);
+      res.json(doc.toJSON());
+    })
+  );
+  r.patch(
+    "/:id/toggle",
+    parseNumericId,
+    asyncHandler(async (req, res) => {
+      const id = getId(req);
+      const field = String(req.body?.field ?? "");
+      if (!["published", "featured"].includes(field)) throw new HttpError(400, "Invalid field");
+      const doc = await model.findOne({ id });
+      if (!doc) throw new HttpError(404, `${label} not found`);
+      const current = doc[field];
+      doc[field] = !current;
+      await doc.save();
+      await log("toggle", id, `${field} \u2192 ${!current}`, req.admin?.email);
+      res.json(doc.toJSON());
+    })
+  );
+  r.delete(
+    "/:id",
+    parseNumericId,
+    asyncHandler(async (req, res) => {
+      const id = getId(req);
+      const doc = await model.findOneAndDelete({ id });
+      if (!doc) throw new HttpError(404, `${label} not found`);
+      await log("delete", id, String(doc[slugFrom ?? "id"] ?? id), req.admin?.email);
+      res.json({ ok: true });
+    })
+  );
+  r.post(
+    "/reorder",
+    asyncHandler(async (req, res) => {
+      const ids = Array.isArray(req.body?.ids) ? req.body.ids : [];
+      if (!ids.length || ids.length > 500 || !ids.every((v) => Number.isInteger(v))) {
+        throw new HttpError(400, "ids must be a list of integers");
+      }
+      await model.bulkWrite(
+        ids.map((id, sortOrder) => ({
+          updateOne: { filter: { id }, update: { $set: { sortOrder } } }
+        }))
+      );
+      res.json({ ok: true });
+    })
+  );
+  return r;
+}
+
+// server/routes/users.ts
+import { Router as Router2 } from "express";
+import bcrypt from "bcryptjs";
+var usersRouter = Router2();
+var strip = (doc) => {
+  delete doc._id;
+  delete doc.passwordHash;
+  return doc;
+};
+usersRouter.get(
+  "/",
+  asyncHandler(async (_req, res) => {
+    const items = await AdminUserModel.find().sort({ createdAt: 1 }).lean({ transform: strip });
+    res.json({ items });
+  })
+);
+usersRouter.post(
+  "/",
+  validateBody(adminUserCreateSchema),
+  asyncHandler(async (req, res) => {
+    const { email, name, role, password: password2 } = req.body;
+    const exists = await AdminUserModel.exists({ email });
+    if (exists) throw new HttpError(409, "A user with this email already exists", { email: "Already in use" });
+    const passwordHash = await bcrypt.hash(password2, 12);
+    const user = await AdminUserModel.create({ email, name, role, passwordHash, active: true });
+    await ActivityModel.create({ action: "create", entity: "admin-user", targetId: String(user._id), summary: email, actor: req.admin?.email });
+    res.status(201).json(strip(user.toObject()));
+  })
+);
+usersRouter.patch(
+  "/:id",
+  validateBody(adminUserUpdateSchema),
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const body = req.body;
+    if (String(req.admin?.sub) === id) {
+      if (body.role === "editor") throw new HttpError(400, "You can't remove your own owner access");
+      if (body.active === false) throw new HttpError(400, "You can't disable your own account");
+    }
+    const update = {};
+    if (body.name !== void 0) update.name = body.name;
+    if (body.role !== void 0) update.role = body.role;
+    if (body.active !== void 0) update.active = body.active;
+    if (body.password) update.passwordHash = await bcrypt.hash(body.password, 12);
+    const user = await AdminUserModel.findByIdAndUpdate(id, { $set: update }, { new: true });
+    if (!user) throw new HttpError(404, "User not found");
+    await ActivityModel.create({
+      action: "update",
+      entity: "admin-user",
+      targetId: id,
+      summary: Object.keys(update).filter((k) => k !== "passwordHash").join(", ") || "password",
+      actor: req.admin?.email
+    });
+    res.json(strip(user.toObject()));
+  })
+);
+usersRouter.delete(
+  "/:id",
+  asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    if (String(req.admin?.sub) === id) throw new HttpError(400, "You can't delete your own account");
+    const ownerCount = await AdminUserModel.countDocuments({ role: "owner", active: true });
+    const target = await AdminUserModel.findById(id);
+    if (!target) throw new HttpError(404, "User not found");
+    if (target.role === "owner" && ownerCount <= 1) throw new HttpError(400, "At least one active owner must remain");
+    await target.deleteOne();
+    await ActivityModel.create({ action: "delete", entity: "admin-user", targetId: id, summary: target.email, actor: req.admin?.email });
+    res.json({ ok: true });
+  })
+);
+var selfRouter = Router2();
+selfRouter.post(
+  "/change-password",
+  validateBody(changePasswordSchema),
+  asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    const user = await AdminUserModel.findById(req.admin?.sub).select("+passwordHash");
+    if (!user || !await bcrypt.compare(currentPassword, user.passwordHash)) {
+      throw new HttpError(401, "Current password is incorrect");
+    }
+    user.passwordHash = await bcrypt.hash(newPassword, 12);
+    await user.save();
+    res.json({ ok: true });
+  })
+);
+
+// server/routes/admin.ts
+var adminRouter = Router3();
+var loginSchema = z2.object({
+  email: z2.string().trim().email().max(200),
+  password: z2.string().min(8).max(200)
+});
+adminRouter.post(
+  "/auth/login",
+  loginLimiter,
+  validateBody(loginSchema),
+  asyncHandler(async (req, res) => {
+    if (!config.adminAuth) return res.json({ ok: true, authDisabled: true });
+    const { email, password: password2 } = req.body;
+    const user = await AdminUserModel.findOne({ email }).select("+passwordHash");
+    if (!user || !user.active || !await bcrypt2.compare(password2, user.passwordHash)) {
+      throw new HttpError(401, "Invalid email or password");
+    }
+    user.lastLoginAt = /* @__PURE__ */ new Date();
+    await user.save();
+    const token = signAdminToken({ sub: String(user._id), email: user.email, role: user.role });
+    res.cookie(ADMIN_COOKIE, token, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: config.isProd,
+      maxAge: 12 * 60 * 60 * 1e3,
+      path: "/api/admin"
+    });
+    res.json({ ok: true, user: { email: user.email, name: user.name, role: user.role } });
+  })
+);
+adminRouter.post("/auth/logout", (_req, res) => {
+  res.clearCookie(ADMIN_COOKIE, { path: "/api/admin" });
+  res.json({ ok: true });
+});
+adminRouter.get(
+  "/auth/me",
+  asyncHandler(async (req, res) => {
+    if (!config.adminAuth) return res.json({ authDisabled: true, user: { email: "admin@local", name: "Admin", role: "owner" } });
+    await new Promise((resolve, reject) => requireAdmin(req, res, (e) => e ? reject(e) : resolve()));
+    const user = await AdminUserModel.findById(req.admin?.sub).lean();
+    res.json({ authDisabled: false, user: { email: req.admin?.email, role: req.admin?.role, name: user?.name ?? "" } });
+  })
+);
+adminRouter.use(adminLimiter, requireAdmin);
+adminRouter.use("/users", requireOwner, usersRouter);
+adminRouter.use("/self", selfRouter);
+adminRouter.get(
+  "/dashboard",
+  asyncHandler(async (_req, res) => {
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1e3);
+    const [destinations2, packages2, itineraries, blogPosts2, testimonials2, leadsTotal, leadsNew, leadsWeek, media, recentLeads, activity] = await Promise.all([
+      DestinationModel.countDocuments(),
+      PackageModel.countDocuments(),
+      ItineraryModel.countDocuments(),
+      BlogPostModel.countDocuments(),
+      TestimonialModel.countDocuments(),
+      LeadModel.countDocuments(),
+      LeadModel.countDocuments({ status: "new" }),
+      LeadModel.countDocuments({ createdAt: { $gte: weekAgo } }),
+      MediaModel.countDocuments(),
+      LeadModel.find().sort({ createdAt: -1 }).limit(6).lean({ transform: strip2 }),
+      ActivityModel.find().sort({ createdAt: -1 }).limit(10).lean({ transform: strip2 })
+    ]);
+    res.json({
+      destinations: destinations2,
+      packages: packages2,
+      itineraries,
+      blogPosts: blogPosts2,
+      testimonials: testimonials2,
+      leads: { total: leadsTotal, new: leadsNew, thisWeek: leadsWeek },
+      media,
+      recentLeads,
+      activity
+    });
+  })
+);
+function strip2(doc) {
+  delete doc._id;
+  return doc;
+}
+adminRouter.use(
+  "/destinations",
+  crudRouter({
+    model: DestinationModel,
+    counterName: "destination",
+    schema: destinationSchema,
+    slugFrom: "name",
+    searchFields: ["name", "category", "country"],
+    label: "destination"
+  })
+);
+adminRouter.use(
+  "/packages",
+  crudRouter({
+    model: PackageModel,
+    counterName: "package",
+    schema: packageSchema,
+    slugFrom: "title",
+    searchFields: ["title", "destinationName", "category"],
+    label: "package",
+    // destinationName ko destinationId se sync rakho — admin ko do jagah nahi likhna padega
+    async beforeSave(data) {
+      const destId = Number(data.destinationId);
+      if (destId > 0) {
+        const dest = await DestinationModel.findOne({ id: destId }).lean();
+        if (dest) data.destinationName = dest.name;
+      }
+    }
+  })
+);
+adminRouter.use(
+  "/itineraries",
+  crudRouter({
+    model: ItineraryModel,
+    counterName: "itinerary",
+    schema: itinerarySchema,
+    slugFrom: "title",
+    sort: { id: 1 },
+    searchFields: ["title", "route"],
+    label: "itinerary"
+  })
+);
+adminRouter.use(
+  "/blog",
+  crudRouter({
+    model: BlogPostModel,
+    counterName: "blogPost",
+    schema: blogPostSchema,
+    slugFrom: "title",
+    sort: { publishedAt: -1, id: -1 },
+    searchFields: ["title", "category", "author"],
+    label: "blogPost"
+  })
+);
+adminRouter.use(
+  "/testimonials",
+  crudRouter({
+    model: TestimonialModel,
+    counterName: "testimonial",
+    schema: testimonialSchema,
+    searchFields: ["name", "destination", "location"],
+    label: "testimonial"
+  })
+);
+adminRouter.get(
+  "/settings",
+  asyncHandler(async (_req, res) => {
+    res.json(await getSettings());
+  })
+);
+adminRouter.put(
+  "/settings",
+  validateBody(siteSettingsPatchSchema),
+  asyncHandler(async (req, res) => {
+    const current = await getSettings();
+    const merged = deepMerge(current, req.body);
+    await saveSettings(merged);
+    await ActivityModel.create({
+      action: "update",
+      entity: "settings",
+      targetId: "site",
+      summary: Object.keys(req.body).join(", "),
+      actor: req.admin?.email
+    });
+    res.json(merged);
+  })
+);
+function deepMerge(base, patch) {
+  const out = { ...base };
+  for (const [k, v] of Object.entries(patch)) {
+    if (v === void 0) continue;
+    const b = out[k];
+    if (v && typeof v === "object" && !Array.isArray(v) && b && typeof b === "object" && !Array.isArray(b)) {
+      out[k] = deepMerge(b, v);
+    } else {
+      out[k] = v;
+    }
+  }
+  return out;
+}
+adminRouter.get(
+  "/leads",
+  asyncHandler(async (req, res) => {
+    const status = String(req.query.status ?? "");
+    const type = String(req.query.type ?? "");
+    const page = Math.max(1, Number(req.query.page ?? 1) || 1);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit ?? 50) || 50));
+    const filter = {};
+    if (["new", "contacted", "converted", "closed"].includes(status)) filter.status = status;
+    if (["booking", "contact", "newsletter"].includes(type)) filter.type = type;
+    const [items, total] = await Promise.all([
+      LeadModel.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean({ transform: strip2 }),
+      LeadModel.countDocuments(filter)
+    ]);
+    res.json({ items, total, page, limit });
+  })
+);
+adminRouter.patch(
+  "/leads/:id",
+  parseNumericId,
+  validateBody(leadUpdateSchema),
+  asyncHandler(async (req, res) => {
+    const doc = await LeadModel.findOneAndUpdate({ id: getId(req) }, { $set: req.body }, { new: true });
+    if (!doc) throw new HttpError(404, "Lead not found");
+    res.json(doc.toJSON());
+  })
+);
+adminRouter.delete(
+  "/leads/:id",
+  parseNumericId,
+  asyncHandler(async (req, res) => {
+    const doc = await LeadModel.findOneAndDelete({ id: getId(req) });
+    if (!doc) throw new HttpError(404, "Lead not found");
+    res.json({ ok: true });
+  })
+);
+adminRouter.get(
+  "/media",
+  asyncHandler(async (req, res) => {
+    const kind = String(req.query.kind ?? "");
+    const page = Math.max(1, Number(req.query.page ?? 1) || 1);
+    const limit = Math.min(100, Math.max(1, Number(req.query.limit ?? 60) || 60));
+    const filter = {};
+    if (["image", "pdf", "video"].includes(kind)) filter.kind = kind;
+    const [items, total] = await Promise.all([
+      MediaModel.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean({ transform: strip2 }),
+      MediaModel.countDocuments(filter)
+    ]);
+    res.json({ items, total, page, limit });
+  })
+);
+adminRouter.post(
+  "/media",
+  uploadLimiter,
+  upload.single("file"),
+  asyncHandler(async (req, res) => {
+    if (!req.file) throw new HttpError(400, "No file uploaded (field name: file)");
+    const stored = await storeFile(req.file);
+    const doc = await MediaModel.create({
+      id: await nextId("media"),
+      ...stored,
+      originalName: req.file.originalname.slice(0, 200)
+    });
+    await ActivityModel.create({
+      action: "upload",
+      entity: "media",
+      targetId: String(doc.id),
+      summary: doc.originalName,
+      actor: req.admin?.email
+    });
+    res.status(201).json(doc.toJSON());
+  })
+);
+adminRouter.delete(
+  "/media/:id",
+  parseNumericId,
+  asyncHandler(async (req, res) => {
+    const doc = await MediaModel.findOneAndDelete({ id: getId(req) });
+    if (!doc) throw new HttpError(404, "Media not found");
+    await deleteStoredFile(doc.url);
+    res.json({ ok: true });
+  })
+);
+adminRouter.get(
+  "/activity",
+  asyncHandler(async (_req, res) => {
+    const items = await ActivityModel.find().sort({ createdAt: -1 }).limit(100).lean({ transform: strip2 });
+    res.json({ items });
+  })
+);
+adminRouter.get(
+  "/export",
+  requireOwner,
+  asyncHandler(async (_req, res) => {
+    const [destinations2, packages2, itineraries, blogPosts2, testimonials2, settings] = await Promise.all([
+      DestinationModel.find().lean({ transform: strip2 }),
+      PackageModel.find().lean({ transform: strip2 }),
+      ItineraryModel.find().lean({ transform: strip2 }),
+      BlogPostModel.find().lean({ transform: strip2 }),
+      TestimonialModel.find().lean({ transform: strip2 }),
+      getSettings()
+    ]);
+    res.setHeader("Content-Disposition", `attachment; filename="wanderly-backup-${(/* @__PURE__ */ new Date()).toISOString().slice(0, 10)}.json"`);
+    res.json({ version: 2, exportedAt: (/* @__PURE__ */ new Date()).toISOString(), destinations: destinations2, packages: packages2, itineraries, blogPosts: blogPosts2, testimonials: testimonials2, settings });
+  })
+);
+adminRouter.post(
+  "/seed",
+  requireOwner,
+  asyncHandler(async (_req, res) => {
+    res.json(await seedIfEmpty());
+  })
+);
+
+// server/routes/public.ts
+import { Router as Router4 } from "express";
+var publicRouter = Router4();
+publicRouter.use(publicLimiter);
+var strip3 = (doc) => {
+  delete doc._id;
+  delete doc.createdAt;
+  delete doc.updatedAt;
+  return doc;
+};
+var cache = null;
+var CACHE_MS = 30 * 1e3;
+function invalidateContentCache() {
+  cache = null;
+}
+publicRouter.get(
+  "/content",
+  asyncHandler(async (_req, res) => {
+    if (cache && Date.now() - cache.at < CACHE_MS) {
+      res.setHeader("Cache-Control", "public, max-age=30");
+      return res.json(cache.data);
+    }
+    const pub = { published: true };
+    const [destinations2, packages2, blogPosts2, testimonials2, itineraries, settings] = await Promise.all([
+      DestinationModel.find(pub).sort({ sortOrder: 1, id: 1 }).lean({ transform: strip3 }),
+      PackageModel.find(pub).sort({ sortOrder: 1, id: 1 }).lean({ transform: strip3 }),
+      BlogPostModel.find(pub).sort({ publishedAt: -1, id: -1 }).lean({ transform: strip3 }),
+      TestimonialModel.find(pub).sort({ sortOrder: 1, id: 1 }).lean({ transform: strip3 }),
+      ItineraryModel.find(pub).sort({ id: 1 }).lean({ transform: strip3 }),
+      getSettings()
+    ]);
+    const data = { destinations: destinations2, packages: packages2, blogPosts: blogPosts2, testimonials: testimonials2, itineraries, settings };
+    cache = { at: Date.now(), data };
+    res.setHeader("Cache-Control", "public, max-age=30");
+    res.json(data);
+  })
+);
+publicRouter.get(
+  "/itineraries/:slug",
+  asyncHandler(async (req, res) => {
+    const slug2 = String(req.params.slug).slice(0, 120);
+    const doc = await ItineraryModel.findOne({ slug: slug2, published: true }).lean({ transform: strip3 });
+    if (!doc) throw new HttpError(404, "Itinerary not found");
+    res.json(doc);
+  })
+);
+publicRouter.post(
+  "/leads",
+  formLimiter,
+  validateBody(publicLeadSchema),
+  asyncHandler(async (req, res) => {
+    const body = req.body;
+    delete body.website;
+    if (body.type === "newsletter" && !body.email) throw new HttpError(400, "Email required");
+    if (body.type !== "newsletter" && !body.name) throw new HttpError(400, "Name required");
+    const doc = await LeadModel.create({ id: await nextId("lead"), ...body, status: "new" });
+    res.status(201).json({ ok: true, id: doc.id });
+  })
+);
+
+// server/app.ts
+function createApp() {
+  const app2 = express();
+  app2.disable("x-powered-by");
+  app2.set("trust proxy", 1);
+  app2.use(
+    helmet({
+      // Site khud Unsplash/YouTube etc. se assets leti hai — CSP ko site ke liye relax rakha,
+      // API responses pe baaki headers (nosniff, frameguard, HSTS) lagte hain.
+      contentSecurityPolicy: false,
+      crossOriginResourcePolicy: { policy: "cross-origin" },
+      crossOriginEmbedderPolicy: false
+    })
+  );
+  app2.use(
+    cors({
+      origin(origin, cb) {
+        if (!origin) return cb(null, true);
+        if (config.corsOrigins.includes(origin)) return cb(null, true);
+        if (!config.isProd && /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?$/.test(origin)) return cb(null, true);
+        cb(new Error("Not allowed by CORS"));
+      },
+      credentials: true
+    })
+  );
+  app2.use(compression());
+  app2.use(cookieParser());
+  app2.use(express.json({ limit: "2mb" }));
+  app2.use(express.urlencoded({ extended: false, limit: "100kb" }));
+  app2.use(sanitizeInput);
+  app2.get("/api/health", (_req, res) => res.json({ ok: true, env: config.env, auth: config.adminAuth }));
+  app2.use("/api/public", publicRouter);
+  app2.use("/api/admin", (req, res, next) => {
+    if (req.method !== "GET") res.on("finish", () => res.statusCode < 400 && invalidateContentCache());
+    next();
+  });
+  app2.use("/api/admin", adminRouter);
+  app2.use(
+    "/uploads",
+    express.static(config.uploadDir, {
+      dotfiles: "deny",
+      index: false,
+      maxAge: "30d",
+      setHeaders(res, filePath) {
+        if (filePath.endsWith(".pdf")) res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("X-Content-Type-Options", "nosniff");
+      }
+    })
+  );
+  app2.all("/api/{*rest}", (_req, res) => res.status(404).json({ error: "Not found" }));
+  if (fs2.existsSync(path3.join(config.staticDir, "index.html"))) {
+    app2.use(express.static(config.staticDir, { index: false, maxAge: "1h" }));
+    app2.get("{*rest}", (_req, res) => {
+      res.sendFile(path3.join(config.staticDir, "index.html"));
+    });
+  }
+  app2.use(errorHandler);
+  return app2;
+}
+
+// server/db.ts
+import mongoose2 from "mongoose";
+var memoryServer = null;
+async function connectDb() {
+  if (mongoose2.connection.readyState === 1) return mongoose2;
+  if (global.__wtMongoConn) return global.__wtMongoConn;
+  mongoose2.set("strictQuery", true);
+  mongoose2.set("strict", true);
+  let uri = config.mongoUri;
+  if (!uri) {
+    if (!config.allowMemoryDb) {
+      throw new Error("MONGODB_URI missing. Set it in .env (MongoDB Atlas ka connection string).");
+    }
+    const { MongoMemoryServer } = await import("mongodb-memory-server");
+    const mem = await MongoMemoryServer.create({
+      instance: { launchTimeout: 12e4, dbName: "wanderly" },
+      // 8.x macOS 14+ maangta hai; 7.0 purane Mac pe bhi chalta hai
+      binary: { version: process.env.MONGOMS_VERSION ?? "7.0.14" }
+    });
+    memoryServer = mem;
+    uri = mem.getUri("wanderly");
+    console.warn("[db] MONGODB_URI not set \u2014 using in-memory MongoDB (data is NOT persisted).");
+  }
+  global.__wtMongoConn = mongoose2.connect(uri, {
+    serverSelectionTimeoutMS: 1e4,
+    maxPoolSize: config.isServerless ? 5 : 10,
+    bufferCommands: false
+  }).then((conn) => {
+    console.log(`[db] connected (${memoryServer ? "memory" : "mongodb"})`);
+    return conn;
+  }).catch((err) => {
+    global.__wtMongoConn = void 0;
+    throw err;
+  });
+  return global.__wtMongoConn;
+}
+
+// server/serverless.ts
+var app = createApp();
+async function handler(req, res) {
+  try {
+    await connectDb();
+  } catch (err) {
+    console.error("[api] DB connection failed:", err.message);
+    res.statusCode = 503;
+    res.setHeader("Content-Type", "application/json");
+    res.end(JSON.stringify({ error: "Service temporarily unavailable" }));
+    return;
+  }
+  app(req, res);
+}
+export {
+  handler as default
+};
