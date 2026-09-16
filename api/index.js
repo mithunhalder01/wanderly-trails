@@ -168,6 +168,9 @@ function errorHandler(err, _req, res, _next) {
     return res.status(err.status).json({ error: err.message, details: err.details });
   }
   const e = err;
+  if (e?.message === "Not allowed by CORS") {
+    return res.status(403).json({ error: "Origin not allowed" });
+  }
   if (e?.code === "LIMIT_FILE_SIZE") {
     return res.status(413).json({ error: "File too large" });
   }
@@ -3490,6 +3493,7 @@ function createApp() {
     cors({
       origin(origin, cb) {
         if (!origin) return cb(null, true);
+        if (config.corsOrigins.length === 0) return cb(null, true);
         if (config.corsOrigins.includes(origin)) return cb(null, true);
         if (!config.isProd && /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?$/.test(origin)) return cb(null, true);
         cb(new Error("Not allowed by CORS"));

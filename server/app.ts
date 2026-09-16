@@ -30,8 +30,11 @@ export function createApp() {
   app.use(
     cors({
       origin(origin, cb) {
-        // Same-origin requests me Origin header nahi hota → allow
-        if (!origin) return cb(null, true);
+        // Browser same-origin fetch/POST ke saath bhi Origin header bhejta hai —
+        // usse reject karna galat hai. Site + API ek hi Vercel deployment pe
+        // hone se koi genuine cross-origin restriction chahiye hi nahi by default.
+        if (!origin) return cb(null, true); // no Origin header (same-origin ya non-browser client)
+        if (config.corsOrigins.length === 0) return cb(null, true); // explicit allowlist nahi di → sab allow
         if (config.corsOrigins.includes(origin)) return cb(null, true);
         if (!config.isProd && /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?$/.test(origin)) return cb(null, true);
         cb(new Error("Not allowed by CORS"));

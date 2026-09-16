@@ -43,7 +43,7 @@ const baseOptions = {
       return ret;
     },
   },
-};
+} as const;
 
 /* ---------- Destination ---------- */
 

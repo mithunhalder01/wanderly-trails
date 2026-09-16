@@ -62,6 +62,9 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   }
   // multer file size / type errors
   const e = err as { code?: string; message?: string; status?: number; type?: string };
+  if (e?.message === "Not allowed by CORS") {
+    return res.status(403).json({ error: "Origin not allowed" });
+  }
   if (e?.code === "LIMIT_FILE_SIZE") {
     return res.status(413).json({ error: "File too large" });
   }
