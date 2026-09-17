@@ -459,6 +459,12 @@ function looksLikePdf(buf) {
   return buf.subarray(0, 5).toString("latin1") === "%PDF-";
 }
 async function persist(kind, filename, buffer, contentType) {
+  if (config.isServerless && !config.blobToken) {
+    throw new HttpError(
+      503,
+      "File uploads are not set up yet. In Vercel: Storage \u2192 Create Database \u2192 Blob, then redeploy."
+    );
+  }
   if (config.blobToken) {
     const { put } = await import("@vercel/blob");
     const blob = await put(`${kind}/${filename}`, buffer, {

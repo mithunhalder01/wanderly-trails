@@ -54,6 +54,14 @@ export interface StoredFile {
  * - warna local `uploads/` folder (local dev ke liye, koi extra setup nahi chahiye)
  */
 async function persist(kind: "images" | "pdf" | "video", filename: string, buffer: Buffer, contentType: string): Promise<string> {
+  if (config.isServerless && !config.blobToken) {
+    // Vercel serverless filesystem read-only hai — local disk pe likhna hamesha
+    // fail hoga. Ek saaf error do taaki pata chale kya missing hai, silent crash nahi.
+    throw new HttpError(
+      503,
+      "File uploads are not set up yet. In Vercel: Storage → Create Database → Blob, then redeploy.",
+    );
+  }
   if (config.blobToken) {
     const { put } = await import("@vercel/blob");
     const blob = await put(`${kind}/${filename}`, buffer, {
