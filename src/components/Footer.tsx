@@ -136,16 +136,6 @@ export default function Footer() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 sm:flex-row sm:px-6 lg:px-8">
           <p className="text-sm text-secondary-foreground/50">
             © {new Date().getFullYear()} Wanderly Trails. All rights reserved.
-            <span className="mx-2 text-secondary-foreground/25">·</span>
-            Developed by{" "}
-            <a
-              href="https://mithun-webdev.vercel.app/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-secondary-foreground/70 underline-offset-4 transition-colors hover:text-amber-500 hover:underline"
-            >
-              Mithun
-            </a>
           </p>
 
           <div className="flex gap-6">
